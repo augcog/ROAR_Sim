@@ -1,0 +1,234 @@
+# Copyright (c) # Copyright (c) 2018-2020 CVC.
+# Modified version from Carla PID controller
+# https://github.com/carla-simulator/carla/blob/master/PythonAPI/carla/agents/navigation/controller.py
+# This work is licensed under the terms of the MIT license.
+# For a copy, see <https://opensource.org/licenses/MIT>.
+
+""" This module contains PID controllers to perform lateral and longitudinal control. """
+
+from roar_autonomous_system.control.controller import Controller
+from roar_autonomous_system.util.models import Control, Vehicle, Transform, Location
+from roar_autonomous_system.control.util import PIDParam
+from collections import deque
+import numpy as np
+import math
+import logging
+
+
+class VehiclePIDController(Controller):
+    """
+    VehiclePIDController is the combination of two PID controllers
+    (lateral and longitudinal) to perform the
+    low level control a vehicle from client side
+    """
+
+    def __init__(self,
+                 vehicle: Vehicle,
+                 args_lateral: PIDParam,
+                 args_longitudinal: PIDParam,
+                 target_speed=float("inf"),
+                 max_throttle=1,
+                 max_brake=0.3,
+                 max_steering=1):
+        """
+        Constructor method.
+
+        :param vehicle: actor to apply to local planner logic onto
+        :param args_lateral: dictionary of arguments to set the lateral PID control
+        using the following semantics:
+            K_P -- Proportional term
+            K_D -- Differential term
+            K_I -- Integral term
+        :param args_longitudinal: dictionary of arguments to set the longitudinal
+        PID control using the following semantics:
+            K_P -- Proportional term
+            K_D -- Differential term
+            K_I -- Integral term
+        """
+
+        super().__init__(vehicle)
+        self.logger = logging.Logger(__name__)
+        self.max_brake = max_brake
+        self.max_throt = max_throttle
+        self.max_steer = max_steering
+
+        self.target_speed = target_speed
+
+        self.past_steering = self.vehicle.control.steering
+        self._lon_controller = PIDLongitudinalController(self.vehicle,
+                                                         K_P=args_longitudinal.K_P,
+                                                         K_D=args_longitudinal.K_D,
+                                                         K_I=args_longitudinal.K_I,
+                                                         dt=args_longitudinal.dt)
+        self._lat_controller = PIDLateralController(self.vehicle,
+                                                    K_P=args_lateral.K_P,
+                                                    K_D=args_lateral.K_D,
+                                                    K_I=args_lateral.K_I,
+                                                    dt=args_lateral.dt)
+        self.logger.debug("PID Controller initiated")
+
+    def run_step(self, next_waypoint: Transform) -> Control:
+        """
+        Execute one step of control invoking both lateral and longitudinal
+        PID controllers to reach a target waypoint
+        at a given target_speed.
+
+            :param next_waypoint: target location encoded as a waypoint
+            :param target_speed: desired vehicle speed
+            :return: distance (in meters) to the waypoint
+        """
+        self._lon_controller.vehicle = self.vehicle
+        self._lat_controller.vehicle=self.vehicle
+        acceleration = self._lon_controller.run_step(self.target_speed)
+        current_steering = self._lat_controller.run_step(next_waypoint)
+        control = Control()
+
+        if acceleration >= 0.0:
+            control.throttle = min(acceleration, self.max_throt)
+            # control.brake = 0.0
+        else:
+            control.throttle = 0
+            # control.brake = min(abs(acceleration), self.max_brake)
+
+        # Steering regulation: changes cannot happen abruptly, can't steer too much.
+        if current_steering > self.past_steering + 0.1:
+            current_steering = self.past_steering + 0.1
+        elif current_steering < self.past_steering - 0.1:
+            current_steering = self.past_steering - 0.1
+
+        if current_steering >= 0:
+            steering = min(self.max_steer, current_steering)
+        else:
+            steering = max(-self.max_steer, current_steering)
+
+        control.steering = steering
+        # control.hand_brake = False
+        # control.manual_gear_shift = False
+        self.past_steering = steering
+        return control
+
+
+class PIDLongitudinalController:
+    """
+    PIDLongitudinalController implements longitudinal control using a PID.
+    """
+
+    def __init__(self, vehicle: Vehicle, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
+        """
+        Constructor method.
+
+            :param vehicle: actor to apply to local planner logic onto
+            :param K_P: Proportional term
+            :param K_D: Differential term
+            :param K_I: Integral term
+            :param dt: time differential in seconds
+        """
+        self.vehicle = vehicle
+        self._k_p = K_P
+        self._k_d = K_D
+        self._k_i = K_I
+        self._dt = dt
+        self._error_buffer = deque(maxlen=10)
+
+    def run_step(self, target_speed):
+        """
+        Execute one step of longitudinal control to reach a given target speed.
+
+            :param target_speed: target speed in Km/h
+            :param debug: boolean for debugging
+            :return: throttle control
+        """
+        current_speed = Vehicle.get_speed(self.vehicle)
+        return self._pid_control(target_speed, current_speed)
+
+    def _pid_control(self, target_speed, current_speed) -> float:
+        """
+        Estimate the throttle/brake of the vehicle based on the PID equations
+
+            :param target_speed:  target speed in Km/h
+            :param current_speed: current speed of the vehicle in Km/h
+            :return: throttle/brake control
+        """
+
+        error = target_speed - current_speed
+        self._error_buffer.append(error)
+
+        if len(self._error_buffer) >= 2:
+            _de = (self._error_buffer[-1] - self._error_buffer[-2]) / self._dt
+            _ie = sum(self._error_buffer) * self._dt
+        else:
+            _de = 0.0
+            _ie = 0.0
+        output = float(np.clip((self._k_p * error) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0))
+        return output
+
+
+class PIDLateralController:
+    """
+    PIDLateralController implements lateral control using a PID.
+    """
+
+    def __init__(self, vehicle, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
+        """
+        Constructor method.
+
+            :param vehicle: actor to apply to local planner logic onto
+            :param K_P: Proportional term
+            :param K_D: Differential term
+            :param K_I: Integral term
+            :param dt: time differential in seconds
+        """
+        self.vehicle:Vehicle = vehicle
+        self._k_p = K_P
+        self._k_d = K_D
+        self._k_i = K_I
+        self._dt = dt
+        self._e_buffer = deque(maxlen=10)
+
+    def run_step(self, target_waypoint: Transform) -> float:
+        """
+        Execute one step of lateral control to steer
+        the vehicle towards a certain waypoin.
+
+            :param target_waypoint:
+            :return: steering control in the range [-1, 1] where:
+            -1 maximum steering to left
+            +1 maximum steering to right
+        """
+        return self._pid_control(target_waypoint=target_waypoint, vehicle_transform=self.vehicle.transform)
+
+    def _pid_control(self, target_waypoint, vehicle_transform) -> float:
+        """
+        Estimate the steering angle of the vehicle based on the PID equations
+
+            :param target_waypoint: target waypoint
+            :param vehicle_transform: current transform of the vehicle
+            :return: steering control in the range [-1, 1]
+        """
+        # calculate a vector that represent where you are going
+        v_begin = vehicle_transform.location
+        v_end = v_begin + Location(x=math.cos(math.radians(vehicle_transform.rotation.yaw)),
+                                   y=math.sin(math.radians(vehicle_transform.rotation.yaw)),
+                                   z=0)
+        v_vec = np.array([v_end.x - v_begin.x, v_end.y - v_begin.y, 0.0])
+
+        # calculate error projection
+        w_vec = np.array([target_waypoint.location.x - v_begin.x,
+                          target_waypoint.location.y - v_begin.y,
+                          0.0])
+        _dot = math.acos(np.clip(np.dot(w_vec, v_vec) / (np.linalg.norm(w_vec) * np.linalg.norm(v_vec)), -1.0, 1.0))
+
+        _cross = np.cross(v_vec, w_vec)
+
+        if _cross[2] < 0:
+            _dot *= -1.0
+
+        self._e_buffer.append(_dot)
+        if len(self._e_buffer) >= 2:
+            _de = (self._e_buffer[-1] - self._e_buffer[-2]) / self._dt
+            _ie = sum(self._e_buffer) * self._dt
+        else:
+            _de = 0.0
+            _ie = 0.0
+
+        return float(np.clip((self._k_p * _dot) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0))
