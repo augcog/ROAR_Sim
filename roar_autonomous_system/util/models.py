@@ -28,6 +28,7 @@ class Rotation(BaseModel):
     def __str__(self):
         return f"{self.pitch},{self.yaw},{self.roll}"
 
+
 class Transform(BaseModel):
     location: Location = Field(default=Location(x=0, y=0, z=0))
     rotation: Rotation = Field(default=Rotation(pitch=0, yaw=0, roll=0))
@@ -79,9 +80,9 @@ class IMUData(BaseModel):
 
 
 class SensorData(BaseModel):
-    rgb: RGBData = Field(default=np.asarray([]))
-    depth: DepthData = Field(default=np.asarray([]))
-    imu_data = Field(default=IMUData())
+    rgb: Union[RGBData, None] = Field(default=None)
+    depth: Union[DepthData, None] = Field(default=None)
+    imu_data: Union[IMUData, None] = Field(default=None)
 
 
 class Vehicle(BaseModel):

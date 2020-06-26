@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from util.utilities import CarlaWeathers, CarlaWeather, CarlaCarColors, CarlaCarColor
+from carla_client.util.utilities import CarlaWeathers, CarlaWeather, CarlaCarColors, CarlaCarColor
 import os
 from pathlib import Path
 

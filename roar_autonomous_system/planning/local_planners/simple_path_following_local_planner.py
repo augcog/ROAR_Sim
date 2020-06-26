@@ -7,6 +7,7 @@ import logging
 from typing import Union
 from roar_autonomous_system.util.errors import AgentException
 
+
 class SimplePathFollowingLocalPlanner(LocalPlanner):
     def __init__(self, vehicle: Vehicle, controller: Controller, mission_planner: MissionPlanner,
                  behavior_planner: BehaviorPlanner, closeness_threshold=0.5):
@@ -33,7 +34,7 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
         return len(self.way_points_queue) == 0
 
     def run_step(self) -> Control:
-        self.controller.vehicle = self.vehicle  # on every run step, sync vehicle with lower level
+        self.sync()  # on every run step, sync vehicle with lower level
         if len(self.mission_planner.mission_plan) == 0 and len(self.way_points_queue) == 0:
             return Control()
 
@@ -69,3 +70,6 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
             f"| Distance {int(curr_closest_dist)}")
 
         return control
+
+    def sync(self):
+        self.controller.vehicle = self.vehicle

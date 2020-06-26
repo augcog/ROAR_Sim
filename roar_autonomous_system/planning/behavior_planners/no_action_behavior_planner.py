@@ -10,3 +10,6 @@ class NoActionBehaviorPlanner(BehaviorPlanner):
 
     def generate_constraints(self):
         return None
+
+    def sync(self):
+        pass

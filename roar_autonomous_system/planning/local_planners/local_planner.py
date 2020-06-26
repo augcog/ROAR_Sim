@@ -5,16 +5,13 @@ from roar_autonomous_system.planning.behavior_planners.behavior_planner import B
 from collections import deque
 from roar_autonomous_system.util.models import Vehicle
 from roar_autonomous_system.control.controller import Controller
+from roar_autonomous_system.planning.planner import Planer
 
 
-class LocalPlanner(ABC):
-    def __init__(self,
-                 vehicle: Vehicle,
-                 controller: Controller,
-                 mission_planner: MissionPlanner = None,
-                 behavior_planner: BehaviorPlanner = None,
-                 closeness_threshold=0.5
-                 ):
+class LocalPlanner(Planer):
+    def __init__(self, vehicle: Vehicle, controller: Controller, mission_planner: MissionPlanner = None,
+                 behavior_planner: BehaviorPlanner = None, closeness_threshold=0.5):
+        super().__init__()
         self.logger = logging.getLogger(__name__)
         self.vehicle: Vehicle = vehicle
         self.controller: Controller = controller
@@ -28,6 +25,7 @@ class LocalPlanner(ABC):
 
     @abstractmethod
     def run_step(self):
+        self.sync()
         pass
 
     @abstractmethod

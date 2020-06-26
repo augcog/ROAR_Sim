@@ -59,3 +59,6 @@ class PathFollowingMissionPlanner(MissionPlanner):
         x, y, z = line.split(",")
         x, y, z = float(x), float(y), float(z)
         return [x, y, z]
+
+    def sync(self):
+        pass

@@ -3,8 +3,9 @@ from abc import ABC, abstractmethod
 from roar_autonomous_system.util.models import Control, Vehicle
 from bridges.bridge import Bridge
 
+
 class Agent(ABC):
-    def __init__(self, vehicle: Vehicle, bridge:Bridge):
+    def __init__(self, vehicle: Vehicle, bridge: Bridge):
         self.logger = logging.Logger(__name__)
         self.bridge = bridge
         self.vehicle = vehicle
@@ -14,5 +15,10 @@ class Agent(ABC):
 
     @abstractmethod
     def run_step(self) -> Control:
+        self.sync()
         self.vehicle.control = Control()
         return self.vehicle.control
+
+    @abstractmethod
+    def sync(self):
+        pass

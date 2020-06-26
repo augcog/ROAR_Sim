@@ -10,4 +10,9 @@ class Controller(ABC):
 
     @abstractmethod
     def run_step(self, next_waypoint: Transform) -> Control:
+        self.sync()
         return Control()
+
+    @abstractmethod
+    def sync(self):
+        pass

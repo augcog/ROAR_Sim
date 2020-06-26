@@ -1,31 +1,33 @@
 import os
 import sys
 from pathlib import Path
+import logging
+import pygame
+from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
 
+
+"""
+    The import order like this is very important! 
+"""
 carla_client_folder_path = Path(os.getcwd()) / "carla_client"
 carla_client_egg_file_path = carla_client_folder_path / 'carla-0.9.9-py3.7-win-amd64.egg'
 if not carla_client_egg_file_path.is_file():
     raise FileNotFoundError("Please make sure carla client distribution is installed under the carla_client directory")
 sys.path.append(carla_client_egg_file_path.as_posix())
 sys.path.append(carla_client_folder_path.as_posix())
-import carla
-
 from carla_client.settings import CarlaSettings
 from carla_client.util.keyboard_control import KeyboardControl
 from carla_client.util.hud import HUD
 from carla_client.util.world import World
-import logging
-import pygame
-from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
-
-
 from bridges.carla_bridge import CarlaBridge
+import carla
 
 
 def game_loop(settings: CarlaSettings, logger: logging.Logger):
     pygame.init()
     pygame.font.init()
     world = None
+    client = None
     try:
         carla_bridge = CarlaBridge()
         agent = None
@@ -45,7 +47,7 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
         controller = KeyboardControl(world, settings.enable_autopilot, print_instruction=False)
 
         if settings.enable_autopilot:
-            agent = PathFollowingAgent(vehicle=carla_bridge.convert_source_vehicle_to_agent_vehicle(world.player),
+            agent = PathFollowingAgent(vehicle=carla_bridge.convert_vehicle_from_source_to_agent(world.player),
                                        route_file_path=Path(settings.data_file_path),
                                        bridge=carla_bridge,
                                        target_speed=40
@@ -62,9 +64,9 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             pygame.display.flip()
             if settings.enable_autopilot:
                 # this is cheating here
-                agent.vehicle = carla_bridge.convert_source_vehicle_to_agent_vehicle(world.player)
+                agent.vehicle = carla_bridge.convert_vehicle_from_source_to_agent(world.player)
                 agent_control = agent.run_step()
-                carla_control = carla_bridge.convert_agent_control_to_carla_control(agent_control)
+                carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
             world.player.apply_control(carla_control)
 
     except Exception as e:
@@ -73,7 +75,8 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
     finally:
         if world and world.recording_enabled:
             logger.debug("Stopping Recording")
-            client.stop_recorder()
+            if client is not None:
+                client.stop_recorder()
 
         logger.debug("Ending Game")
         if world is not None:

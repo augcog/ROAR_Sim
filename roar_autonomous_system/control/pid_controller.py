@@ -77,8 +77,7 @@ class VehiclePIDController(Controller):
             :param target_speed: desired vehicle speed
             :return: distance (in meters) to the waypoint
         """
-        self._lon_controller.vehicle = self.vehicle
-        self._lat_controller.vehicle=self.vehicle
+        self.sync()
         acceleration = self._lon_controller.run_step(self.target_speed)
         current_steering = self._lat_controller.run_step(next_waypoint)
         control = Control()
@@ -106,6 +105,10 @@ class VehiclePIDController(Controller):
         # control.manual_gear_shift = False
         self.past_steering = steering
         return control
+
+    def sync(self):
+        self._lon_controller.vehicle = self.vehicle
+        self._lat_controller.vehicle = self.vehicle
 
 
 class PIDLongitudinalController:
