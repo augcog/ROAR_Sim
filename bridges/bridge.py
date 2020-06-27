@@ -69,6 +69,3 @@ class Bridge(ABC):
     def convert_vector3d_from_agent_to_source(self, vector3d: Vector3D) -> Any:
         pass
 
-    @abstractmethod
-    def convert_vehicle_from_agent_to_source(self, vehicle: Vehicle) -> Any:
-        pass

@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 import carla
 import enum
 
+
 class CarlaCarColor(BaseModel):
     r: int = Field(default=0)
     g: int = Field(default=0)
@@ -53,7 +54,8 @@ class CarlaWeathers:
     SUNNY = CarlaWeather()
 
 
-
 def get_actor_display_name(actor, truncate=250):
     name = ' '.join(actor.type_id.replace('_', '.').title().split('.')[1:])
     return (name[:truncate - 1] + u'\u2026') if len(name) > truncate else name
+
+

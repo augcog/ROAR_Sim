@@ -4,7 +4,7 @@ from pathlib import Path
 import logging
 import pygame
 from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
-
+import cv2
 
 """
     The import order like this is very important! 
@@ -21,6 +21,21 @@ from carla_client.util.hud import HUD
 from carla_client.util.world import World
 from bridges.carla_bridge import CarlaBridge
 import carla
+from roar_autonomous_system.util.models import RGBData, DepthData, SensorData, Vehicle
+from typing import Union, Tuple
+
+
+def convert_data(world, carla_bridge) -> Tuple[SensorData, Vehicle]:
+    sensor_data: SensorData = carla_bridge.convert_sensor_data_from_source_to_agent(
+        {
+            "front_rgb": None if world.front_rgb_sensor_data is None else world.front_rgb_sensor_data,
+            "rear_rgb": None if world.rear_rgb_sensor_data is None else world.rear_rgb_sensor_data,
+            "front_depth": None if world.front_depth_sensor_data is None else world.front_depth_sensor_data,
+            "imu": world.imu_sensor
+        }
+    )
+    new_vehicle = carla_bridge.convert_vehicle_from_source_to_agent(world.player)
+    return sensor_data, new_vehicle
 
 
 def game_loop(settings: CarlaSettings, logger: logging.Logger):
@@ -45,7 +60,6 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
 
         logger.debug(f"Connecting Keyboard Controls")
         controller = KeyboardControl(world, settings.enable_autopilot, print_instruction=False)
-
         if settings.enable_autopilot:
             agent = PathFollowingAgent(vehicle=carla_bridge.convert_vehicle_from_source_to_agent(world.player),
                                        route_file_path=Path(settings.data_file_path),
@@ -55,6 +69,8 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()
         while True:
+            # make sure the program does not run above 40 frames per second
+            # this allow proper synchrony between server and client
             clock.tick_busy_loop(60)
             should_continue, carla_control = controller.parse_events(client=client, world=world, clock=clock)
             if not should_continue:
@@ -62,12 +78,20 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             world.tick(clock)
             world.render(display)
             pygame.display.flip()
+
+            sensor_data, new_vehicle = convert_data(world, carla_bridge)
             if settings.enable_autopilot:
-                # this is cheating here
-                agent.vehicle = carla_bridge.convert_vehicle_from_source_to_agent(world.player)
-                agent_control = agent.run_step()
+                agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
                 carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
             world.player.apply_control(carla_control)
+            if settings.show_sensors_data:
+                if world.front_rgb_sensor_data is not None:
+                    cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
+                if world.front_depth_sensor_data is not None:
+                    cv2.imshow('front_depth_data', sensor_data.front_depth.data)
+                if world.rear_rgb_sensor_data is not None:
+                    cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
+                cv2.waitKey(10)
 
     except Exception as e:
         logger.error(f"Safely exiting due to error: {e}")
@@ -96,7 +120,8 @@ def main():
     logger = logging.getLogger(__name__)
 
     settings = CarlaSettings()
-    settings.enable_autopilot = True
+    # settings.enable_autopilot = True
+    # settings.show_sensors_data = True
     try:
         game_loop(settings, logger)
     except KeyboardInterrupt:

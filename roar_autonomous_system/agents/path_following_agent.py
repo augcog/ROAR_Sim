@@ -6,7 +6,7 @@ from roar_autonomous_system.planning.local_planners.simple_path_following_local_
 from roar_autonomous_system.planning.behavior_planners.no_action_behavior_planner import NoActionBehaviorPlanner
 from roar_autonomous_system.planning.mission_planners.path_following_mission_planner import PathFollowingMissionPlanner
 from roar_autonomous_system.control.util import PIDParam
-from roar_autonomous_system.util.models import Control
+from roar_autonomous_system.util.models import Control, Vehicle, SensorData
 from bridges.bridge import Bridge
 import logging
 
@@ -29,8 +29,8 @@ class PathFollowingAgent(Agent):
                                                              closeness_threshold=1)
         self.logger.debug(f"Path Following Agent Initiated. Reading from {route_file_path.as_posix()}")
 
-    def run_step(self) -> Control:
-        self.sync()
+    def run_step(self, vehicle: Vehicle, sensor_data: SensorData) -> Control:
+        self.sync(vehicle=vehicle, sensor_data=sensor_data)
         if self.local_planner.is_done():
             control = Control()
             self.logger.debug("Path Following Agent is Done. Idling.")
@@ -39,5 +39,6 @@ class PathFollowingAgent(Agent):
             control = self.local_planner.run_step()
         return control
 
-    def sync(self):
+    def sync(self, vehicle: Vehicle, sensor_data: SensorData):
+        super(PathFollowingAgent, self).sync(vehicle=vehicle, sensor_data=sensor_data)
         self.local_planner.vehicle = self.vehicle  # on every run step, sync vehicle with lower level

@@ -60,8 +60,6 @@ from pygame.locals import K_i
 from pygame.locals import K_z
 from pygame.locals import K_x
 from typing import Tuple
-
-
 import logging
 import carla
 
@@ -70,11 +68,11 @@ class KeyboardControl(object):
     """Class that handles keyboard input."""
     def __init__(self, world, start_in_autopilot, print_instruction=False):
         self.logger = logging.getLogger(__name__)
+        self.logger.debug("INIT ENTERED")
         if print_instruction:
             print(__doc__)
             print()
         self._autopilot_enabled = start_in_autopilot
-
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             self._lights = carla.VehicleLightState.NONE
@@ -88,6 +86,7 @@ class KeyboardControl(object):
         else:
             raise NotImplementedError("Actor type not supported")
         self._steer_cache = 0.0
+        self.logger.debug("Exiting keyboard init")
 
     def parse_events(self, client, world, clock) -> Tuple[bool, carla.VehicleControl]:
         """

@@ -1,16 +1,21 @@
 import carla
+from carla import ColorConverter as cc
 import logging
 import random
 import sys
 from settings import CarlaSettings
 from util.hud import HUD
 from util.utilities import CarlaCarColor, CarlaCarColors, get_actor_display_name
-from util.sensors import CollisionSensor, GnssSensor,LaneInvasionSensor,IMUSensor,RadarSensor
+from util.sensors import CollisionSensor, GnssSensor, LaneInvasionSensor, IMUSensor, RadarSensor
 from util.camera_manager import CameraManager
+import weakref
+import numpy as np
+
 
 class World(object):
-    def __init__(self, carla_world:carla.World, hud:HUD, settings:CarlaSettings):
+    def __init__(self, carla_world: carla.World, hud: HUD, settings: CarlaSettings):
         self.logger = logging.getLogger(__name__)
+        self.settings = settings
         self.world: carla.World = carla_world
         self.actor_role_name = settings.role_name
         try:
@@ -23,7 +28,7 @@ class World(object):
         self.hud = hud
         self._spawn_point_id = settings.spawn_point_id
         self._actor_filter = settings.carla_vehicle_blueprint_filter
-        self._car_color = settings.car_color # todo parse arg here
+        self._car_color = settings.car_color  # todo parse arg here
         self._gamma = settings.gamma
         self.player = None
         self.collision_sensor = None
@@ -33,6 +38,12 @@ class World(object):
         self.radar_sensor = None
         self.camera_manager = None
         self.recording_enabled = False
+        self.time_counter = 0
+
+        self.front_rgb_sensor = None
+        self.front_depth_sensor = None
+        self.rear_rgb_sensor = None
+
         self.recording_start = 0
         # set weather
         self.logger.debug("Setting Weather")
@@ -49,8 +60,15 @@ class World(object):
         self.set_camera()
 
         # set sensor
-        self.logger.debug("Setting Sensor")
+        self.logger.debug("Setting Default Sensor")
         self.set_sensor()
+
+        # set custom sensor
+        self.logger.debug("Setting Custom Sensor")
+        self.set_custom_sensor()
+        self.front_rgb_sensor_data = None
+        self.front_depth_sensor_data = None
+        self.rear_rgb_sensor_data = None
 
         self.world.on_tick(hud.on_world_tick)
         self.logger.debug("World Initialized")
@@ -65,7 +83,7 @@ class World(object):
             self.logger.debug("TESLA IS INVINCIBLE")
             blueprint.set_attribute('is_invincible', 'true')
         try:
-            self.player = self.world.try_spawn_actor(blueprint, self.map.get_spawn_points()[spawn_point_id])
+            self.player = self.world.spawn_actor(blueprint, self.map.get_spawn_points()[spawn_point_id])
         except Exception as e:
             raise ValueError(f"Cannot spawn actor at ID [{spawn_point_id}]. Error: {e}")
 
@@ -90,6 +108,7 @@ class World(object):
             self.radar_sensor = None
 
     def tick(self, clock):
+        self.time_counter += 1
         self.hud.tick(self, clock)
 
     def render(self, display):
@@ -115,6 +134,90 @@ class World(object):
         for actor in actors:
             if actor is not None:
                 actor.destroy()
+        self._destroy_custom_sensors()
 
     def set_weather(self, new_weather: carla.WeatherParameters):
         self.world.weather = new_weather
+
+    def set_custom_sensor(self):
+        Attachment = carla.AttachmentType
+        front_transform_and_type = (carla.Transform(carla.Location(x=1.6, z=1.7)), Attachment.Rigid)
+        rear_transform_and_type = (carla.Transform(location=carla.Location(x=-1.5, y=0.0, z=1.4),
+                                                   rotation=carla.Rotation(pitch=0.0, yaw=180, roll=0.0)),
+                                   Attachment.Rigid)
+        self._destroy_custom_sensors()
+        self.front_rgb_sensor = self._spawn_custom_sensor(blueprint_filter="sensor.camera.rgb",
+                                                          transform=front_transform_and_type[0],
+                                                          attachment=front_transform_and_type[1],
+                                                          attributes={
+                                                              "fov": 70,
+                                                          }
+                                                          )
+        self.front_depth_sensor = self._spawn_custom_sensor(blueprint_filter="sensor.camera.depth",
+                                                            transform=front_transform_and_type[0],
+                                                            attachment=front_transform_and_type[1],
+                                                            attributes={
+                                                                "fov": 70,
+                                                            })
+        self.rear_rgb_sensor = self._spawn_custom_sensor(blueprint_filter="sensor.camera.rgb",
+                                                         transform=rear_transform_and_type[0],
+                                                         attachment=rear_transform_and_type[1],
+                                                         attributes={
+                                                             "fov": 145,
+                                                         }
+                                                         )
+
+        weak_self = weakref.ref(self)
+        self.front_rgb_sensor.listen(
+            lambda image: World._parse_front_rgb_sensor_image(weak_self=weak_self, image=image))
+        self.front_depth_sensor.listen(
+            lambda image: World._parse_front_depth_sensor_image(weak_self=weak_self, image=image))
+        self.rear_rgb_sensor.listen(lambda image: World._parse_rear_rgb_sensor_image(weak_self=weak_self, image=image))
+
+    def _spawn_custom_sensor(self, blueprint_filter: str,
+                             transform: carla.Transform,
+                             attachment: carla.AttachmentType,
+                             attributes: dict):
+        blueprint = self.world.get_blueprint_library().find(blueprint_filter)
+        for key, val in attributes.items():
+            if blueprint.has_attribute(key):
+                blueprint.set_attribute(key, str(val))
+            else:
+                self.logger.error(f"Unable to set attribute [{key}] for blueprint [{blueprint_filter}]")
+
+        return self.world.spawn_actor(blueprint, transform, self.player, attachment)
+
+    def _destroy_custom_sensors(self):
+        if self.front_rgb_sensor is not None:
+            self.front_rgb_sensor.destroy()
+
+        if self.front_depth_sensor is not None:
+            self.front_depth_sensor.destroy()
+
+        if self.rear_rgb_sensor is not None:
+            self.rear_rgb_sensor.destroy()
+
+    @staticmethod
+    def _parse_front_rgb_sensor_image(weak_self, image):
+        self = weak_self()
+        if not self:
+            return
+        self.front_rgb_sensor_data = image
+
+
+
+    @staticmethod
+    def _parse_front_depth_sensor_image(weak_self, image):
+        self = weak_self()
+        if not self:
+            return
+        image.convert(cc.Depth)
+        self.front_depth_sensor_data = image
+
+    @staticmethod
+    def _parse_rear_rgb_sensor_image(weak_self, image):
+        self = weak_self()
+        if not self:
+            return
+        image.convert(cc.Raw)
+        self.rear_rgb_sensor_data = image

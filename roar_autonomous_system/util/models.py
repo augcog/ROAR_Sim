@@ -80,8 +80,9 @@ class IMUData(BaseModel):
 
 
 class SensorData(BaseModel):
-    rgb: Union[RGBData, None] = Field(default=None)
-    depth: Union[DepthData, None] = Field(default=None)
+    front_rgb: Union[RGBData, None] = Field(default=None)
+    rear_rgb: Union[RGBData, None] = Field(default=None)
+    front_depth: Union[DepthData, None] = Field(default=None)
     imu_data: Union[IMUData, None] = Field(default=None)
 
 
