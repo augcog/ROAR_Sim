@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 import carla
-import enum
-
+from pathlib import Path
 
 class CarlaCarColor(BaseModel):
     r: int = Field(default=0)
@@ -57,5 +56,10 @@ class CarlaWeathers:
 def get_actor_display_name(actor, truncate=250):
     name = ' '.join(actor.type_id.replace('_', '.').title().split('.')[1:])
     return (name[:truncate - 1] + u'\u2026') if len(name) > truncate else name
+
+
+def create_dir_if_not_exist(path: Path):
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
 
 

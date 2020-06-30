@@ -5,6 +5,7 @@ import logging
 import pygame
 from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
 import cv2
+import numpy as np
 
 """
     The import order like this is very important! 
@@ -23,6 +24,7 @@ from bridges.carla_bridge import CarlaBridge
 import carla
 from roar_autonomous_system.util.models import RGBData, DepthData, SensorData, Vehicle
 from typing import Union, Tuple
+from carla_client.util.utilities import create_dir_if_not_exist
 
 
 def convert_data(world, carla_bridge) -> Tuple[SensorData, Vehicle]:
@@ -64,7 +66,7 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             agent = PathFollowingAgent(vehicle=carla_bridge.convert_vehicle_from_source_to_agent(world.player),
                                        route_file_path=Path(settings.data_file_path),
                                        bridge=carla_bridge,
-                                       target_speed=40
+                                       visualize_occupancy_map=False
                                        )
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()
@@ -74,16 +76,11 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             clock.tick_busy_loop(60)
             should_continue, carla_control = controller.parse_events(client=client, world=world, clock=clock)
             if not should_continue:
-                return
+                break
             world.tick(clock)
             world.render(display)
             pygame.display.flip()
-
             sensor_data, new_vehicle = convert_data(world, carla_bridge)
-            if settings.enable_autopilot:
-                agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
-                carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
-            world.player.apply_control(carla_control)
             if settings.show_sensors_data:
                 if world.front_rgb_sensor_data is not None:
                     cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
@@ -91,7 +88,27 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                     cv2.imshow('front_depth_data', sensor_data.front_depth.data)
                 if world.rear_rgb_sensor_data is not None:
                     cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
-                cv2.waitKey(10)
+
+            if settings.save_sensor_data:
+                if sensor_data.front_rgb is not None:
+                    cv2.imwrite((Path(
+                        settings.output_data_folder_path) / "front_rgb" / f"front_rgb-{world.time_counter}.png").as_posix(),
+                                sensor_data.front_rgb.data)
+                if sensor_data.front_depth is not None:
+                    np.save(Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}",
+                            sensor_data.front_depth.data)
+                    # cv2.imwrite((Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}.png").as_posix(),
+                    #             sensor_data.front_depth.data)
+                if sensor_data.rear_rgb is not None:
+                    cv2.imwrite((Path(
+                        settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
+                                sensor_data.rear_rgb.data)
+
+            if settings.enable_autopilot:
+                agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
+                carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
+            world.player.apply_control(carla_control)
+
 
     except Exception as e:
         logger.error(f"Safely exiting due to error: {e}")
@@ -118,10 +135,18 @@ def main():
     log_level = logging.DEBUG
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=log_level)
     logger = logging.getLogger(__name__)
-
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
     settings = CarlaSettings()
-    # settings.enable_autopilot = True
-    # settings.show_sensors_data = True
+    settings.enable_autopilot = True
+    settings.show_sensors_data = False
+    settings.save_sensor_data = False
+    settings.graph_post_modem_data = False
+
+    if settings.save_sensor_data:
+        create_dir_if_not_exist((Path(settings.output_data_folder_path) / "front_depth"))
+        create_dir_if_not_exist((Path(settings.output_data_folder_path) / "front_rgb"))
+        create_dir_if_not_exist((Path(settings.output_data_folder_path) / "rear_rgb"))
+        create_dir_if_not_exist((Path(settings.output_data_folder_path) / "city_pallet"))
     try:
         game_loop(settings, logger)
     except KeyboardInterrupt:

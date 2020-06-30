@@ -44,6 +44,17 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
         if vehicle_transform is None:
             raise AgentException("I do not know where I am, I cannot proceed forward")
 
+        # redefine closeness level based on speed
+        curr_speed = Vehicle.get_speed(self.vehicle)
+        if curr_speed < 60:
+            self.closeness_threshold = 5
+        elif curr_speed < 80:
+            self.closeness_threshold = 15
+        elif curr_speed < 120:
+            self.closeness_threshold = 20
+        else:
+            self.closeness_threshold = 50
+
         # get current waypoint
         curr_closest_dist = float("inf")
         while True:
@@ -63,11 +74,14 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
                 break
 
         target_waypoint = self.way_points_queue[0]
+        # target_waypoint = Transform.average(self.way_points_queue[0], self.way_points_queue[1])
+        # target_waypoint = Transform.average(self.way_points_queue[2], target_waypoint)
+
         control: Control = self.controller.run_step(next_waypoint=target_waypoint)
-        self.logger.debug(
-            f"Target_Location {target_waypoint.location} "
-            f"| Curr_Location {vehicle_transform.location} "
-            f"| Distance {int(curr_closest_dist)}")
+        # self.logger.debug(
+        #     f"Target_Location {target_waypoint.location} "
+        #     f"| Curr_Location {vehicle_transform.location} "
+        #     f"| Distance {int(curr_closest_dist)}")
 
         return control
 

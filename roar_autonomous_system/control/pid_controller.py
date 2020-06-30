@@ -13,6 +13,7 @@ from collections import deque
 import numpy as np
 import math
 import logging
+from roar_autonomous_system.control.util import OPTIMIZED_LATERAL_PID_VALUES
 
 
 class VehiclePIDController(Controller):
@@ -28,11 +29,9 @@ class VehiclePIDController(Controller):
                  args_longitudinal: PIDParam,
                  target_speed=float("inf"),
                  max_throttle=1,
-                 max_brake=0.3,
                  max_steering=1):
         """
         Constructor method.
-
         :param vehicle: actor to apply to local planner logic onto
         :param args_lateral: dictionary of arguments to set the lateral PID control
         using the following semantics:
@@ -48,7 +47,6 @@ class VehiclePIDController(Controller):
 
         super().__init__(vehicle)
         self.logger = logging.Logger(__name__)
-        self.max_brake = max_brake
         self.max_throt = max_throttle
         self.max_steer = max_steering
 
@@ -72,13 +70,34 @@ class VehiclePIDController(Controller):
         Execute one step of control invoking both lateral and longitudinal
         PID controllers to reach a target waypoint
         at a given target_speed.
-
             :param next_waypoint: target location encoded as a waypoint
             :param target_speed: desired vehicle speed
             :return: distance (in meters) to the waypoint
         """
         self.sync()
-        acceleration = self._lon_controller.run_step(self.target_speed)
+        curr_speed = Vehicle.get_speed(self.vehicle)
+        if curr_speed < 60:
+            print("Using Speed controller for 60")
+            self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[60].K_D
+            self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[60].K_I
+            self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[60].K_P
+        elif curr_speed < 100:
+            print("Using Speed controller for 100")
+            self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[100].K_D
+            self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[100].K_I
+            self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[100].K_P
+        elif curr_speed < 150:
+            print("Using Speed Controller for 150")
+            self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[150].K_D
+            self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[150].K_I
+            self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[150].K_P
+
+        acceptable_target_speed = self.target_speed
+        if abs(self.vehicle.control.steering) < 0.05:
+            self.logger.debug("Eco Boost in effect")
+            acceptable_target_speed += 40  # eco boost
+
+        acceleration = self._lon_controller.run_step(acceptable_target_speed)
         current_steering = self._lat_controller.run_step(next_waypoint)
         control = Control()
 
@@ -99,10 +118,12 @@ class VehiclePIDController(Controller):
             steering = min(self.max_steer, current_steering)
         else:
             steering = max(-self.max_steer, current_steering)
+        if abs(current_steering) > 0.03 and curr_speed > 110:
+            print("High speed throttle regularization in effect")
+            # if i am doing a sharp (>0.5) turn, i do not want to step on full gas
+            control.throttle = -0.75  # TODO show w/o break this is a disaster
 
         control.steering = steering
-        # control.hand_brake = False
-        # control.manual_gear_shift = False
         self.past_steering = steering
         return control
 
@@ -119,7 +140,6 @@ class PIDLongitudinalController:
     def __init__(self, vehicle: Vehicle, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
         """
         Constructor method.
-
             :param vehicle: actor to apply to local planner logic onto
             :param K_P: Proportional term
             :param K_D: Differential term
@@ -136,7 +156,6 @@ class PIDLongitudinalController:
     def run_step(self, target_speed):
         """
         Execute one step of longitudinal control to reach a given target speed.
-
             :param target_speed: target speed in Km/h
             :param debug: boolean for debugging
             :return: throttle control
@@ -147,7 +166,6 @@ class PIDLongitudinalController:
     def _pid_control(self, target_speed, current_speed) -> float:
         """
         Estimate the throttle/brake of the vehicle based on the PID equations
-
             :param target_speed:  target speed in Km/h
             :param current_speed: current speed of the vehicle in Km/h
             :return: throttle/brake control
@@ -174,25 +192,23 @@ class PIDLateralController:
     def __init__(self, vehicle, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
         """
         Constructor method.
-
             :param vehicle: actor to apply to local planner logic onto
             :param K_P: Proportional term
             :param K_D: Differential term
             :param K_I: Integral term
             :param dt: time differential in seconds
         """
-        self.vehicle:Vehicle = vehicle
-        self._k_p = K_P
-        self._k_d = K_D
-        self._k_i = K_I
-        self._dt = dt
+        self.vehicle: Vehicle = vehicle
+        self.k_p = K_P
+        self.k_d = K_D
+        self.k_i = K_I
+        self.dt = dt
         self._e_buffer = deque(maxlen=10)
 
     def run_step(self, target_waypoint: Transform) -> float:
         """
         Execute one step of lateral control to steer
         the vehicle towards a certain waypoin.
-
             :param target_waypoint:
             :return: steering control in the range [-1, 1] where:
             -1 maximum steering to left
@@ -203,7 +219,6 @@ class PIDLateralController:
     def _pid_control(self, target_waypoint, vehicle_transform) -> float:
         """
         Estimate the steering angle of the vehicle based on the PID equations
-
             :param target_waypoint: target waypoint
             :param vehicle_transform: current transform of the vehicle
             :return: steering control in the range [-1, 1]
@@ -228,10 +243,10 @@ class PIDLateralController:
 
         self._e_buffer.append(_dot)
         if len(self._e_buffer) >= 2:
-            _de = (self._e_buffer[-1] - self._e_buffer[-2]) / self._dt
-            _ie = sum(self._e_buffer) * self._dt
+            _de = (self._e_buffer[-1] - self._e_buffer[-2]) / self.dt
+            _ie = sum(self._e_buffer) * self.dt
         else:
             _de = 0.0
             _ie = 0.0
 
-        return float(np.clip((self._k_p * _dot) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0))
+        return float(np.clip((self.k_p * _dot) + (self.k_d * _de) + (self.k_i * _ie), -1.0, 1.0))

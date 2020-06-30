@@ -23,4 +23,8 @@ class CarlaSettings(BaseModel):
     data_file_path: str = Field(default=(Path(os.getcwd()) / "data" / "easy_map_waypoints.txt").as_posix())
     recording:bool = Field(default=False, title="Record")
     output_data_folder_path: str = Field(default=(Path(os.getcwd()) / "data" / "output"))
+    recording: bool = Field(default=False, title="Record")
+    output_data_folder_path: str = Field(default=(Path(os.getcwd()) / "data" / "output"))
     show_sensors_data: bool = Field(default=False)
+    graph_post_modem_data: bool = Field(default=False)
+    save_sensor_data: bool = Field(default=False)
