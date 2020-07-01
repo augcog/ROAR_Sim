@@ -141,7 +141,8 @@ class World(object):
 
     def set_custom_sensor(self):
         Attachment = carla.AttachmentType
-        front_transform_and_type = (carla.Transform(carla.Location(x=1.6, z=1.7)), Attachment.Rigid)
+        front_transform_and_type = (carla.Transform(carla.Location(x=1.6, z=5),
+                                                    carla.Rotation(pitch=-30, yaw=0, roll=0)), Attachment.Rigid)
         rear_transform_and_type = (carla.Transform(location=carla.Location(x=-1.5, y=0.0, z=1.4),
                                                    rotation=carla.Rotation(pitch=0.0, yaw=180, roll=0.0)),
                                    Attachment.Rigid)

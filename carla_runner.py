@@ -82,13 +82,12 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             pygame.display.flip()
             sensor_data, new_vehicle = convert_data(world, carla_bridge)
             if settings.show_sensors_data:
-                if world.front_rgb_sensor_data is not None:
+                if sensor_data.front_rgb is not None and sensor_data.front_rgb.data is not None:
                     cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
-                if world.front_depth_sensor_data is not None:
+                if sensor_data.front_depth is not None and sensor_data.front_depth.data is not None:
                     cv2.imshow('front_depth_data', sensor_data.front_depth.data)
-                if world.rear_rgb_sensor_data is not None:
+                if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
                     cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
-
             if settings.save_sensor_data:
                 if sensor_data.front_rgb is not None:
                     cv2.imwrite((Path(
@@ -103,12 +102,10 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                     cv2.imwrite((Path(
                         settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.rear_rgb.data)
-
             if settings.enable_autopilot:
                 agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
                 carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
             world.player.apply_control(carla_control)
-
 
     except Exception as e:
         logger.error(f"Safely exiting due to error: {e}")
@@ -137,8 +134,8 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
     settings = CarlaSettings()
-    settings.enable_autopilot = True
-    settings.show_sensors_data = False
+    settings.enable_autopilot = False
+    settings.show_sensors_data = True
     settings.save_sensor_data = False
     settings.graph_post_modem_data = False
 
@@ -146,7 +143,6 @@ def main():
         create_dir_if_not_exist((Path(settings.output_data_folder_path) / "front_depth"))
         create_dir_if_not_exist((Path(settings.output_data_folder_path) / "front_rgb"))
         create_dir_if_not_exist((Path(settings.output_data_folder_path) / "rear_rgb"))
-        create_dir_if_not_exist((Path(settings.output_data_folder_path) / "city_pallet"))
     try:
         game_loop(settings, logger)
     except KeyboardInterrupt:
