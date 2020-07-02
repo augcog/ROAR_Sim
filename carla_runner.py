@@ -11,7 +11,12 @@ import numpy as np
     The import order like this is very important! 
 """
 carla_client_folder_path = Path(os.getcwd()) / "carla_client"
-carla_client_egg_file_path = carla_client_folder_path / 'carla-0.9.9-py3.7-win-amd64.egg'
+
+if sys.platform == 'darwin':
+    assert False, "MacOS is currently not supported"
+carla_client_egg_file_name = 'carla-0.9.9-py3.7-win-amd64.egg' if sys.platform == "win32" else \
+    "carla-0.9.9-py3.6-linux-x86_64.egg"
+carla_client_egg_file_path = carla_client_folder_path / carla_client_egg_file_name
 if not carla_client_egg_file_path.is_file():
     raise FileNotFoundError("Please make sure carla client distribution is installed under the carla_client directory")
 sys.path.append(carla_client_egg_file_path.as_posix())
@@ -136,8 +141,7 @@ def main():
     settings = CarlaSettings()
     settings.enable_autopilot = False
     settings.show_sensors_data = False
-    settings.save_sensor_data = True
-
+    settings.save_sensor_data = False
     settings.graph_post_modem_data = False
 
     if settings.save_sensor_data:

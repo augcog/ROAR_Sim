@@ -1,7 +1,6 @@
 attrs==19.3.0
 backcall==0.2.0
 bleach==3.1.5
-carla==0.9.9
 certifi==2020.6.20
 chardet==3.0.4
 colorama==0.4.3
@@ -14,12 +13,9 @@ future==0.18.2
 idna==2.10
 imageio==2.8.0
 imageio-ffmpeg==0.4.2
-importlib-metadata @ file:///C:/ci/importlib-metadata_1593446525189/work
 ipykernel==5.3.0
-ipython @ file:///C:/ci/ipython_1593433781269/work
 ipython-genutils==0.2.0
 ipywidgets==7.5.1
-jedi @ file:///C:/ci/jedi_1592833832328/work
 Jinja2==2.11.2
 jsonschema==3.2.0
 jupyter==1.0.0
@@ -36,7 +32,7 @@ nbformat==5.0.7
 networkx==2.2
 notebook==6.0.3
 numpy==1.19.0
-open3d==0.10.0.1
+open3d==0.10.0.0
 opencv-python==4.2.0.34
 packaging==20.4
 pandocfilters==1.4.2
@@ -55,11 +51,9 @@ Pygments==2.6.1
 pyparsing==2.4.7
 pyrsistent==0.16.0
 python-dateutil==2.8.1
-pywin32==228
 pywinpty==0.5.7
 PyYAML==5.3.1
 pyzmq==19.0.1
-qtconsole @ file:///tmp/build/80754af9/qtconsole_1592848611704/work
 QtPy==1.9.0
 requests==2.24.0
 scipy==1.5.0
@@ -73,7 +67,6 @@ tornado==6.0.4
 tqdm==4.46.1
 traitlets==4.3.3
 urllib3==1.25.9
-wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
 webencodings==0.5.1
 widgetsnbextension==3.5.1
 wincertstore==0.2
