@@ -135,8 +135,9 @@ def main():
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
     settings = CarlaSettings()
     settings.enable_autopilot = False
-    settings.show_sensors_data = True
-    settings.save_sensor_data = False
+    settings.show_sensors_data = False
+    settings.save_sensor_data = True
+
     settings.graph_post_modem_data = False
 
     if settings.save_sensor_data:
