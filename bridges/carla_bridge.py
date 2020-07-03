@@ -36,7 +36,9 @@ class CarlaBridge(Bridge):
     def convert_depth_from_source_to_agent(self, source: carla.Image) -> Union[DepthData, None]:
         try:
             source.convert(cc.LogarithmicDepth)
-            return DepthData(data=self._to_depth_array(source))
+            depth_array = self._to_depth_array(source)
+            depth_array = np.clip(depth_array, 0, 0.5)
+            return DepthData(data=depth_array)
         except:
             return None
 
