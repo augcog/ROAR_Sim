@@ -20,5 +20,5 @@ class PIDParam(BaseModel):
 OPTIMIZED_LATERAL_PID_VALUES = {
     60: PIDParam(K_P=0.3, K_D=0.3, K_I=0.2),
     100: PIDParam(K_P=0.2, K_D=0.2, K_I=0.5),
-    150: PIDParam(K_P=0.075, K_D=0.075, K_I=0.7),
+    150: PIDParam(K_P=0.01, K_D=0.075, K_I=0.7),
 }

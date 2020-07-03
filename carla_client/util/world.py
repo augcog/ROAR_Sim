@@ -16,10 +16,10 @@ class World(object):
     def __init__(self, carla_world: carla.World, hud: HUD, settings: CarlaSettings):
         self.logger = logging.getLogger(__name__)
         self.settings = settings
-        self.world: carla.World = carla_world
+        self.carla_world: carla.World = carla_world
         self.actor_role_name = settings.role_name
         try:
-            self.map = self.world.get_map()
+            self.map = self.carla_world.get_map()
         except RuntimeError as error:
             print('RuntimeError: {}'.format(error))
             print('  The server could not send the OpenDRIVE (.xodr) file:')
@@ -70,12 +70,12 @@ class World(object):
         self.front_depth_sensor_data = None
         self.rear_rgb_sensor_data = None
 
-        self.world.on_tick(hud.on_world_tick)
+        self.carla_world.on_tick(hud.on_world_tick)
         self.logger.debug("World Initialized")
 
     def set_player(self, actor_filter: str = "vehicle.tesla.model3", player_role_name: str = "hero",
                    color: CarlaCarColor = CarlaCarColors.GREY, spawn_point_id: int = random.choice(list(range(8)))):
-        blueprint = self.world.get_blueprint_library().find(actor_filter)
+        blueprint = self.carla_world.get_blueprint_library().find(actor_filter)
         blueprint.set_attribute('role_name', player_role_name)
         if blueprint.has_attribute('color'):
             blueprint.set_attribute('color', color.to_string())
@@ -83,7 +83,7 @@ class World(object):
             self.logger.debug("TESLA IS INVINCIBLE")
             blueprint.set_attribute('is_invincible', 'true')
         try:
-            self.player = self.world.spawn_actor(blueprint, self.map.get_spawn_points()[spawn_point_id])
+            self.player = self.carla_world.spawn_actor(blueprint, self.map.get_spawn_points()[spawn_point_id])
         except Exception as e:
             raise ValueError(f"Cannot spawn actor at ID [{spawn_point_id}]. Error: {e}")
 
@@ -137,7 +137,7 @@ class World(object):
         self._destroy_custom_sensors()
 
     def set_weather(self, new_weather: carla.WeatherParameters):
-        self.world.weather = new_weather
+        self.carla_world.weather = new_weather
 
     def set_custom_sensor(self):
         Attachment = carla.AttachmentType
@@ -178,14 +178,14 @@ class World(object):
                              transform: carla.Transform,
                              attachment: carla.AttachmentType,
                              attributes: dict):
-        blueprint = self.world.get_blueprint_library().find(blueprint_filter)
+        blueprint = self.carla_world.get_blueprint_library().find(blueprint_filter)
         for key, val in attributes.items():
             if blueprint.has_attribute(key):
                 blueprint.set_attribute(key, str(val))
             else:
                 self.logger.error(f"Unable to set attribute [{key}] for blueprint [{blueprint_filter}]")
 
-        return self.world.spawn_actor(blueprint, transform, self.player, attachment)
+        return self.carla_world.spawn_actor(blueprint, transform, self.player, attachment)
 
     def _destroy_custom_sensors(self):
         if self.front_rgb_sensor is not None:

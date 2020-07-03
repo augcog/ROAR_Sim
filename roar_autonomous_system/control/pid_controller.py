@@ -77,17 +77,14 @@ class VehiclePIDController(Controller):
         self.sync()
         curr_speed = Vehicle.get_speed(self.vehicle)
         if curr_speed < 60:
-            print("Using Speed controller for 60")
             self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[60].K_D
             self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[60].K_I
             self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[60].K_P
         elif curr_speed < 100:
-            print("Using Speed controller for 100")
             self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[100].K_D
             self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[100].K_I
             self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[100].K_P
         elif curr_speed < 150:
-            print("Using Speed Controller for 150")
             self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[150].K_D
             self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[150].K_I
             self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[150].K_P
@@ -95,7 +92,7 @@ class VehiclePIDController(Controller):
         acceptable_target_speed = self.target_speed
         if abs(self.vehicle.control.steering) < 0.05:
             self.logger.debug("Eco Boost in effect")
-            acceptable_target_speed += 40  # eco boost
+            acceptable_target_speed += 20  # eco boost
 
         acceleration = self._lon_controller.run_step(acceptable_target_speed)
         current_steering = self._lat_controller.run_step(next_waypoint)
@@ -119,9 +116,8 @@ class VehiclePIDController(Controller):
         else:
             steering = max(-self.max_steer, current_steering)
         if abs(current_steering) > 0.03 and curr_speed > 110:
-            print("High speed throttle regularization in effect")
             # if i am doing a sharp (>0.5) turn, i do not want to step on full gas
-            control.throttle = -0.75  # TODO show w/o break this is a disaster
+            control.throttle = -1  # TODO show w/o break this is a disaster
 
         control.steering = steering
         self.past_steering = steering

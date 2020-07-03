@@ -154,7 +154,7 @@ class OccupancyMap(BaseModel):
         y = coord[1] - self.map_additional_padding + self.y_min
         return Location(x=x, y=y, z=0)
 
-    def visualize(self, center_coord: Union[None, Tuple[int, int]] = None, fov: int = 20, duration=-1):
+    def visualize(self, center_coord: Union[None, Tuple[int, int]] = None, fov: int = 20, duration=1):
         """
         draw the map
         :param center_coord: focus on center_coord, if None, draw out the entire map centered at what ever center it should be
@@ -179,7 +179,6 @@ class OccupancyMap(BaseModel):
             cv2.imshow("Occupancy Grid Map", vis_data[x_min:x_max, y_min:y_max])
             vis_data[x - vehicle_width: x+vehicle_width, y - vehicle_width: y + vehicle_width] = coord_values
 
-        if duration != -1:
-            cv2.waitKey(duration)
+        cv2.waitKey(duration)
 
 

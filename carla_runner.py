@@ -71,7 +71,7 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             agent = PathFollowingAgent(vehicle=carla_bridge.convert_vehicle_from_source_to_agent(world.player),
                                        route_file_path=Path(settings.data_file_path),
                                        bridge=carla_bridge,
-                                       visualize_occupancy_map=False
+                                       visualize_occupancy_map=True
                                        )
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()
@@ -93,17 +93,18 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                     cv2.imshow('front_depth_data', sensor_data.front_depth.data)
                 if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
                     cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
+                cv2.waitKey(1)
             if settings.save_sensor_data:
-                if sensor_data.front_rgb is not None:
+                if sensor_data.front_rgb is not None and sensor_data.front_rgb.data is not None:
                     cv2.imwrite((Path(
                         settings.output_data_folder_path) / "front_rgb" / f"front_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.front_rgb.data)
-                if sensor_data.front_depth is not None:
+                if sensor_data.front_depth is not None and sensor_data.front_depth.data is not None:
                     np.save(Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}",
                             sensor_data.front_depth.data)
                     # cv2.imwrite((Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}.png").as_posix(),
                     #             sensor_data.front_depth.data)
-                if sensor_data.rear_rgb is not None:
+                if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
                     cv2.imwrite((Path(
                         settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.rear_rgb.data)
@@ -139,7 +140,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
     settings = CarlaSettings()
-    settings.enable_autopilot = False
+    settings.enable_autopilot = True
     settings.show_sensors_data = False
     settings.save_sensor_data = False
     settings.graph_post_modem_data = False
