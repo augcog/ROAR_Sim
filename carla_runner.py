@@ -88,11 +88,13 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             sensor_data, new_vehicle = convert_data(world, carla_bridge)
             if settings.show_sensors_data:
                 if sensor_data.front_rgb is not None and sensor_data.front_rgb.data is not None:
-                    cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
+                    pass
+                    # cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
                 if sensor_data.front_depth is not None and sensor_data.front_depth.data is not None:
                     cv2.imshow('front_depth_data', sensor_data.front_depth.data)
                 if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
-                    cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
+                    pass
+                    # cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
                 cv2.waitKey(1)
             if settings.save_sensor_data:
                 if sensor_data.front_rgb is not None and sensor_data.front_rgb.data is not None:
@@ -140,8 +142,8 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
     settings = CarlaSettings()
-    settings.enable_autopilot = True
-    settings.show_sensors_data = False
+    settings.enable_autopilot = False
+    settings.show_sensors_data = True
     settings.save_sensor_data = False
     settings.graph_post_modem_data = False
 

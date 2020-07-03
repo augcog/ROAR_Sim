@@ -37,7 +37,7 @@ class CarlaBridge(Bridge):
         try:
             source.convert(cc.LogarithmicDepth)
             depth_array = self._to_depth_array(source)
-            depth_array = np.clip(depth_array, 0, 0.5)
+            depth_array = np.clip(depth_array, 0, 0.5)  # anything further than 500 meters are filtered out
             return DepthData(data=depth_array)
         except:
             return None
