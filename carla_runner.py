@@ -92,6 +92,9 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                     # cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
                 if sensor_data.front_depth is not None and sensor_data.front_depth.data is not None:
                     cv2.imshow('front_depth_data', sensor_data.front_depth.data)
+                    distorted = sensor_data.front_depth.data
+                    distorted = distorted + np.random.normal(loc=0, scale=0.1, size=distorted.shape)  # apply random noise with normal distribution
+                    cv2.imshow('front_depth_distorted', distorted)
                 if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
                     pass
                     # cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
