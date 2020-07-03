@@ -6,9 +6,9 @@ import numpy as np
 import glob
 
 
-def frames_to_video(folder_path: Path, file_suffix=".png", fps=10):
+def frames_to_video(folder_path: Path, fps=10, file_prefix="",file_suffix=".png"):
     assert file_suffix == ".png" or file_suffix == ".jpg" or file_suffix == "jpeg", "Files other than png and jpg are not supported"
-    files = glob.glob(folder_path.as_posix() + f"/*{file_suffix}")
+    files = glob.glob(folder_path.as_posix() + f"/{file_prefix}*{file_suffix}")
     files.sort(key=os.path.getmtime)
 
     img_array = []
