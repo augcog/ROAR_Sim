@@ -6,15 +6,14 @@ import numpy as np
 import glob
 
 
-def frames_to_video(folder_path:Path, file_suffix=".png", fps=10):
-
-
+def frames_to_video(folder_path: Path, file_suffix=".png", fps=10):
+    assert file_suffix == ".png" or file_suffix == ".jpg" or file_suffix == "jpeg", "Files other than png and jpg are not supported"
     files = glob.glob(folder_path.as_posix() + f"/*{file_suffix}")
     files.sort(key=os.path.getmtime)
 
     img_array = []
     for filename in files:
-        img = cv2.imread(filename) if file_suffix != ".npy" else np.load(filename)
+        img = cv2.imread(filename)
         # print(img, filename)
         try:
             height, width, _ = img.shape
@@ -30,7 +29,7 @@ def frames_to_video(folder_path:Path, file_suffix=".png", fps=10):
         out.write(img_array[i])
     out.release()
 
+
 if __name__ == '__main__':
     foler_path = Path(os.getcwd()).parent / "data" / "output" / "front_depth"
     frames_to_video(foler_path, file_suffix=".npy")
-
