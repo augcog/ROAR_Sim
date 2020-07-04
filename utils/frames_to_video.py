@@ -14,7 +14,6 @@ def frames_to_video(folder_path: Path, fps=10, file_prefix="",file_suffix=".png"
     img_array = []
     for filename in files:
         img = cv2.imread(filename)
-        # print(img, filename)
         try:
             height, width, _ = img.shape
         except:
@@ -22,7 +21,6 @@ def frames_to_video(folder_path: Path, fps=10, file_prefix="",file_suffix=".png"
         size = (width, height)
         img_array.append(img)
 
-    # print(np.shape(img_array[0]))
     out = cv2.VideoWriter((folder_path / 'result.avi').as_posix(), cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
 
     for i in range(len(img_array)):
@@ -31,5 +29,6 @@ def frames_to_video(folder_path: Path, fps=10, file_prefix="",file_suffix=".png"
 
 
 if __name__ == '__main__':
-    foler_path = Path(os.getcwd()).parent / "data" / "output" / "front_depth"
-    frames_to_video(foler_path, file_suffix=".npy")
+    foler_path = Path(os.getcwd()).parent / "data" / "output" / "front_rgb"
+    assert foler_path.exists(), f"Please check whether {foler_path} exists"
+    frames_to_video(foler_path, file_suffix=".png")
