@@ -7,6 +7,7 @@ from roar_autonomous_system.util.models import SensorData, Control, RGBData, Dep
     Transform, Location, Rotation
 import numpy as np
 import math
+import cv2
 
 
 class CarlaBridge(Bridge):
@@ -35,17 +36,17 @@ class CarlaBridge(Bridge):
 
     def convert_depth_from_source_to_agent(self, source: carla.Image) -> Union[DepthData, None]:
         try:
-            source.convert(cc.LogarithmicDepth)
-            depth_array = self._to_depth_array(source)
-            depth_array = np.clip(depth_array, 0, 0.5)  # anything further than 500 meters are filtered out
-            return DepthData(data=depth_array)
+            array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
+            array = np.reshape(array, (source.height, source.width, 4))
+            array = array[:, :, :3]
+            return DepthData(data=array)
         except:
             return None
 
     def convert_vector3d_from_source_to_agent(self, source: carla.Vector3D) -> Vector3D:
         return Vector3D(x=source.x, y=source.y, z=source.z)
 
-    def convert_imu_from_source_to_agent(self, source:IMUSensor) -> IMUData:
+    def convert_imu_from_source_to_agent(self, source: IMUSensor) -> IMUData:
         return IMUData(accelerometer=Vector3D(x=source.accelerometer[0],
                                               y=source.accelerometer[1],
                                               z=source.accelerometer[2]),
@@ -100,7 +101,7 @@ class CarlaBridge(Bridge):
         the depth value of each pixel normalized between [0.0, 1.0].
         """
         array = self._to_bgra_array(image)
-        array = array.astype(np.float32)
+        array = array.astype(np.float64)
         # Apply (R + G * 256 + B * 256 * 256) / (256 * 256 * 256 - 1).
         normalized_depth = np.dot(array[:, :, :3], [65536.0, 256.0, 1.0])
         normalized_depth /= 16777215.0  # (256.0 * 256.0 * 256.0 - 1.0)

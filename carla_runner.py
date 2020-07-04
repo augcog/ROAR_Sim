@@ -88,19 +88,11 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             sensor_data, new_vehicle = convert_data(world, carla_bridge)
             if settings.show_sensors_data:
                 if sensor_data.front_rgb is not None and sensor_data.front_rgb.data is not None:
-                    pass
-                    # cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
+                    cv2.imshow('front_rgb_data', sensor_data.front_rgb.data)
                 if sensor_data.front_depth is not None and sensor_data.front_depth.data is not None:
                     cv2.imshow('front_depth_data', sensor_data.front_depth.data)
-                    data = sensor_data.front_depth.data
-                    # apply random noise with normal distribution
-                    n_distorted = data + np.random.normal(loc=0, scale=0.1, size=data.shape)
-                    u_distorted = n_distorted + np.random.uniform(low=0, high=0.5, size=n_distorted.shape)
-                    cv2.imshow('front_depth_normal_distorted', n_distorted)
-                    cv2.imshow('front_depth_uniform_distorted', u_distorted)
                 if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
-                    pass
-                    # cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
+                    cv2.imshow('rear_rgb_data', sensor_data.rear_rgb.data)
                 cv2.waitKey(1)
             if settings.save_sensor_data:
                 if sensor_data.front_rgb is not None and sensor_data.front_rgb.data is not None:
@@ -108,19 +100,8 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                         settings.output_data_folder_path) / "front_rgb" / f"front_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.front_rgb.data)
                 if sensor_data.front_depth is not None and sensor_data.front_depth.data is not None:
-                    data = sensor_data.front_depth.data
-                    n_distorted = data + np.random.normal(loc=0, scale=0.1, size=data.shape)
-                    un_distorted = n_distorted + np.random.uniform(low=0, high=0.5, size=n_distorted.shape)
-
-                    np.save(Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}",
-                            sensor_data.front_depth.data)
-                    np.save(Path(settings.output_data_folder_path) / "front_depth" / f"depth_n_distorted-{world.time_counter}",
-                            n_distorted)
-                    np.save(Path(settings.output_data_folder_path) / "front_depth" / f"depth_un_distorted-{world.time_counter}",
-                            un_distorted)
-
-                    # cv2.imwrite((Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}.png").as_posix(),
-                    #             sensor_data.front_depth.data)
+                    cv2.imwrite((Path(settings.output_data_folder_path) / "front_depth" / f"depth-{world.time_counter}.png").as_posix(),
+                                sensor_data.front_depth.data)
                 if sensor_data.rear_rgb is not None and sensor_data.rear_rgb.data is not None:
                     cv2.imwrite((Path(
                         settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
@@ -159,7 +140,7 @@ def main():
     settings = CarlaSettings()
     settings.enable_autopilot = False
     settings.show_sensors_data = False
-    settings.save_sensor_data = True
+    settings.save_sensor_data = False
     settings.graph_post_modem_data = False
 
     if settings.save_sensor_data:
