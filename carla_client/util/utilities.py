@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 import carla
 from pathlib import Path
 
+
 class CarlaCarColor(BaseModel):
     r: int = Field(default=0)
     g: int = Field(default=0)
@@ -61,5 +62,3 @@ def get_actor_display_name(actor, truncate=250):
 def create_dir_if_not_exist(path: Path):
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
-
-

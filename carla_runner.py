@@ -27,8 +27,8 @@ from carla_client.util.hud import HUD
 from carla_client.util.world import World
 from bridges.carla_bridge import CarlaBridge
 import carla
-from roar_autonomous_system.util.models import RGBData, DepthData, SensorData, Vehicle
-from typing import Union, Tuple
+from roar_autonomous_system.util.models import SensorData, Vehicle
+from typing import Tuple
 from carla_client.util.utilities import create_dir_if_not_exist
 
 
