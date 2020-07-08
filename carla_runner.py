@@ -5,7 +5,6 @@ import logging
 import pygame
 from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
 import cv2
-import numpy as np
 
 """
     The import order like this is very important! 
@@ -106,6 +105,7 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                     cv2.imwrite((Path(
                         settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.rear_rgb.data)
+
             if settings.enable_autopilot:
                 agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
                 carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
