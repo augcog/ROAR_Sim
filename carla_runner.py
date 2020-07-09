@@ -5,7 +5,8 @@ import logging
 import pygame
 from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
 import cv2
-
+from roar_autonomous_system.perception.depth.ground_plane_detector import GroundPlaneDetector
+from roar_autonomous_system.perception.utils import png_to_depth
 """
     The import order like this is very important! 
 """
@@ -74,6 +75,8 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                                        )
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()
+
+        gpd = GroundPlaneDetector(show=True)
         while True:
             # make sure the program does not run above 40 frames per second
             # this allow proper synchrony between server and client
@@ -105,6 +108,10 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                     cv2.imwrite((Path(
                         settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.rear_rgb.data)
+
+            if sensor_data.front_depth is not None:
+                gpd.curr_depth_img = sensor_data.front_depth
+                gpd.run_step()
 
             if settings.enable_autopilot:
                 agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)

@@ -104,8 +104,10 @@ if __name__ == '__main__':
     data = []
     depth_image = depth_img
     # depth_image = calibration image, grab from somewhere
+    print(np.shape(depth_image))
     for i in range(310, depth_image.shape[0]):
         j = np.argmax(depth_image[i, :])
+        print(i, j)
         if depth_image[i][j] > 0.01:
             xs.append(i)
             data.append(depth_image[i][j])
@@ -122,30 +124,28 @@ if __name__ == '__main__':
     )[1]
     preds = pred_func(rows)
 
-    print(np.shape(preds))
-    # video_file_path = Path(os.getcwd()).parent / "output" / "front_depth" / "result.avi"
-    # cap = cv2.VideoCapture('result.avi')
-    # prevFrame = None
-    # prevData = None
-    # avg = []
-    # while True:
-    #     if cap.isOpened():
-    #         ret, frame = cap.read()
-    #         try:
-    #             t1 = time.time()
-    #             diff = np.abs(png_to_depth(frame) - preds)
-    #             dets = (diff > 0.089)
-    #
-    #             frame[dets > 0] = 255
-    #
-    #             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #             color = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
-    #             cv2.imshow('frame', color)
-    #             t2 = time.time()
-    #
-    #             avg.append(t2 - t1)
-    #         except Exception as e:
-    #             print(e)
-    #             break
-    #     cap.release()
-    #     cv2.destroyAllWindows()
+    video_file_path = Path(os.getcwd()).parent / "output" / "front_depth" / "result.avi"
+    cap = cv2.VideoCapture('result.avi')
+    prevFrame = None
+    prevData = None
+    avg = []
+    while True:
+        if cap.isOpened():
+            ret, frame = cap.read()
+            try:
+                t1 = time.time()
+                diff = np.abs(png_to_depth(frame) - preds)
+                dets = (diff > 0.089)
+
+                frame[dets > 0] = 255
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                color = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
+                cv2.imshow('frame', color)
+                t2 = time.time()
+
+                avg.append(t2 - t1)
+            except Exception as e:
+                print(e)
+                break
+        cap.release()
+        cv2.destroyAllWindows()

@@ -56,14 +56,14 @@ class Control(BaseModel):
 
 
 class RGBData(BaseModel):
-    data: np.ndarray = Field(..., title="RGB Data", description="Array of BGRA 32-bit pixels")
+    data: np.ndarray = Field(..., title="RGB Data", description="Array of size (WIDTH, HEIGHT, 3)")
 
     class Config:
         arbitrary_types_allowed = True
 
 
 class DepthData(BaseModel):
-    data: np.ndarray = Field(..., title="Depth Data", description="Array of BRGA 32 bit pixels???")
+    data: np.ndarray = Field(..., title="Depth Data", description="Array of size (WIDTH, HEIGHT, 3)")
 
     class Config:
         arbitrary_types_allowed = True
