@@ -7,8 +7,15 @@ from roar_autonomous_system.perception.utils import png_to_depth
 
 
 class GroundPlaneDetector(Detector):
-    def __init__(self, show=False):
+    def __init__(self,
+                 sky_line_level: int = 310,
+                 show: bool = False,
+                 max_detectable_distance_threshold: float = 0.089,
+                 min_caliberation_boundary: float = 0.01):
         super().__init__()
+        self.sky_line_level = sky_line_level
+        self.max_detectable_distance_threshold = max_detectable_distance_threshold
+        self.min_caliberation_boundary = min_caliberation_boundary
         self._test_depth_img: Optional[np.asarray] = None
         self._predict_matrix: Optional[np.asarray] = None  # preds
         self.curr_depth_img: Optional[DepthData] = None
@@ -29,27 +36,31 @@ class GroundPlaneDetector(Detector):
         """
 
         if self.curr_depth_img is not None and self._predict_matrix is not None:
-            # run a normal prediction
-            depth_img = self.curr_depth_img.data.copy()  # never modify the original data
-            depth_array = png_to_depth(depth_img)
+            # run a normal prediction on subsequent frames received
+            # never modify the original data, this is of shape (WIDTH x HEIGHT x 3)
+            depth_img = self.curr_depth_img.data.copy()
+            depth_array = png_to_depth(depth_img)  # this turns it into 2D np array of shape (Width x Height)
             diff = np.abs(depth_array - self._predict_matrix)
-            dets = (diff > 0.089)
+            dets = (diff > self.max_detectable_distance_threshold)
+            # dets is a 2D array of shape WidthxHeight of boolean. True = obstacle, False=otherwise
             depth_img[dets > 0] = 255
             if self.show:
-                self.show_ground_plane(depth_img)
+                self.show_first_person_view(depth_img)
+                # self.show_bird_eye_view(depth_img, dets)
         elif self.curr_depth_img is not None:
             if self._test_depth_img is None:
+                # populate test image on the first frame received
                 self._test_depth_img = png_to_depth(self.curr_depth_img.data)
                 return
             else:
-                # try calibrate
+                # try calibrate on the second frame received
                 xs = []
                 data = []
                 depth_array = png_to_depth(self.curr_depth_img.data)
                 # depth_image = calibration image, grab from somewhere
-                for i in range(310, depth_array.shape[0]):
+                for i in range(self.sky_line_level, depth_array.shape[0]):
                     j = np.argmax(depth_array[i, :])
-                    if depth_array[i][j] > 0.01:
+                    if depth_array[i][j] > self.min_caliberation_boundary:
                         xs.append(i)
                         data.append(depth_array[i][j])
                 a, b, c, p, q = self.fit(
@@ -80,7 +91,7 @@ class GroundPlaneDetector(Detector):
         pass
 
     @classmethod
-    def show_ground_plane(cls, depth_image):
+    def show_first_person_view(cls, depth_image):
         """
         show the depth image
         Args:
@@ -91,7 +102,7 @@ class GroundPlaneDetector(Detector):
         """
         gray = cv2.cvtColor(depth_image, cv2.COLOR_BGR2GRAY)
         color = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
-        cv2.imshow('frame', color)
+        cv2.imshow('First Person', color)
         cv2.waitKey(1)
 
     def Sk(self, S_k_1, y_k, y_k_1, x_k, x_k_1):
@@ -161,3 +172,25 @@ class GroundPlaneDetector(Detector):
         g = np.array([np.sum(G1), np.sum(G2), np.sum(G3)])
         a, b, c = np.linalg.pinv(G) @ g  # edits 2
         return a, b, c, p, q
+
+    # def show_bird_eye_view(self, depth_img, dets):
+    #     """
+    #     show the depth image
+    #     Args:
+    #         depth_img: Width x height x 3 shaped image
+    #
+    #     Returns:
+    #         None
+    #     """
+    #     width, height, _ = np.shape(depth_img)
+    #     width, height = 200, 200
+    #     source_ppts = np.float32([(231, 325), (600, 325), (789, 383), (2, 352)])
+    #     dest_ppts = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
+    #     perspective = cv2.getPerspectiveTransform(source_ppts, dest_ppts)
+    #     warped = cv2.warpPerspective(depth_img, perspective, (width, height))
+    #     cv2.imshow("warped", warped)
+    #     cv2.waitKey(1)
+    #
+    #
+    #
+    #     pass

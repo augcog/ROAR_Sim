@@ -5,8 +5,8 @@ import logging
 import pygame
 from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
 import cv2
-from roar_autonomous_system.perception.depth.ground_plane_detector import GroundPlaneDetector
-from roar_autonomous_system.perception.utils import png_to_depth
+from roar_autonomous_system.perception.ground_plane_detector import GroundPlaneDetector
+
 """
     The import order like this is very important! 
 """
