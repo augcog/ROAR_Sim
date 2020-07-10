@@ -7,7 +7,7 @@
     - `conda create -n ROAR python=3.7`
     - `conda activate ROAR`
 3. Install required packages
-    - `pip install -r requirements txt`
+    - `pip install -r requirements.txt`
 4. You are all set up.
     - Start the server
         - on Windows, you may double click the `CarlaUE4.exe` or you may use a commandline prompt and type in `CarlaUE4.exe`
