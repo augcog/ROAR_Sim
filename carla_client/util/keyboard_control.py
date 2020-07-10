@@ -68,7 +68,6 @@ class KeyboardControl(object):
     """Class that handles keyboard input."""
     def __init__(self, world, start_in_autopilot, print_instruction=False):
         self.logger = logging.getLogger(__name__)
-        self.logger.debug("INIT ENTERED")
         if print_instruction:
             print(__doc__)
             print()
@@ -86,7 +85,7 @@ class KeyboardControl(object):
         else:
             raise NotImplementedError("Actor type not supported")
         self._steer_cache = 0.0
-        self.logger.debug("Exiting keyboard init")
+        self.logger.debug("Keyboard Control initiated")
 
     def parse_events(self, client, world, clock) -> Tuple[bool, carla.VehicleControl]:
         """
@@ -193,7 +192,9 @@ class KeyboardControl(object):
                 self._parse_walker_keys(pygame.key.get_pressed(), clock.get_time(), world)
             return True, self._control
             # world.player.apply_control(self._control)
-        return True, None
+        self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
+        return True, self._control
+
     def _parse_vehicle_keys(self, keys, milliseconds):
         if keys[K_UP] or keys[K_w]:
             self._control.throttle = min(self._control.throttle + 0.01, 1)

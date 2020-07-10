@@ -4,7 +4,7 @@ from typing import Optional
 import cv2
 from roar_autonomous_system.util.models import DepthData
 from roar_autonomous_system.perception.utils import png_to_depth
-
+import logging
 
 class GroundPlaneDetector(Detector):
     def __init__(self,
@@ -13,13 +13,17 @@ class GroundPlaneDetector(Detector):
                  max_detectable_distance_threshold: float = 0.089,
                  min_caliberation_boundary: float = 0.01):
         super().__init__()
-        self.sky_line_level = sky_line_level
-        self.max_detectable_distance_threshold = max_detectable_distance_threshold
-        self.min_caliberation_boundary = min_caliberation_boundary
-        self._test_depth_img: Optional[np.asarray] = None
-        self._predict_matrix: Optional[np.asarray] = None  # preds
-        self.curr_depth_img: Optional[DepthData] = None
+        self.logger = logging.getLogger(__name__)
+        self._sky_line_level = sky_line_level
+        self._max_detectable_distance_threshold = max_detectable_distance_threshold
+        self._min_caliberation_boundary = min_caliberation_boundary
+        self._test_depth_img: Optional[np.array] = None
+        self._predict_matrix: Optional[np.array] = None  # preds
+        self.curr_depth: Optional[DepthData] = None
+        self.curr_ground: Optional[np.array] = None
         self.show = show
+
+        self.logger.debug("Ground Plane Detector Initialized")
 
     def run_step(self):
         """
@@ -35,32 +39,33 @@ class GroundPlaneDetector(Detector):
             None
         """
 
-        if self.curr_depth_img is not None and self._predict_matrix is not None:
+        if self.curr_depth is not None and self._predict_matrix is not None:
             # run a normal prediction on subsequent frames received
             # never modify the original data, this is of shape (WIDTH x HEIGHT x 3)
-            depth_img = self.curr_depth_img.data.copy()
+            depth_img = self.curr_depth.data.copy()
             depth_array = png_to_depth(depth_img)  # this turns it into 2D np array of shape (Width x Height)
             diff = np.abs(depth_array - self._predict_matrix)
-            dets = (diff > self.max_detectable_distance_threshold)
+            dets = (diff > self._max_detectable_distance_threshold)
             # dets is a 2D array of shape WidthxHeight of boolean. True = obstacle, False=otherwise
             depth_img[dets > 0] = 255
+            self.curr_ground = ~dets
             if self.show:
                 self.show_first_person_view(depth_img)
-                # self.show_bird_eye_view(depth_img, dets)
-        elif self.curr_depth_img is not None:
+                # self.show_bird_eye_view(depth_img)
+        elif self.curr_depth is not None:
             if self._test_depth_img is None:
                 # populate test image on the first frame received
-                self._test_depth_img = png_to_depth(self.curr_depth_img.data)
+                self._test_depth_img = png_to_depth(self.curr_depth.data)
                 return
             else:
                 # try calibrate on the second frame received
                 xs = []
                 data = []
-                depth_array = png_to_depth(self.curr_depth_img.data)
+                depth_array = png_to_depth(self.curr_depth.data)
                 # depth_image = calibration image, grab from somewhere
-                for i in range(self.sky_line_level, depth_array.shape[0]):
+                for i in range(self._sky_line_level, depth_array.shape[0]):
                     j = np.argmax(depth_array[i, :])
-                    if depth_array[i][j] > self.min_caliberation_boundary:
+                    if depth_array[i][j] > self._min_caliberation_boundary:
                         xs.append(i)
                         data.append(depth_array[i][j])
                 a, b, c, p, q = self.fit(
@@ -77,7 +82,10 @@ class GroundPlaneDetector(Detector):
         else:
             return None
 
-    def recalibrate(self):
+    def recalibrate(self,
+                    sky_line_level: int = 310,
+                    max_detectable_distance_threshold: float = 0.089,
+                    min_caliberation_boundary: float = 0.01):
         """
         Force a recalibration of the ground plane prediction matrix
 
@@ -86,6 +94,10 @@ class GroundPlaneDetector(Detector):
         """
         self._test_depth_img = None
         self._predict_matrix = None
+
+        self._sky_line_level = sky_line_level
+        self._max_detectable_distance_threshold = max_detectable_distance_threshold
+        self._min_caliberation_boundary = min_caliberation_boundary
 
     def sync(self):
         pass
@@ -173,24 +185,21 @@ class GroundPlaneDetector(Detector):
         a, b, c = np.linalg.pinv(G) @ g  # edits 2
         return a, b, c, p, q
 
-    # def show_bird_eye_view(self, depth_img, dets):
-    #     """
-    #     show the depth image
-    #     Args:
-    #         depth_img: Width x height x 3 shaped image
-    #
-    #     Returns:
-    #         None
-    #     """
-    #     width, height, _ = np.shape(depth_img)
-    #     width, height = 200, 200
-    #     source_ppts = np.float32([(231, 325), (600, 325), (789, 383), (2, 352)])
-    #     dest_ppts = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
-    #     perspective = cv2.getPerspectiveTransform(source_ppts, dest_ppts)
-    #     warped = cv2.warpPerspective(depth_img, perspective, (width, height))
-    #     cv2.imshow("warped", warped)
-    #     cv2.waitKey(1)
-    #
-    #
-    #
-    #     pass
+    def show_bird_eye_view(self, depth_img):
+        """
+        show the depth image
+        Args:
+            depth_img: Width x height x 3 shaped image
+
+        Returns:
+            None
+        """
+        width, height, _ = np.shape(depth_img)
+        # source_ppts = np.float32([(231, 325), (600, 325), (789, 383), (2, 352)]) # far
+        source_ppts = np.float32([(0, 350), (800, 350), (800, 600), (0, 600)])  # close
+        dest_ppts = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
+        perspective = cv2.getPerspectiveTransform(source_ppts, dest_ppts)
+        warped = cv2.warpPerspective(depth_img, perspective, (width, height))
+        cv2.imshow("warped", warped)
+        cv2.waitKey(1)
+

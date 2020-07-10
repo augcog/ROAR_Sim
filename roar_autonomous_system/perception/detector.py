@@ -5,6 +5,7 @@ import logging
 class Detector(ABC):
     def __init__(self):
         self.logger = logging
+        self.logger = logging.getLogger(__name__)
 
     @abstractmethod
     def run_step(self):

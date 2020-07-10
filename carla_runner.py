@@ -6,6 +6,7 @@ import pygame
 from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
 import cv2
 from roar_autonomous_system.perception.ground_plane_detector import GroundPlaneDetector
+from roar_autonomous_system.agents.gpd_agent import GPDAgent
 
 """
     The import order like this is very important! 
@@ -67,16 +68,16 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
 
         logger.debug(f"Connecting Keyboard Controls")
         controller = KeyboardControl(world, settings.enable_autopilot, print_instruction=False)
+        vehicle = carla_bridge.convert_vehicle_from_source_to_agent(world.player)
         if settings.enable_autopilot:
-            agent = PathFollowingAgent(vehicle=carla_bridge.convert_vehicle_from_source_to_agent(world.player),
-                                       route_file_path=Path(settings.data_file_path),
-                                       bridge=carla_bridge,
-                                       visualize_occupancy_map=True
-                                       )
+            agent = GPDAgent(
+                vehicle=vehicle,
+                bridge=carla_bridge,
+                show_gpd_data=True
+            )
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()
 
-        gpd = GroundPlaneDetector(show=True)
         while True:
             # make sure the program does not run above 40 frames per second
             # this allow proper synchrony between server and client
@@ -109,13 +110,10 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                         settings.output_data_folder_path) / "rear_rgb" / f"rear_rgb-{world.time_counter}.png").as_posix(),
                                 sensor_data.rear_rgb.data)
 
-            if sensor_data.front_depth is not None:
-                gpd.curr_depth_img = sensor_data.front_depth
-                gpd.run_step()
-
             if settings.enable_autopilot:
                 agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
                 carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
+            print("CONTROL", carla_control)
             world.player.apply_control(carla_control)
 
     except Exception as e:
@@ -145,7 +143,7 @@ def main():
     logger = logging.getLogger(__name__)
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
     settings = CarlaSettings()
-    settings.enable_autopilot = False
+    settings.enable_autopilot = True
     settings.show_sensors_data = False
     settings.save_sensor_data = False
     settings.graph_post_modem_data = False
