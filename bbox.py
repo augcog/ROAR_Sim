@@ -143,6 +143,7 @@ class ClientSideBoundingBoxes(object):
         cords_y_minus_z_x = np.concatenate([cords_x_y_z[1, :], -cords_x_y_z[2, :], cords_x_y_z[0, :]])
         bbox = np.transpose(np.dot(camera.calibration, cords_y_minus_z_x))
         camera_bbox = np.concatenate([bbox[:, 0] / bbox[:, 2], bbox[:, 1] / bbox[:, 2], bbox[:, 2]], axis=1)
+        print(np.shape(camera_bbox), np.shape(bbox)) # 8, 3
         return camera_bbox
 
     @staticmethod
@@ -177,7 +178,6 @@ class ClientSideBoundingBoxes(object):
         """
         Transforms coordinates of a vehicle bounding box to world.
         """
-        print(np.transpose(cords)[:, 0])
         bb_transform = carla.Transform(vehicle.bounding_box.location)
         bb_vehicle_matrix = ClientSideBoundingBoxes.get_matrix(bb_transform)
         vehicle_world_matrix = ClientSideBoundingBoxes.get_matrix(vehicle.get_transform())
@@ -192,7 +192,6 @@ class ClientSideBoundingBoxes(object):
         """
 
         sensor_world_matrix = ClientSideBoundingBoxes.get_matrix(sensor.get_transform())
-        print(sensor.get_transform())
         world_sensor_matrix = np.linalg.inv(sensor_world_matrix)
         sensor_cords = np.dot(world_sensor_matrix, cords)
         return sensor_cords

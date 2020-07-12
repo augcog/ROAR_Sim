@@ -173,12 +173,8 @@ def calculate_img_pos(waypoint, curr_transform, sensor_transform):
     intrinsics[1, 2] = 600 / 2.0
     intrinsics[0, 0] = intrinsics[1, 1] = 800 / (2.0 * np.tan(70 * np.pi / 360.0))
 
-    # print(sensor_transform)
-    # sensor_world_matrix = get_matrix(sensor_transform)
-    # world_sensor_matrix = np.linalg.inv(sensor_world_matrix)
-    cam_veh_matrix = calculate_extrinsics_from_euler(pitch=0, yaw=0, roll=0, tx=1.6, ty=0, tz=1.7)
-    veh_world_matrix = get_matrix(curr_transform)
-    world_sensor_matrix = np.linalg.inv(cam_veh_matrix) @ np.linalg.inv(veh_world_matrix)
+    sensor_world_matrix = get_matrix(sensor_transform)
+    world_sensor_matrix = np.linalg.inv(sensor_world_matrix)
     cords_x_y_z = world_sensor_matrix @ np.array(waypoint)
     tmp = cords_x_y_z.T
     cords_y_minus_z_x = np.concatenate([tmp[1], -tmp[2], tmp[0]])
@@ -190,27 +186,6 @@ def calculate_img_pos(waypoint, curr_transform, sensor_transform):
     # print(np.shape(camera), "|", camera.T)
     return camera
 
-def calculate_extrinsics_from_euler(pitch, yaw, roll, tx, ty, tz):
-    c_y = np.cos(np.radians(yaw))
-    s_y = np.sin(np.radians(yaw))
-    c_r = np.cos(np.radians(roll))
-    s_r = np.sin(np.radians(roll))
-    c_p = np.cos(np.radians(pitch))
-    s_p = np.sin(np.radians(pitch))
-    matrix = np.identity(4)
-    matrix[0, 3] = tx
-    matrix[1, 3] = ty
-    matrix[2, 3] = tz
-    matrix[0, 0] = c_p * c_y
-    matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
-    matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
-    matrix[1, 0] = s_y * c_p
-    matrix[1, 1] = s_y * s_p * s_r + c_y * c_r
-    matrix[1, 2] = -s_y * s_p * c_r + c_y * s_r
-    matrix[2, 0] = s_p
-    matrix[2, 1] = -c_p * s_r
-    matrix[2, 2] = c_p * c_r
-    return matrix
 
 def main():
     log_level = logging.DEBUG
