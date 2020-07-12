@@ -2,17 +2,18 @@ from roar_autonomous_system.perception.detector import Detector
 import numpy as np
 from typing import Optional
 import cv2
-from roar_autonomous_system.util.models import DepthData
+from roar_autonomous_system.util.models import DepthData, Vehicle
 from roar_autonomous_system.perception.utils import png_to_depth
 import logging
 
 class GroundPlaneDetector(Detector):
     def __init__(self,
+                 vehicle: Vehicle,
                  sky_line_level: int = 310,
                  show: bool = False,
                  max_detectable_distance_threshold: float = 0.089,
                  min_caliberation_boundary: float = 0.01):
-        super().__init__()
+        super().__init__(vehicle=vehicle)
         self.logger = logging.getLogger(__name__)
         self._sky_line_level = sky_line_level
         self._max_detectable_distance_threshold = max_detectable_distance_threshold
