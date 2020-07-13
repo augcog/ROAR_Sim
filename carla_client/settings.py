@@ -72,7 +72,7 @@ class CarlaSettings(BaseModel):
     carla_client_egg_file_path: Optional[str] = Field(default=None)
 
     # miscellaneous settings
-    enable_autopilot: bool = Field(default=False, title="Enable Antopilot", description="Enable Antopilot")
+    enable_autopilot: bool = Field(default=True, title="Enable Antopilot", description="Enable Antopilot")
     spawn_point_id: int = Field(default=1, title="Spaning Location ID", description="Spanning Location ID")
     show_sensors_data: bool = Field(default=False)
     graph_post_modem_data: bool = Field(default=False)

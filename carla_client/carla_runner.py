@@ -64,6 +64,7 @@ class CarlaRunner:
                 should_continue, carla_control = self.controller.parse_events(client=self.client,
                                                                               world=self.world,
                                                                               clock=clock)
+
                 if not should_continue:
                     break
                 self.world.tick(clock)
@@ -79,6 +80,8 @@ class CarlaRunner:
                     if not use_manual_control:
                         carla_control = self.carla_bridge.convert_control_from_agent_to_source(agent_control)
                 self.world.player.apply_control(carla_control)
+        except Exception as e:
+            self.logger.error(f"Error happened, exiting safely. Error: {e}")
 
         finally:
             self.logger.debug("Ending Game")

@@ -25,9 +25,21 @@ class Agent(ABC):
         self.front_rgb_camera = front_rgb_camera
         self.front_depth_camera = front_depth_camera
         self.rear_rgb_camera = rear_rgb_camera
+
+        self.init_cam()
+
         self.imu = imu
         self.logger = logging.getLogger(__name__)
         self.transform_history: List[Transform] = []
+
+    def init_cam(self):
+        if self.front_rgb_camera is not None:
+            self.front_rgb_camera.intrinsics_matrix = self.front_rgb_camera.calculate_intrinsic_matrix()
+        if self.front_depth_camera is not None:
+            self.front_depth_camera.intrinsics_matrix = self.front_depth_camera.calculate_intrinsic_matrix()
+        if self.rear_rgb_camera is not None:
+            self.rear_rgb_camera.intrinsics_matrix = self.rear_rgb_camera.calculate_intrinsic_matrix()
+
 
     @abstractmethod
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
