@@ -1,35 +1,54 @@
-from roar_autonomous_system.planning.mission_planners.mission_planner import MissionPlanner
+from roar_autonomous_system.planning_module.mission_planner.mission_planner import MissionPlanner
 from pathlib import Path
 import logging
 from typing import List, Optional
-from roar_autonomous_system.util.models import Transform, Location, Rotation
+from roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
+from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from collections import deque
 
 
-class PathFollowingMissionPlanner(MissionPlanner):
+class WaypointFollowingMissionPlanner(MissionPlanner):
     """
     A mission planner that takes in a file that contains x,y,z coordinates, formulate into carla.Transform
     """
 
-    def __init__(self, file_path: Path):
-        super().__init__()
+    def run_step(self, vehicle: Vehicle):
+        """
+        Regenerate waypoints from file
+
+        Find the waypoint that is closest to the current vehicle location.
+
+        return a mission plan starting from that waypoint
+
+        Args:
+            vehicle: current state of the vehicle
+
+        Returns:
+            mission plan that start from the current vehicle location
+        """
+        super(WaypointFollowingMissionPlanner, self).run_step(vehicle=vehicle)
+        print("TO BE IMPLEMENTED")
+        return self.produce_mission_plan()
+
+    def __init__(self, vehicle: Vehicle, file_path: Path):
+        super().__init__(vehicle=vehicle)
         self.logger = logging.getLogger(__name__)
         self.file_path = file_path
-        self.mission_plan = self.update_mission_plan()
-        self.logger.debug("Path Following Mission Planner Initiated")
+        self.mission_plan = self.produce_mission_plan()
+        self.logger.debug("Path Following Mission Planner Initiated.")
 
-    def update_mission_plan(self) -> List[Transform]:
+    def produce_mission_plan(self) -> deque:
         """
         Generates a list of waypoints based on the input file path
-
         :return a list of waypoint
         """
+        mission_plan = deque()
         raw_path: List[List[float]] = self._read_data_file()
         for coord in raw_path:
             if len(coord) == 3 or len(coord) == 6:
-                self.mission_plan.append(self._raw_coord_to_transform(coord))
-        # result = [self._raw_coord_to_transform(coord) for coord in raw_path if len(coord) == 3 or len(coord) == 6]
-        self.logger.debug(f"Computed Mission path of length {len(self.mission_plan)}")
-        return self.mission_plan
+                mission_plan.append(self._raw_coord_to_transform(coord))
+        self.logger.debug(f"Computed Mission path of length {len(mission_plan)}")
+        return mission_plan
 
     def _read_data_file(self) -> List[List[float]]:
         """
@@ -54,11 +73,7 @@ class PathFollowingMissionPlanner(MissionPlanner):
     def _read_line(self, line: str) -> List[float]:
         """
         parse a line of string of "x,y,z" into [x,y,z]
-
         """
         x, y, z = line.split(",")
         x, y, z = float(x), float(y), float(z)
         return [x, y, z]
-
-    def sync(self):
-        pass

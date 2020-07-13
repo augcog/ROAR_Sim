@@ -1,7 +1,4 @@
-import cv2
 import numpy as np
-from pathlib import Path
-import os
 
 
 def png_to_depth(im: np.array) -> np.array:
@@ -9,10 +6,8 @@ def png_to_depth(im: np.array) -> np.array:
     Takes in an image read from cv2.imread(), whose output is simply a numpy array,
     turn it into a depth image according to carla's method of
     (R + G * 256 + B * 256 * 256) / (256 * 256 * 256 - 1).
-
     Args:
         im: input image, read from cv2.imread()
-
     Returns:
         depth image
     """

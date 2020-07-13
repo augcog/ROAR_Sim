@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 import logging
 import pygame
-from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
+from roar_autonomous_system.agent_module.path_following_agent import PathFollowingAgent
 import cv2
-from roar_autonomous_system.perception.ground_plane_detector import GroundPlaneDetector
-from roar_autonomous_system.agents.gpd_agent import GPDAgent
+from roar_autonomous_system.perception_module.ground_plane_detector import GroundPlaneDetector
+from roar_autonomous_system.agent_module.gpd_agent import GPDAgent
 
 """
     The import order like this is very important! 
@@ -28,7 +28,7 @@ from carla_client.util.hud import HUD
 from carla_client.util.world import World
 from bridges.carla_bridge import CarlaBridge
 import carla
-from roar_autonomous_system.util.models import SensorData, Vehicle
+from roar_autonomous_system.utilities_module.vehicle_models import SensorData, Vehicle
 from typing import Tuple
 from carla_client.util.utilities import create_dir_if_not_exist
 import numpy as np

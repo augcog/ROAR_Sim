@@ -5,15 +5,37 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 """ This module contains PID controllers to perform lateral and longitudinal control. """
-
-from roar_autonomous_system.control.controller import Controller
-from roar_autonomous_system.util.models import Control, Vehicle, Transform, Location
-from roar_autonomous_system.control.util import PIDParam
+from pydantic import BaseModel, Field
+from roar_autonomous_system.control_module.controller import Controller
+from roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
+from roar_autonomous_system.utilities_module.data_structures_models import Transform, Location
 from collections import deque
 import numpy as np
 import math
 import logging
-from roar_autonomous_system.control.util import OPTIMIZED_LATERAL_PID_VALUES
+
+
+class PIDParam(BaseModel):
+    K_P: float = Field(default=1)
+    K_D: float = Field(default=1)
+    K_I: float = Field(default=1)
+    dt: float = Field(default=1)
+
+    @staticmethod
+    def default_lateral_param():
+        return PIDParam(K_P=1.95, K_D=0.2, K_I=0.07, dt=1.0 / 20.0)
+
+    @staticmethod
+    def default_longitudinal_param():
+        return PIDParam(K_P=1, K_D=0, K_I=0.05, dt=1.0 / 20.0)
+
+
+# speed - LateralPIDParam
+OPTIMIZED_LATERAL_PID_VALUES = {
+    60: PIDParam(K_P=0.5, K_D=0.5, K_I=0.2),
+    100: PIDParam(K_P=0.2, K_D=0.2, K_I=0.5),
+    150: PIDParam(K_P=0.01, K_D=0.075, K_I=0.7),
+}
 
 
 class VehiclePIDController(Controller):
@@ -47,7 +69,7 @@ class VehiclePIDController(Controller):
 
         super().__init__(vehicle)
         self.logger = logging.Logger(__name__)
-        self.max_throt = max_throttle
+        self.max_throttle = max_throttle
         self.max_steer = max_steering
 
         self.target_speed = target_speed
@@ -65,7 +87,8 @@ class VehiclePIDController(Controller):
                                                     dt=args_lateral.dt)
         self.logger.debug("PID Controller initiated")
 
-    def run_step(self, next_waypoint: Transform) -> Control:
+
+    def run_step(self, vehicle: Vehicle, next_waypoint: Transform, **kwargs) -> VehicleControl:
         """
         Execute one step of control invoking both lateral and longitudinal
         PID controllers to reach a target waypoint
@@ -74,7 +97,7 @@ class VehiclePIDController(Controller):
             :param target_speed: desired vehicle speed
             :return: distance (in meters) to the waypoint
         """
-        self.sync()
+        super(VehiclePIDController, self).run_step(vehicle, next_waypoint)
         curr_speed = Vehicle.get_speed(self.vehicle)
         if curr_speed < 60:
             self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[60].K_D
@@ -96,10 +119,10 @@ class VehiclePIDController(Controller):
 
         acceleration = self._lon_controller.run_step(acceptable_target_speed)
         current_steering = self._lat_controller.run_step(next_waypoint)
-        control = Control()
+        control = VehicleControl()
 
         if acceleration >= 0.0:
-            control.throttle = min(acceleration, self.max_throt)
+            control.throttle = min(acceleration, self.max_throttle)
             # control.brake = 0.0
         else:
             control.throttle = 0
@@ -117,13 +140,14 @@ class VehiclePIDController(Controller):
             steering = max(-self.max_steer, current_steering)
         if abs(current_steering) > 0.03 and curr_speed > 110:
             # if i am doing a sharp (>0.5) turn, i do not want to step on full gas
-            control.throttle = -1  # TODO show w/o break this is a disaster
+            control.throttle = -1
 
         control.steering = steering
         self.past_steering = steering
         return control
-
-    def sync(self):
+    
+    def sync_data(self, vehicle):
+        super(VehiclePIDController, self).sync_data(vehicle=vehicle)
         self._lon_controller.vehicle = self.vehicle
         self._lat_controller.vehicle = self.vehicle
 
@@ -153,7 +177,6 @@ class PIDLongitudinalController:
         """
         Execute one step of longitudinal control to reach a given target speed.
             :param target_speed: target speed in Km/h
-            :param debug: boolean for debugging
             :return: throttle control
         """
         current_speed = Vehicle.get_speed(self.vehicle)
@@ -177,6 +200,7 @@ class PIDLongitudinalController:
             _de = 0.0
             _ie = 0.0
         output = float(np.clip((self._k_p * error) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0))
+
         return output
 
 

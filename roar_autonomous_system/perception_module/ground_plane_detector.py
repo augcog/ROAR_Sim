@@ -1,87 +1,92 @@
-from roar_autonomous_system.perception.detector import Detector
+from roar_autonomous_system.perception_module.detector import Detector
 import numpy as np
 from typing import Optional
 import cv2
-from roar_autonomous_system.util.models import DepthData, Vehicle
-from roar_autonomous_system.perception.utils import png_to_depth
+from roar_autonomous_system.utilities_module.data_structures_models import DepthData
+from roar_autonomous_system.utilities_module.utilities import png_to_depth
 import logging
+from roar_autonomous_system.utilities_module.camera_models import Camera
+from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+
 
 class GroundPlaneDetector(Detector):
     def __init__(self,
                  vehicle: Vehicle,
+                 camera: Camera,
                  sky_line_level: int = 310,
                  show: bool = False,
                  max_detectable_distance_threshold: float = 0.089,
                  min_caliberation_boundary: float = 0.01):
-        super().__init__(vehicle=vehicle)
+        super().__init__(vehicle=vehicle, camera=camera)
         self.logger = logging.getLogger(__name__)
         self._sky_line_level = sky_line_level
         self._max_detectable_distance_threshold = max_detectable_distance_threshold
         self._min_caliberation_boundary = min_caliberation_boundary
         self._test_depth_img: Optional[np.array] = None
         self._predict_matrix: Optional[np.array] = None  # preds
-        self.curr_depth: Optional[DepthData] = None
+
+        self.curr_depth_img: Optional[np.array] = None
         self.curr_ground: Optional[np.array] = None
         self.show = show
 
         self.logger.debug("Ground Plane Detector Initialized")
 
-    def run_step(self):
+    def run_step(self, vehicle: Vehicle, new_data: np.array):
         """
         This function assumes that the function calling it will set the variable self.curr_depth_img
-
         In the first run of this function,
             it will remember the input depth image as self._test_depth_img
         In the second run of this function,
             it will calculate the prediction matrix
         In the preceding runs, it will use the prediction matrix to find ground plane
 
+
+        Args:
+            vehicle: current vehicle state
+            new_data: current frame for this detector
+
         Returns:
             None
-        """
 
-        if self.curr_depth is not None and self._predict_matrix is not None:
-            # run a normal prediction on subsequent frames received
-            # never modify the original data, this is of shape (WIDTH x HEIGHT x 3)
-            depth_img = self.curr_depth.data.copy()
+        """
+        super(GroundPlaneDetector, self).run_step(vehicle, new_data)
+        if self._test_depth_img is None:
+            self._test_depth_img = png_to_depth(new_data)
+            return
+        elif self._predict_matrix is None:
+            # try calibrate on the second frame received
+            xs = []
+            data = []
+            depth_array = png_to_depth(new_data)
+            # depth_image = calibration image, grab from somewhere
+            for i in range(self._sky_line_level, depth_array.shape[0]):
+                j = np.argmax(depth_array[i, :])
+                if depth_array[i][j] > self._min_caliberation_boundary:
+                    xs.append(i)
+                    data.append(depth_array[i][j])
+            a, b, c, p, q = self.fit(
+                np.array(xs, dtype=np.float64),
+                np.array(data, dtype=np.float64)
+            )
+            test_image = self._test_depth_img
+            pred_func = self.construct_f(a, b, c, p, q)
+            rows = np.meshgrid(
+                np.arange(test_image.shape[1]), np.arange(test_image.shape[0])
+            )[1]
+            self._predict_matrix = pred_func(rows)
+            return
+        else:
+            depth_img = new_data.copy()
             depth_array = png_to_depth(depth_img)  # this turns it into 2D np array of shape (Width x Height)
             diff = np.abs(depth_array - self._predict_matrix)
             dets = (diff > self._max_detectable_distance_threshold)
             # dets is a 2D array of shape WidthxHeight of boolean. True = obstacle, False=otherwise
             depth_img[dets > 0] = 255
+            self.curr_depth_img = depth_img
             self.curr_ground = ~dets
             if self.show:
                 self.show_first_person_view(depth_img)
                 # self.show_bird_eye_view(depth_img)
-        elif self.curr_depth is not None:
-            if self._test_depth_img is None:
-                # populate test image on the first frame received
-                self._test_depth_img = png_to_depth(self.curr_depth.data)
-                return
-            else:
-                # try calibrate on the second frame received
-                xs = []
-                data = []
-                depth_array = png_to_depth(self.curr_depth.data)
-                # depth_image = calibration image, grab from somewhere
-                for i in range(self._sky_line_level, depth_array.shape[0]):
-                    j = np.argmax(depth_array[i, :])
-                    if depth_array[i][j] > self._min_caliberation_boundary:
-                        xs.append(i)
-                        data.append(depth_array[i][j])
-                a, b, c, p, q = self.fit(
-                    np.array(xs, dtype=np.float64),
-                    np.array(data, dtype=np.float64)
-                )
-                test_image = self._test_depth_img
-                pred_func = self.construct_f(a, b, c, p, q)
-                rows = np.meshgrid(
-                    np.arange(test_image.shape[1]), np.arange(test_image.shape[0])
-                )[1]
-                self._predict_matrix = pred_func(rows)
-                return
-        else:
-            return None
 
     def recalibrate(self,
                     sky_line_level: int = 310,
@@ -89,7 +94,6 @@ class GroundPlaneDetector(Detector):
                     min_caliberation_boundary: float = 0.01):
         """
         Force a recalibration of the ground plane prediction matrix
-
         Returns:
             None
         """
@@ -100,18 +104,13 @@ class GroundPlaneDetector(Detector):
         self._max_detectable_distance_threshold = max_detectable_distance_threshold
         self._min_caliberation_boundary = min_caliberation_boundary
 
-    def sync(self):
-        pass
-
     @classmethod
     def show_first_person_view(cls, depth_image):
         """
         show the depth image
         Args:
             depth_image: Width x height x 3 shaped image
-
         Returns:
-
         """
         gray = cv2.cvtColor(depth_image, cv2.COLOR_BGR2GRAY)
         color = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
@@ -185,22 +184,3 @@ class GroundPlaneDetector(Detector):
         g = np.array([np.sum(G1), np.sum(G2), np.sum(G3)])
         a, b, c = np.linalg.pinv(G) @ g  # edits 2
         return a, b, c, p, q
-
-    def show_bird_eye_view(self, depth_img):
-        """
-        show the depth image
-        Args:
-            depth_img: Width x height x 3 shaped image
-
-        Returns:
-            None
-        """
-        width, height, _ = np.shape(depth_img)
-        # source_ppts = np.float32([(231, 325), (600, 325), (789, 383), (2, 352)]) # far
-        source_ppts = np.float32([(0, 350), (800, 350), (800, 600), (0, 600)])  # close
-        dest_ppts = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
-        perspective = cv2.getPerspectiveTransform(source_ppts, dest_ppts)
-        warped = cv2.warpPerspective(depth_img, perspective, (width, height))
-        cv2.imshow("warped", warped)
-        cv2.waitKey(1)
-

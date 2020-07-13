@@ -1,29 +1,31 @@
-from roar_autonomous_system.planning.local_planners.local_planner import LocalPlanner
-from roar_autonomous_system.util.models import Vehicle, Transform, Control
-from roar_autonomous_system.control.controller import Controller
-from roar_autonomous_system.planning.mission_planners.mission_planner import MissionPlanner
-from roar_autonomous_system.planning.behavior_planners.behavior_planner import BehaviorPlanner
+from roar_autonomous_system.planning_module.local_planner.local_planner import LocalPlanner
+from roar_autonomous_system.utilities_module.data_structures_models import Transform
+from roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
+from roar_autonomous_system.control_module.controller import Controller
+from roar_autonomous_system.planning_module.mission_planner.mission_planner import MissionPlanner
+from roar_autonomous_system.planning_module.behavior_planner.behavior_planner import BehaviorPlanner
 import logging
 from typing import Union
-from roar_autonomous_system.util.errors import AgentException
+from roar_autonomous_system.utilities_module.errors import AgentException
 
 
-class SimplePathFollowingLocalPlanner(LocalPlanner):
+class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
     def __init__(self, vehicle: Vehicle, controller: Controller, mission_planner: MissionPlanner,
                  behavior_planner: BehaviorPlanner, closeness_threshold=0.5):
-        super().__init__(vehicle, controller, mission_planner, behavior_planner, closeness_threshold)
+        super().__init__(vehicle=vehicle,
+                         controller=controller,
+                         mission_planner=mission_planner,
+                         behavior_planner=behavior_planner)
         self.logger = logging.getLogger("SimplePathFollowingLocalPlanner")
         self.set_mission_plan()
         self.logger.debug("Simple Path Following Local Planner Initiated")
+        self.closeness_threshold = closeness_threshold
 
     def set_mission_plan(self):
         """
         clears current waypoints, and reset mission plan from start
-
         I am simply transfering the mission plan into my waypoint queue.
-
         Assuming that this current run will run all the way to the end
-
         :return: None
         """
         self.way_points_queue.clear()
@@ -33,10 +35,10 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
     def is_done(self):
         return len(self.way_points_queue) == 0
 
-    def run_step(self) -> Control:
-        self.sync()  # on every run step, sync vehicle with lower level
+    def run_step(self, vehicle: Vehicle) -> VehicleControl:
+        self.sync_data(vehicle=vehicle)  # on every run step, sync first
         if len(self.mission_planner.mission_plan) == 0 and len(self.way_points_queue) == 0:
-            return Control()
+            return VehicleControl()
 
         # get vehicle's location
         vehicle_transform: Union[Transform, None] = self.vehicle.transform
@@ -60,7 +62,7 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
         while True:
             if len(self.way_points_queue) == 0:
                 self.logger.info("Destination reached")
-                return Control()
+                return VehicleControl()
             waypoint: Transform = self.way_points_queue[0]
             curr_dist = vehicle_transform.location.distance(waypoint.location)
             if curr_dist < curr_closest_dist:
@@ -77,13 +79,10 @@ class SimplePathFollowingLocalPlanner(LocalPlanner):
         # target_waypoint = Transform.average(self.way_points_queue[0], self.way_points_queue[1])
         # target_waypoint = Transform.average(self.way_points_queue[2], target_waypoint)
 
-        control: Control = self.controller.run_step(next_waypoint=target_waypoint)
+        control: VehicleControl = self.controller.run_step(vehicle=vehicle, next_waypoint=target_waypoint)
         # self.logger.debug(
         #     f"Target_Location {target_waypoint.location} "
         #     f"| Curr_Location {vehicle_transform.location} "
         #     f"| Distance {int(curr_closest_dist)}")
 
         return control
-
-    def sync(self):
-        self.controller.vehicle = self.vehicle

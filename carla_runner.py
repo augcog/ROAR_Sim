@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 import logging
 import pygame
-from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
+from roar_autonomous_system.agent_module.waypoint_following_agent import WaypointFollowingAgent
 import cv2
-from roar_autonomous_system.perception.ground_plane_detector import GroundPlaneDetector
-from roar_autonomous_system.agents.gpd_agent import GPDAgent
+# from roar_autonomous_system.perception_module.ground_plane_detector import GroundPlaneDetector
+# from roar_autonomous_system.agent_module.gpd_agent import GPDAgent
 
 """
     The import order like this is very important! 
@@ -28,14 +28,15 @@ from carla_client.util.hud import HUD
 from carla_client.util.world import World
 from bridges.carla_bridge import CarlaBridge
 import carla
-from roar_autonomous_system.util.models import SensorData, Vehicle
+from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from roar_autonomous_system.utilities_module.data_structures_models import SensorsData
 from typing import Tuple
 from carla_client.util.utilities import create_dir_if_not_exist
-import numpy as np
+from roar_autonomous_system.agent_module.gpd_agent import GPDAgent
+from roar_autonomous_system.utilities_module.camera_models import Camera
 
-
-def convert_data(world, carla_bridge) -> Tuple[SensorData, Vehicle]:
-    sensor_data: SensorData = carla_bridge.convert_sensor_data_from_source_to_agent(
+def convert_data(world, carla_bridge) -> Tuple[SensorsData, Vehicle]:
+    sensor_data: SensorsData = carla_bridge.convert_sensor_data_from_source_to_agent(
         {
             "front_rgb": None if world.front_rgb_sensor_data is None else world.front_rgb_sensor_data,
             "rear_rgb": None if world.rear_rgb_sensor_data is None else world.rear_rgb_sensor_data,
@@ -71,10 +72,9 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
         controller = KeyboardControl(world, settings.enable_autopilot, print_instruction=False)
         vehicle = carla_bridge.convert_vehicle_from_source_to_agent(world.player)
         if settings.enable_autopilot:
-            agent = PathFollowingAgent(
+            agent = GPDAgent(
                 vehicle=vehicle,
-                bridge=carla_bridge,
-                route_file_path=Path(settings.data_file_path)
+                front_depth_camera=Camera() # todo, this should be generated ahead of time, not here. Rewrite runner script
             )
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()
@@ -113,36 +113,9 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
                                 sensor_data.rear_rgb.data)
 
             if settings.enable_autopilot:
-                agent_control = agent.run_step(vehicle=new_vehicle, sensor_data=sensor_data)
-                # carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
+                agent_control = agent.run_step(vehicle=new_vehicle, sensors_data=sensor_data)
+                carla_control = carla_bridge.convert_control_from_agent_to_source(agent_control)
             world.player.apply_control(carla_control)
-
-            waypoint_0 = [8.670342445373535, 50.49717712402344, -0.009518756531178951, 1]
-            waypoint_1 = [8.63516616821289, 43.11967849731445, -0.005509738810360432, 1]
-            waypoint_2 = [8.616731643676758, 39.23454284667969, -0.005410938058048487, 1]
-            waypoint_3 = [8.542390823364258, 23.610092163085938, -0.005435962695628405, 1]
-
-            img_coord0 = calculate_img_pos(waypoint_0, world.player.get_transform(),
-                                           world.front_rgb_sensor.get_transform())
-            img_coord1 = calculate_img_pos(waypoint_1, world.player.get_transform(),
-                                           world.front_rgb_sensor.get_transform())
-            img_coord2 = calculate_img_pos(waypoint_2, world.player.get_transform(),
-                                           world.front_rgb_sensor.get_transform())
-            img_coord3 = calculate_img_pos(waypoint_3, world.player.get_transform(),
-                                           world.front_rgb_sensor.get_transform())
-
-            img_coord0 = img_coord0.astype(np.int64)
-            img_coord1 = img_coord1.astype(np.int64)
-            img_coord2 = img_coord2.astype(np.int64)
-            img_coord3 = img_coord3.astype(np.int64)
-            img = sensor_data.front_rgb.data.copy()
-            # img[480:480 + 4, 167:167 + 4] = [125, 125, 125]
-            img[415:415 + 4, 400:400 + 4] = [255, 0, 0]
-            img[379:379 + 4, 400:400 + 4] = [0, 255, 0]
-            img[336:336 + 4, 400:400 + 4] = [0, 0, 255]
-            print(img_coord0.T, "|", img_coord1.T, "|", img_coord2.T, "|", img_coord3.T)
-            cv2.imshow("test", img)
-            cv2.waitKey(1)
 
     except Exception as e:
         logger.error(f"Safely exiting due to error: {e}")
@@ -165,53 +138,6 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
         exit(0)
 
 
-def calculate_img_pos(waypoint, curr_transform, sensor_transform):
-    location = curr_transform.location
-    rotation = curr_transform.rotation
-    intrinsics = np.identity(3)
-    intrinsics[0, 2] = 800 / 2.0
-    intrinsics[1, 2] = 600 / 2.0
-    intrinsics[0, 0] = intrinsics[1, 1] = 800 / (2.0 * np.tan(70 * np.pi / 360.0))
-
-    # print(sensor_transform)
-    # sensor_world_matrix = get_matrix(sensor_transform)
-    # world_sensor_matrix = np.linalg.inv(sensor_world_matrix)
-    cam_veh_matrix = calculate_extrinsics_from_euler(pitch=0, yaw=0, roll=0, tx=1.6, ty=0, tz=1.7)
-    veh_world_matrix = get_matrix(curr_transform)
-    world_sensor_matrix = np.linalg.inv(cam_veh_matrix) @ np.linalg.inv(veh_world_matrix)
-    cords_x_y_z = world_sensor_matrix @ np.array(waypoint)
-    tmp = cords_x_y_z.T
-    cords_y_minus_z_x = np.concatenate([tmp[1], -tmp[2], tmp[0]])
-    distance = np.linalg.norm(np.array([waypoint[0], waypoint[1], waypoint[2]]) -
-                              np.array([location.x, location.y, location.z]))
-    p2d = intrinsics @ cords_y_minus_z_x
-    temp = p2d.T
-    camera = np.concatenate([temp[:, 0] / temp[:, 2], temp[:, 1] / temp[:, 2], temp[:, 2]])
-    # print(np.shape(camera), "|", camera.T)
-    return camera
-
-def calculate_extrinsics_from_euler(pitch, yaw, roll, tx, ty, tz):
-    c_y = np.cos(np.radians(yaw))
-    s_y = np.sin(np.radians(yaw))
-    c_r = np.cos(np.radians(roll))
-    s_r = np.sin(np.radians(roll))
-    c_p = np.cos(np.radians(pitch))
-    s_p = np.sin(np.radians(pitch))
-    matrix = np.identity(4)
-    matrix[0, 3] = tx
-    matrix[1, 3] = ty
-    matrix[2, 3] = tz
-    matrix[0, 0] = c_p * c_y
-    matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
-    matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
-    matrix[1, 0] = s_y * c_p
-    matrix[1, 1] = s_y * s_p * s_r + c_y * c_r
-    matrix[1, 2] = -s_y * s_p * c_r + c_y * s_r
-    matrix[2, 0] = s_p
-    matrix[2, 1] = -c_p * s_r
-    matrix[2, 2] = c_p * c_r
-    return matrix
-
 def main():
     log_level = logging.DEBUG
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=log_level)
@@ -231,35 +157,6 @@ def main():
         game_loop(settings, logger)
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
-
-
-def get_matrix(transform):
-    """
-    Creates matrix from carla transform.
-    """
-
-    rotation = transform.rotation
-    location = transform.location
-    c_y = np.cos(np.radians(rotation.yaw))
-    s_y = np.sin(np.radians(rotation.yaw))
-    c_r = np.cos(np.radians(rotation.roll))
-    s_r = np.sin(np.radians(rotation.roll))
-    c_p = np.cos(np.radians(rotation.pitch))
-    s_p = np.sin(np.radians(rotation.pitch))
-    matrix = np.matrix(np.identity(4))
-    matrix[0, 3] = location.x
-    matrix[1, 3] = location.y
-    matrix[2, 3] = location.z
-    matrix[0, 0] = c_p * c_y
-    matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
-    matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
-    matrix[1, 0] = s_y * c_p
-    matrix[1, 1] = s_y * s_p * s_r + c_y * c_r
-    matrix[1, 2] = -s_y * s_p * c_r + c_y * s_r
-    matrix[2, 0] = s_p
-    matrix[2, 1] = -c_p * s_r
-    matrix[2, 2] = c_p * c_r
-    return matrix
 
 
 if __name__ == "__main__":

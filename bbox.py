@@ -6,7 +6,7 @@
 # For a copy, see <https://opensource.org/licenses/MIT>.
 
 """
-An example of client-side bounding boxes with basic car controls.
+An example of client-side bounding boxes with basic car control_module.
 Controls:
     W            : throttle
     S            : brake
@@ -29,10 +29,10 @@ import sys
 from pathlib import Path
 import logging
 import pygame
-from roar_autonomous_system.agents.path_following_agent import PathFollowingAgent
+from roar_autonomous_system.agent_module.path_following_agent import PathFollowingAgent
 import cv2
-from roar_autonomous_system.perception.ground_plane_detector import GroundPlaneDetector
-from roar_autonomous_system.agents.gpd_agent import GPDAgent
+from roar_autonomous_system.perception_module.ground_plane_detector import GroundPlaneDetector
+from roar_autonomous_system.agent_module.gpd_agent import GPDAgent
 
 """
     The import order like this is very important! 

@@ -3,8 +3,9 @@ from carla import ColorConverter as cc
 from carla_client.util.sensors import IMUSensor
 from bridges.bridge import Bridge
 from typing import Dict, Tuple, Union, Any
-from roar_autonomous_system.util.models import SensorData, Control, RGBData, DepthData, IMUData, Vector3D, Vehicle, \
-    Transform, Location, Rotation
+from roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
+from roar_autonomous_system.utilities_module.data_structures_models import Location, Rotation, RGBData, DepthData, \
+    SensorsData, IMUData, Vector3D, Transform
 import numpy as np
 import math
 import cv2
@@ -23,9 +24,9 @@ class CarlaBridge(Bridge):
             location=self.convert_location_from_source_to_agent(source=source.location),
             rotation=self.convert_rotation_from_source_to_agent(source=source.rotation))
 
-    def convert_control_from_source_to_agent(self, source: carla.VehicleControl) -> Control:
-        return Control(throttle=-1 * source.throttle if source.reverse else source.throttle,
-                       steering=source.steer)
+    def convert_control_from_source_to_agent(self, source: carla.VehicleControl) -> VehicleControl:
+        return VehicleControl(throttle=-1 * source.throttle if source.reverse else source.throttle,
+                              steering=source.steer)
 
     def convert_rgb_from_source_to_agent(self, source: carla.Image) -> Union[RGBData, None]:
         try:
@@ -54,20 +55,20 @@ class CarlaBridge(Bridge):
                                           y=source.gyroscope[1],
                                           z=source.gyroscope[2]))
 
-    def convert_sensor_data_from_source_to_agent(self, source: dict) -> SensorData:
-        return SensorData(front_rgb=self.convert_rgb_from_source_to_agent(source=source.get("front_rgb", None)),
-                          rear_rgb=self.convert_rgb_from_source_to_agent(source=source.get("rear_rgb", None)),
-                          front_depth=self.convert_depth_from_source_to_agent(source=source.get("front_depth", None)),
-                          imu_data=self.convert_imu_from_source_to_agent(source=source.get("imu", None)))
+    def convert_sensor_data_from_source_to_agent(self, source: dict) -> SensorsData:
+        return SensorsData(front_rgb=self.convert_rgb_from_source_to_agent(source=source.get("front_rgb", None)),
+                           rear_rgb=self.convert_rgb_from_source_to_agent(source=source.get("rear_rgb", None)),
+                           front_depth=self.convert_depth_from_source_to_agent(source=source.get("front_depth", None)),
+                           imu_data=self.convert_imu_from_source_to_agent(source=source.get("imu", None)))
 
     def convert_vehicle_from_source_to_agent(self, source: carla.Vehicle) -> Vehicle:
-        control: Control = self.convert_control_from_source_to_agent(source.get_control())
+        control: VehicleControl = self.convert_control_from_source_to_agent(source.get_control())
         # this is cheating here, vehicle does not know its own location
         transform: Transform = self.convert_transform_from_source_to_agent(source.get_transform())
         velocity: Vector3D = self.convert_vector3d_from_source_to_agent(source.get_velocity())
         return Vehicle(velocity=velocity, transform=transform, control=control)
 
-    def convert_control_from_agent_to_source(self, control: Control) -> carla.VehicleControl:
+    def convert_control_from_agent_to_source(self, control: VehicleControl) -> carla.VehicleControl:
         return carla.VehicleControl(throttle=abs(control.throttle),
                                     steer=control.steering,
                                     brake=0,

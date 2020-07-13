@@ -4,8 +4,9 @@ This file defines a basic Bridge for extensibility of the ROAR Autonomous softwa
 """
 from abc import abstractmethod, ABC
 import logging
-from roar_autonomous_system.util.models import Location, Rotation, Transform, Control, RGBData, DepthData, \
-    Vector3D, IMUData, SensorData, Vehicle
+from roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
+from roar_autonomous_system.utilities_module.data_structures_models import Location, Rotation, RGBData, DepthData, \
+    SensorsData, IMUData, Vector3D, Transform
 from typing import Any
 
 
@@ -30,7 +31,7 @@ class Bridge(ABC):
         pass
 
     @abstractmethod
-    def convert_control_from_source_to_agent(self, source) -> Control:
+    def convert_control_from_source_to_agent(self, source) -> VehicleControl:
         pass
 
     @abstractmethod
@@ -50,7 +51,7 @@ class Bridge(ABC):
         pass
 
     @abstractmethod
-    def convert_sensor_data_from_source_to_agent(self, source) -> SensorData:
+    def convert_sensor_data_from_source_to_agent(self, source) -> SensorsData:
         pass
 
     @abstractmethod
@@ -62,7 +63,7 @@ class Bridge(ABC):
     """
 
     @abstractmethod
-    def convert_control_from_agent_to_source(self, control: Control) -> Any:
+    def convert_control_from_agent_to_source(self, control: VehicleControl) -> Any:
         pass
 
     @abstractmethod
