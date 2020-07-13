@@ -74,7 +74,7 @@ def game_loop(settings: CarlaSettings, logger: logging.Logger):
             agent = PathFollowingAgent(
                 vehicle=vehicle,
                 bridge=carla_bridge,
-                route_file_path=Path(settings.data_file_path)
+                route_file_path=Path(settings.waypoint_file_path)
             )
         logger.debug("Initiating Game")
         clock = pygame.time.Clock()

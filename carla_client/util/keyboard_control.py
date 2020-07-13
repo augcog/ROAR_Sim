@@ -62,16 +62,18 @@ from pygame.locals import K_x
 from typing import Tuple
 import logging
 import carla
+from carla_client.settings import CarlaSettings
 
 
 class KeyboardControl(object):
     """Class that handles keyboard input."""
-    def __init__(self, world, start_in_autopilot, print_instruction=False):
+
+    def __init__(self, world, carla_setting: CarlaSettings):
         self.logger = logging.getLogger(__name__)
-        if print_instruction:
+        if carla_setting.print_keyboard_hint:
             print(__doc__)
             print()
-        self._autopilot_enabled = start_in_autopilot
+        self._autopilot_enabled = carla_setting.enable_autopilot
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             self._lights = carla.VehicleLightState.NONE
@@ -179,13 +181,13 @@ class KeyboardControl(object):
                 # Set automatic control-related vehicle lights
                 if self._control.brake:
                     current_lights |= carla.VehicleLightState.Brake
-                else: # Remove the Brake flag
+                else:  # Remove the Brake flag
                     current_lights &= carla.VehicleLightState.All ^ carla.VehicleLightState.Brake
                 if self._control.reverse:
                     current_lights |= carla.VehicleLightState.Reverse
-                else: # Remove the Reverse flag
+                else:  # Remove the Reverse flag
                     current_lights &= carla.VehicleLightState.All ^ carla.VehicleLightState.Reverse
-                if current_lights != self._lights: # Change the light state only if necessary
+                if current_lights != self._lights:  # Change the light state only if necessary
                     self._lights = current_lights
                     world.player.set_light_state(carla.VehicleLightState(self._lights))
             elif isinstance(self._control, carla.WalkerControl):

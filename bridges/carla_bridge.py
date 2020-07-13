@@ -80,6 +80,17 @@ class CarlaBridge(Bridge):
     def convert_vector3d_from_agent_to_source(self, vector3d: Vector3D) -> carla.Vector3D:
         return carla.Vector3D(x=vector3d.x, y=vector3d.y, z=vector3d.z)
 
+    def convert_location_from_agent_to_source(self, source: Location) -> carla.Location:
+        return carla.Location(x=source.x, y=source.y, z=source.z)
+
+    def convert_rotation_from_agent_to_source(self, source: Rotation) -> carla.Rotation:
+        return carla.Rotation(pitch=source.pitch, yaw=source.yaw, roll=source.roll)
+
+    def convert_transform_from_agent_to_source(self, source: Transform) -> carla.Transform:
+        return carla.Transform(
+            location=self.convert_location_from_agent_to_source(source=source.location),
+            rotation=self.convert_rotation_from_agent_to_source(source=source.rotation))
+
     def _to_bgra_array(self, image):
         """Convert a CARLA raw image to a BGRA numpy array."""
         if not isinstance(image, carla.Image):

@@ -1,14 +1,14 @@
 from pydantic import BaseModel, Field
 import numpy as np
-from roar_autonomous_system.utilities_module.data_structures_models import Vector3D, Location, Rotation
+from roar_autonomous_system.utilities_module.data_structures_models import Vector3D, Location, Rotation, Transform
 from typing import Union, Optional, Union
 import cv2
 
 
 class Camera(BaseModel):
     fov: int = Field(default=70, title="Field of View")
-    location: Location = Field(default=Location(x=1.6, y=0, z=1.7), title="Location of sensor with respect to parent actor")
-    rotation: Rotation = Field(default=Rotation(pitch=0, yaw=0, roll=0), title="Rotation of sensor with respecct to parent actor")
+    transform: Transform = Field(default=Transform(location=Location(x=1.6, y=0, z=1.7),
+                                                   rotation=Rotation(pitch=0, yaw=0, roll=0)))
     image_size_x: int = Field(default=800, title="Image size width")
     image_size_y: int = Field(default=600, title="Image size width")
     data: Optional[np.ndarray] = Field(default=None)

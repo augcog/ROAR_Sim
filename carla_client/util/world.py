@@ -3,19 +3,19 @@ from carla import ColorConverter as cc
 import logging
 import random
 import sys
-from settings import CarlaSettings
-from util.hud import HUD
-from util.utilities import CarlaCarColor, CarlaCarColors, get_actor_display_name
-from util.sensors import CollisionSensor, GnssSensor, LaneInvasionSensor, IMUSensor, RadarSensor
-from util.camera_manager import CameraManager
+from bridges.carla_bridge import CarlaBridge
+from carla_client.settings import CarlaSettings
+from carla_client.util.hud import HUD
+from carla_client.util.utilities import CarlaCarColor, CarlaCarColors, get_actor_display_name
+from carla_client.util.sensors import CollisionSensor, GnssSensor, LaneInvasionSensor, IMUSensor, RadarSensor
+from carla_client.util.camera_manager import CameraManager
 import weakref
-import numpy as np
 
 
 class World(object):
     def __init__(self, carla_world: carla.World, hud: HUD, settings: CarlaSettings):
         self.logger = logging.getLogger(__name__)
-        self.settings = settings
+        self.settings: CarlaSettings = settings
         self.carla_world: carla.World = carla_world
         self.actor_role_name = settings.role_name
         try:
@@ -26,9 +26,10 @@ class World(object):
             print('  Make sure it exists, has the same name of your town, and is correct.')
             sys.exit(1)
         self.hud = hud
+        self.carla_bridge = CarlaBridge()
         self._spawn_point_id = settings.spawn_point_id
         self._actor_filter = settings.carla_vehicle_blueprint_filter
-        self._car_color = settings.car_color  # todo parse arg here
+        self._car_color = settings.car_color
         self._gamma = settings.gamma
         self.player = None
         self.collision_sensor = None
@@ -140,33 +141,33 @@ class World(object):
         self.carla_world.weather = new_weather
 
     def set_custom_sensor(self):
+
         Attachment = carla.AttachmentType
-        front_transform_and_type = (carla.Transform(carla.Location(x=1.6, z=1.7)), Attachment.Rigid)
-        # front_transform_and_type = (carla.Transform(carla.Location(z=1.7)), Attachment.Rigid)
-        rear_transform_and_type = (carla.Transform(location=carla.Location(x=-1.5, y=0.0, z=1.4),
-                                                   rotation=carla.Rotation(pitch=0.0, yaw=180, roll=0.0)),
-                                   Attachment.Rigid)
         self._destroy_custom_sensors()
         self.front_rgb_sensor = self._spawn_custom_sensor(blueprint_filter="sensor.camera.rgb",
-                                                          transform=front_transform_and_type[0],
-                                                          attachment=front_transform_and_type[1],
+                                                          transform=self.carla_bridge.
+                                                          convert_transform_from_agent_to_source(
+                                                              self.settings.front_rgb_cam.transform),
+                                                          attachment=Attachment.Rigid,
                                                           attributes={
-                                                              "fov": 70,
-                                                          }
-                                                          )
+                                                              "fov": self.settings.front_rgb_cam.fov,
+                                                          })
         self.front_depth_sensor = self._spawn_custom_sensor(blueprint_filter="sensor.camera.depth",
-                                                            transform=front_transform_and_type[0],
-                                                            attachment=front_transform_and_type[1],
+                                                            transform=self.carla_bridge.
+                                                            convert_transform_from_agent_to_source(
+                                                                self.settings.front_depth_cam.transform),
+                                                            attachment=Attachment.Rigid,
                                                             attributes={
-                                                                "fov": 70,
+                                                                "fov": self.settings.front_depth_cam.fov,
                                                             })
         self.rear_rgb_sensor = self._spawn_custom_sensor(blueprint_filter="sensor.camera.rgb",
-                                                         transform=rear_transform_and_type[0],
-                                                         attachment=rear_transform_and_type[1],
+                                                         transform=self.carla_bridge.
+                                                         convert_transform_from_agent_to_source(
+                                                             self.settings.rear_rgb_cam.transform),
+                                                         attachment=Attachment.Rigid,
                                                          attributes={
-                                                             "fov": 145,
-                                                         }
-                                                         )
+                                                             "fov": self.settings.rear_rgb_cam.fov,
+                                                         })
 
         weak_self = weakref.ref(self)
         self.front_rgb_sensor.listen(
@@ -204,8 +205,6 @@ class World(object):
         if not self:
             return
         self.front_rgb_sensor_data = image
-
-
 
     @staticmethod
     def _parse_front_depth_sensor_image(weak_self, image):
