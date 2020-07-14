@@ -55,11 +55,8 @@ class Visualizer:
 
         world_sensor_matrix = np.linalg.inv(cam_veh_matrix) @ np.linalg.inv(veh_world_matrix)
         cords_x_y_z = (world_sensor_matrix @ np.array(waypoint)).T
-        print("visualizer", cords_x_y_z)
         cords_y_minus_z_x = np.array([cords_x_y_z[1], -cords_x_y_z[2], cords_x_y_z[0]])
-
         raw_p2d = (intrinsics @ cords_y_minus_z_x).T
-
         cam_coord = np.array([raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]])
 
         cam_coord = cam_coord.astype(np.int64)

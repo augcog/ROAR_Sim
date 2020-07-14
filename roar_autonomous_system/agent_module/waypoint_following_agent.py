@@ -51,21 +51,25 @@ class WaypointFollowingAgent(Agent):
 
 
         from roar_autonomous_system.utilities_module.utilities import calculate_extrinsics_from_euler, png_to_depth
-        self.visualizer.visualize_waypoint(self.local_planner.way_points_queue[0])
-        depth = png_to_depth(self.front_depth_camera.data)[454][400]
+        # self.visualizer.visualize_waypoint(self.local_planner.way_points_queue[0])
+        pos = self.visualizer.calculate_img_pos(self.local_planner.way_points_queue[0], self.vehicle.transform, self.front_depth_camera.transform, self.front_depth_camera.intrinsics_matrix)
+        # pos can be index out of range..........
+        depth = png_to_depth(self.front_depth_camera.data)[pos[1]][pos[0]]
         # depth = 4
-        raw_p2d = np.array([400*depth, 454*depth, depth])
+        raw_p2d = np.array([pos[0]*depth, pos[1]*depth, depth])
         intrinsics = self.front_depth_camera.intrinsics_matrix
         cords_y_minus_z_x = np.linalg.inv(intrinsics) @ raw_p2d
 
         cords_x_y_z = np.array([cords_y_minus_z_x[2], cords_y_minus_z_x[0], -cords_y_minus_z_x[1], 1])
-        print("agent", cords_x_y_z)
         cam_veh_matrix = calculate_extrinsics_from_euler(self.vehicle.transform)
         veh_world_matrix = calculate_extrinsics_from_euler(self.front_depth_camera.transform)
 
-        waypoint2 = np.linalg.inv(np.linalg.inv(veh_world_matrix) @ np.linalg.inv(cam_veh_matrix)) @ cords_x_y_z
+        waypoint = np.linalg.inv(np.linalg.inv(veh_world_matrix) @ np.linalg.inv(cam_veh_matrix)) @ cords_x_y_z
 
-        print("Correct waypoint Transform = ", self.local_planner.way_points_queue[0])
-        print(waypoint2)
+        loc = self.local_planner.way_points_queue[0].location
+        correct = np.array([loc.x, loc.y, loc.z, 1])
+        print("Correct waypoint Transform = ", correct)
+        print("Actual Waypoint Transform  = ", waypoint)
+        print("Abs Diff = ", np.linalg.norm(correct - waypoint))
         print()
         return control
