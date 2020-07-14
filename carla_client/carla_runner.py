@@ -70,9 +70,7 @@ class CarlaRunner:
                 self.world.tick(clock)
                 self.world.render(display=self.display)
                 pygame.display.flip()
-
                 sensor_data, new_vehicle = self.convert_data()
-
                 if self.carla_settings.enable_autopilot:
                     if self.agent is None:
                         raise Exception("In autopilot mode, but no agent is defined.")

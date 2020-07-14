@@ -5,6 +5,7 @@ from roar_autonomous_system.agent_module.gpd_agent import GPDAgent
 from roar_autonomous_system.agent_module.waypoint_following_agent import WaypointFollowingAgent
 from pathlib import Path
 
+
 def main():
     log_level = logging.DEBUG
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=log_level)

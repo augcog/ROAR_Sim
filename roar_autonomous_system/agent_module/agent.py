@@ -59,11 +59,15 @@ class Agent(ABC):
 
     def sync_data(self, sensors_data: SensorsData, vehicle: Vehicle):
         self.vehicle = vehicle
+
         if self.front_rgb_camera is not None:
-            self.front_rgb_camera.data = sensors_data.front_rgb.data
+            self.front_rgb_camera.data = sensors_data.front_rgb.data if sensors_data.front_rgb is not None else None
+
         if self.front_depth_camera is not None:
-            self.front_depth_camera.data = sensors_data.front_depth.data
+            self.front_depth_camera.data = sensors_data.front_depth.data if sensors_data.front_depth is not None else None
+
         if self.rear_rgb_camera is not None:
-            self.rear_rgb_camera.data = sensors_data.rear_rgb.data
+            self.rear_rgb_camera.data = sensors_data.rear_rgb.data if sensors_data.rear_rgb is not None else None
+
         if self.imu is not None:
             self.imu = sensors_data.imu_data
