@@ -56,6 +56,7 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
             self.closeness_threshold = 20
         else:
             self.closeness_threshold = 50
+        # print(f"Curr closeness threshold = {self.closeness_threshold}")
 
         # get current waypoint
         curr_closest_dist = float("inf")
