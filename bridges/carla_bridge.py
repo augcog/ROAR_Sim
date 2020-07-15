@@ -38,8 +38,9 @@ class CarlaBridge(Bridge):
     def convert_depth_from_source_to_agent(self, source: carla.Image) -> Union[DepthData, None]:
         try:
             array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
-            array = np.reshape(array, (source.height, source.width, 4))
-            array = array[:, :, :3]
+            array = np.reshape(array, (source.height, source.width, 4)) # BGRA
+            array = array[:, :, :3]  # BGR
+            array = array[:, :, ::-1]  # RGB
             return DepthData(data=array)
         except:
             return None
@@ -106,15 +107,3 @@ class CarlaBridge(Bridge):
         array = array[:, :, :3]
         array = array[:, :, ::-1]
         return array
-
-    def _to_depth_array(self, image):
-        """
-        Convert an image containing CARLA encoded depth-map to a 2D array containing
-        the depth value of each pixel normalized between [0.0, 1.0].
-        """
-        array = self._to_bgra_array(image)
-        array = array.astype(np.float64)
-        # Apply (R + G * 256 + B * 256 * 256) / (256 * 256 * 256 - 1).
-        normalized_depth = np.dot(array[:, :, :3], [65536.0, 256.0, 1.0])
-        normalized_depth /= 16777215.0  # (256.0 * 256.0 * 256.0 - 1.0)
-        return normalized_depth

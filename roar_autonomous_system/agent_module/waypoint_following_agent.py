@@ -39,8 +39,6 @@ class WaypointFollowingAgent(Agent):
                                                                  closeness_threshold=1)
         self.visualizer = Visualizer(agent=self)
         self.logger.debug(f"Waypoint Following Agent Initiated. Reading from {route_file_path.as_posix()}")
-        self.min_error = 100
-        self.max_error = 0
 
     def run_step(self, vehicle: Vehicle, sensors_data: SensorsData) -> VehicleControl:
         super(WaypointFollowingAgent, self).run_step(vehicle=vehicle, sensors_data=sensors_data)
@@ -55,6 +53,7 @@ class WaypointFollowingAgent(Agent):
 
             from roar_autonomous_system.utilities_module.utilities import png_to_depth
             self.visualizer.visualize_waypoint(self.local_planner.way_points_queue[0])
+
             pos = self.visualizer.calculate_img_pos(waypoint_transform=self.local_planner.way_points_queue[0], camera=self.front_depth_camera)
 
             depth = png_to_depth(self.front_depth_camera.data)[pos[1]][pos[0]]
@@ -68,13 +67,10 @@ class WaypointFollowingAgent(Agent):
             cam_veh_matrix = self.front_depth_camera.get_matrix()
             veh_world_matrix = self.vehicle.get_matrix()
             world_sensor_matrix = np.linalg.inv(veh_world_matrix @ cam_veh_matrix)
-
             waypoint:np.array = np.linalg.inv(world_sensor_matrix) @ cords_x_y_z
             loc = self.local_planner.way_points_queue[0].location
             correct = np.array([loc.x, loc.y, loc.z, 1])
             diff = np.linalg.norm(correct - waypoint)
-            self.min_error = diff if diff < self.min_error else self.min_error
-            self.max_error = diff if diff > self.max_error else self.max_error
 
             from roar_autonomous_system.utilities_module.data_structures_models import Location
             waypoint_transform = Transform(location=Location(x=waypoint[0], y=waypoint[1], z=waypoint[2]))
@@ -87,5 +83,6 @@ class WaypointFollowingAgent(Agent):
             print()
 
         except:
+            print("Failed")
             pass
         return control
