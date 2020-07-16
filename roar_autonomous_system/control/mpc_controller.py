@@ -40,7 +40,7 @@ class VehicleMPCController(Controller):
                  max_steering=1,
                  dt=0.1):
         super().__init__(vehicle)
-        self.logger = logging.Logger(__name__)
+        self.logger = logging.getLogger(__name__)
 
         self.target_speed = target_speed
         self.state_vars = ('x', 'y', 'v', 'ψ', 'cte', 'eψ')
@@ -90,7 +90,7 @@ class VehicleMPCController(Controller):
         self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
 
     def run_step(self, next_waypoint: Transform) -> Control:
-        self.logger.debug("Using MPC run_step")
+        # self.logger.debug("Using MPC run_step")
         return Control()
 
     def sync(self):
