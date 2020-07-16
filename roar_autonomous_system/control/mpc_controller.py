@@ -3,15 +3,15 @@
 
 """ This module contains MPC controller. """
 
+import logging
 import numpy as np
 import sympy as sym
 
 from roar_autonomous_system.control.controller import Controller
 from roar_autonomous_system.util.models import Control, Vehicle, Transform, Location
-from roar_autonomous_system.control.util import STEER_BOUNDS, THROTTLE_BOUNDS
 
 
-# for pretty print
+# set up pretty print
 # sym.init_printing()
 
 
@@ -35,8 +35,12 @@ class VehicleMPCController(Controller):
                  vehicle: Vehicle,
                  target_speed=float("inf"),
                  steps_ahead=10,
+                 max_throttle=1,
+                 max_steering=1,
                  dt=0.1):
         super.__init__(vehicle)
+        self.logger = logging.Logger(__name__)
+
         self.target_speed = target_speed
         self.state_vars = ('x', 'y', 'v', 'ψ', 'cte', 'eψ')
 
@@ -62,8 +66,8 @@ class VehicleMPCController(Controller):
         # Bounds for the optimizer
         self.bounds = (
                 6 * self.steps_ahead * [(None, None)]
-                + self.steps_ahead * [THROTTLE_BOUNDS]
-                + self.steps_ahead * [STEER_BOUNDS]
+                + self.steps_ahead * [(0, max_throttle)] # throttle bounds
+                + self.steps_ahead * [(-max_steering, max_steering)] # steer bounds
         )
 
         # State 0 placeholder
@@ -78,6 +82,15 @@ class VehicleMPCController(Controller):
         # To keep the previous state
         self.steer = None
         self.throttle = None
+
+        self.logger.debug("MPC Controller initiated")
+
+    def run_step(self, next_waypoint: Transform) -> Control:
+        self.logger.debug("Using MPC run_step")
+        return Control()
+
+    def sync(self):
+        pass
 
     def get_func_constraints_and_bounds(self):
         """
@@ -172,12 +185,6 @@ class VehicleMPCController(Controller):
                 )
 
         return cost_func, cost_grad_func, constr_funcs
-
-    def run_step(self, next_waypoint: Transform) -> Control:
-        pass
-
-    def sync(self):
-        pass
 
     @staticmethod
     def create_array_of_symbols(str_symbol, N):

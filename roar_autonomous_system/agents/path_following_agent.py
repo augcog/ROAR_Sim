@@ -1,5 +1,6 @@
 from roar_autonomous_system.agents.agent import Agent
 from pathlib import Path
+from roar_autonomous_system.control.mpc_controller import VehicleMPCController
 from roar_autonomous_system.control.pid_controller import VehiclePIDController
 from roar_autonomous_system.planning.local_planners.simple_path_following_local_planner import \
     SimplePathFollowingLocalPlanner
@@ -20,12 +21,15 @@ class PathFollowingAgent(Agent):
                                                    args_lateral=PIDParam.default_lateral_param(),
                                                    args_longitudinal=PIDParam.default_longitudinal_param(),
                                                    target_speed=target_speed)
+        self.mpc_controller = VehicleMPCController(vehicle=vehicle,
+                                                   target_speed=target_speed)
         self.mission_planner = PathFollowingMissionPlanner(file_path=self.route_file_path)
         self.global_occupancy_grid_map = OccupancyMap.create_map(mission_plan=self.mission_planner.mission_plan,
                                                                  map_additional_padding=100)  # initiated right after mission plan
         self.behavior_planner = NoActionBehaviorPlanner(mission_path=self.mission_planner.mission_plan)
         self.local_planner = SimplePathFollowingLocalPlanner(vehicle=vehicle,
-                                                             controller=self.pid_controller,
+                                                             # controller=self.pid_controller,
+                                                             controller=self.mpc_controller,  # hard-code using mpc
                                                              mission_planner=self.mission_planner,
                                                              behavior_planner=self.behavior_planner.generate_constraints(),
                                                              closeness_threshold=1)
