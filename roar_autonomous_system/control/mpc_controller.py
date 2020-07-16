@@ -80,7 +80,7 @@ class VehicleMPCController(Controller):
         self.Lf = 2.5
 
         # How the polynomial fitting the desired curve is fitted
-        self.steps_poly = 30
+        self.steps_poly = 3
         self.poly_degree = 3
 
         # Bounds for the optimizer
@@ -112,8 +112,11 @@ class VehicleMPCController(Controller):
         self.sync()
         location = self.vehicle.transform.location
 
-        self.logger.debug(f"car location:  ({location.x}, {location.y})")
-        self.logger.debug(f'next waypoint: ({next_waypoint.location.x}, {next_waypoint.location.y})')   
+        x, y = location.x, location.y
+        wx, wy = next_waypoint.location.x, next_waypoint.location.y
+
+        self.logger.debug(f"car location:  ({x}, {y})")
+        self.logger.debug(f'next waypoint: ({wx}, {wy})')   
 
         orient = self.vehicle.transform.rotation
         v = Vehicle.get_speed(self.vehicle)
@@ -122,25 +125,27 @@ class VehicleMPCController(Controller):
         cos_ψ = np.cos(ψ)
         sin_ψ = np.sin(ψ)
 
-        x, y = location.x, location.y
-        wx, wy = next_waypoint.location.x, next_waypoint.location.y
-
         ### WIP ###
-        index = self.track_DF.loc[(self.track_DF[0] == wx) & (self.track_DF[1] == wy)].index
-        if len(index) > 0:
-            which_closest = index[0]
-        else:
-            which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
-            x, # we might need to adjust (x,y) of car
-            y,
-            self.pts_2D
-        )
+        # index = self.track_DF.loc[(self.track_DF[0] == wx) & (self.track_DF[1] == wy)].index
+        # if len(index) > 0:
+        #     which_closest = index[0]
+        # else:
+        #     which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
+        #     x, # we might need to adjust (x,y) of car
+        #     y,
+        #     self.pts_2D
+        # )
+        
+        # get index of closest waypoint, we can just use next
+        which_closest = VehicleMPCController.calculate_closest_3D(location, self.track_DF)
 
-        # Stabilizes polynomial fitting
-        which_closest_shifted = which_closest - 5
-        indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)
-        indeces = indeces % self.pts_2D.shape[0]
-        pts = self.pts_2D[indeces]
+        # Stabilizes polynomial fitting, find four way points to fit a polynomial
+        which_closest_shifted = which_closest - 1
+        indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)        
+        # indeces = indeces % self.pts_2D.shape[0]
+        # pts = self.pts_2D[indeces] # prob use indeces to index track_DF
+        indeces = indeces % self.track_DF.shape[0]
+        pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
 
         pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
             pts, 
@@ -153,9 +158,10 @@ class VehicleMPCController(Controller):
         # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
 
         # Debug
-        
-        self.logger.debug(f'pts for ply_fit:\n{pts}')
-        self.logger.debug(f'pts_car:\n{pts_car}')
+        self.logger.debug(f'\nwhich_closest index: {which_closest}')
+        self.logger.debug(f'\nindeces:\n  {indeces}')
+        self.logger.debug(f'\npts for poly_fit:\n {pts}')
+        self.logger.debug(f'\npts_car:\n  {pts_car}')
 
         ###########
 
@@ -363,3 +369,9 @@ class VehicleMPCController(Controller):
         four_index = index + random.sample(range(0, 20), 4)
         four_index = four_index % map_2D.shape[0] # make sure index is in range
         return map_2D.loc[four_index], index
+    
+    @staticmethod
+    def calculate_closest_3D(car_location, track_DF):
+        location = np.array([car_location.x, car_location.y, car_location.z])
+        dists = np.linalg.norm(track_DF - location, axis=1)
+        return np.argmin(dists)
