@@ -6,7 +6,9 @@
 import logging
 import numpy as np
 import pandas as pd
+import random
 import sympy as sym
+import time
 
 from pathlib import Path
 from scipy.optimize import minimize
@@ -101,6 +103,7 @@ class VehicleMPCController(Controller):
         # self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
 
     def run_step(self, next_waypoint: Transform) -> Control:
+        self.sync()
         location = self.vehicle.transform.location   
 
         orient = self.vehicle.transform.rotation
@@ -112,10 +115,10 @@ class VehicleMPCController(Controller):
 
         x, y = location.x, location.y
 
-        # modified version
-        pts = [next_waypoint.location.x, next_waypoint.location.y]
-        pts_car = VehicleMPCController.modified_transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
-        poly = np.polyfit(np.array([pts_car[0]]), np.array([pts_car[1]]), self.poly_degree)
+        # modified one-point version
+        # pts = [next_waypoint.location.x, next_waypoint.location.y]
+        # pts_car = VehicleMPCController.modified_transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        # poly = np.polyfit(np.array([pts_car[0]]), np.array([pts_car[1]]), self.poly_degree)
 
         # WIP: get approx waypoints
         # which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
@@ -129,8 +132,15 @@ class VehicleMPCController(Controller):
         # indeces = indeces % self.map_2D.shape[0]
         # pts = self.map_2D.iloc[indeces]
 
-        # pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
-        # poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+        # modified pts
+        pts = VehicleMPCController.get_approx_points(next_waypoint.location.x, next_waypoint.location.y, self.map_2D)
+
+        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+
+        # Debug
+        self.logger.debug(f'cur waypoint: ({next_waypoint.location.x}, {next_waypoint.location.y})')
+        self.logger.debug(f'closest pts:\n{pts}')
 
         cte = poly[-1]
         eψ = -np.arctan(poly[-2])
@@ -149,7 +159,7 @@ class VehicleMPCController(Controller):
         return control
 
     def sync(self):
-        pass
+        time.sleep(1)
 
     def get_func_constraints_and_bounds(self):
         """
@@ -324,3 +334,10 @@ class VehicleMPCController(Controller):
         pts_car[0] = cos_ψ * diff[0] + sin_ψ * diff[1]
         pts_car[1] = sin_ψ * diff[0] - cos_ψ * diff[1]
         return pts_car
+
+    @ staticmethod
+    def get_approx_points(x, y, map_2D):
+        index = map_2D.loc[(map_2D['x'] == x) & (map_2D['y'] == y)].index[0]
+        four_index = index + random.sample(range(0, 10), 4)
+        four_index = four_index % map_2D.shape[0] # make sure index is in range
+        return map_2D.loc[four_index]
