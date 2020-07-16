@@ -11,6 +11,25 @@ from roar_autonomous_system.util.models import Control, Vehicle, Transform, Loca
 from roar_autonomous_system.control.util import STEER_BOUNDS, THROTTLE_BOUNDS
 
 
+# for pretty print
+# sym.init_printing()
+
+
+class _EqualityConstraints(object):
+    """Class for storing equality constraints in the MPC."""
+
+    def __init__(self, N, state_vars):
+        self.dict = {}
+        for symbol in state_vars:
+            self.dict[symbol] = N*[None]
+
+    def __getitem__(self, key):
+        return self.dict[key]
+
+    def __setitem__(self, key, value):
+        self.dict[key] = value
+
+
 class VehicleMPCController(Controller):
     def __init__(self,
                  vehicle: Vehicle,
@@ -55,7 +74,67 @@ class VehicleMPCController(Controller):
         """
         Define MPC's cost function and constraints.
         """
+        # Polynomial coefficients will also be symbolic variables
+        poly = self.create_array_of_symbols('poly', self.poly_degree + 1)
 
+        # Initialize the initial state
+        x_init = sym.symbols('x_init')
+        y_init = sym.symbols('y_init')
+        ψ_init = sym.symbols('ψ_init')
+        v_init = sym.symbols('v_init')
+        cte_init = sym.symbols('cte_init')
+        eψ_init = sym.symbols('eψ_init')
+
+        init = (x_init, y_init, ψ_init, v_init, cte_init, eψ_init)
+
+        # State variables
+        x = self.create_array_of_symbols('x', self.steps_ahead)
+        y = self.create_array_of_symbols('y', self.steps_ahead)
+        ψ = self.create_array_of_symbols('ψ', self.steps_ahead)
+        v = self.create_array_of_symbols('v', self.steps_ahead)
+        cte = self.create_array_of_symbols('cte', self.steps_ahead)
+        eψ = self.create_array_of_symbols('eψ', self.steps_ahead)
+
+        # Actuators
+        a = self.create_array_of_symbols('a', self.steps_ahead)
+        δ = self.create_array_of_symbols('δ', self.steps_ahead)
+
+        vars_ = (
+            # Symbolic arrays (but NOT actuators)
+            *x, *y, *ψ, *v, *cte, *eψ,
+
+            # Symbolic arrays (actuators)
+            *a, *δ,
+        )
+
+        cost = 0
+        for t in range(self.steps_ahead):
+            cost += (
+                # Reference state penalties
+                    self.cte_coeff * cte[t] ** 2
+                    + self.epsi_coeff * eψ[t] ** 2 +
+                    + self.speed_coeff * (v[t] - self.target_speed) ** 2
+
+                    # Actuator penalties
+                    + self.acc_coeff * a[t] ** 2
+                    + self.steer_coeff * δ[t] ** 2
+            )
+
+        # Penalty for differences in consecutive actuators
+        for t in range(self.steps_ahead - 1):
+            cost += (
+                    self.consec_acc_coeff * (a[t + 1] - a[t]) ** 2
+                    + self.consec_steer_coeff * (δ[t + 1] - δ[t]) ** 2
+            )
+
+        # Initialize constraints
+        eq_constr = _EqualityConstraints(self.steps_ahead, self.state_vars)
+        eq_constr['x'][0] = x[0] - x_init
+        eq_constr['y'][0] = y[0] - y_init
+        eq_constr['ψ'][0] = ψ[0] - ψ_init
+        eq_constr['v'][0] = v[0] - v_init
+        eq_constr['cte'][0] = cte[0] - cte_init
+        eq_constr['eψ'][0] = eψ[0] - eψ_init
 
     def run_step(self, next_waypoint: Transform) -> Control:
         pass
@@ -66,4 +145,3 @@ class VehicleMPCController(Controller):
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
-
