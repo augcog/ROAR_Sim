@@ -38,7 +38,7 @@ class VehicleMPCController(Controller):
                  max_throttle=1,
                  max_steering=1,
                  dt=0.1):
-        super.__init__(vehicle)
+        super().__init__(vehicle)
         self.logger = logging.Logger(__name__)
 
         self.target_speed = target_speed
