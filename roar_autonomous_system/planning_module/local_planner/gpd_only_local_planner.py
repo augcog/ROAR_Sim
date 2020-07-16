@@ -42,24 +42,24 @@ class GPDOnlyLocalPlanner(LocalPlanner):
         is_front_clear = self.is_front_clear()
         is_left_clear = self.is_left_clear()
         is_right_clear = self.is_right_clear()
-        copy_depth = self.gpd_detector.curr_depth_img.copy()
+        copy_depth = self.gpd_detector.semantic_segmentation.copy()
         copy_depth[320:600, 200 - 10: 200 + 10] = 255  # left
         copy_depth[330:600, 400 - 10: 400 + 10] = 255  # straight
         copy_depth[320:600, 600 - 10: 600 + 10] = 255  # right
         next_way_point = None
         if is_front_clear:
             # generate front waypoint
-            print("Going Straight")
+            # print("Going Straight")
             return VehicleControl(throttle=0.75, steering=0)
 
         elif is_right_clear:
-            print("Turning Right")
+            # print("Turning Right")
             return VehicleControl(throttle=0.5, steering=0.2)
         elif is_left_clear:
-            print("Turning Left")
+            # print("Turning Left")
             return VehicleControl(throttle=0.5, steering=-0.2)
         else:
-            print("I am stucked")
+            # print("I am stucked")
             return VehicleControl()
 
     def is_done(self):

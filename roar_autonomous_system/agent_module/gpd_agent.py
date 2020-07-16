@@ -6,7 +6,7 @@ from roar_autonomous_system.utilities_module.camera_models import Camera
 from roar_autonomous_system.control_module.pid_controller import VehiclePIDController
 from roar_autonomous_system.control_module.pid_controller import PIDParam
 from roar_autonomous_system.planning_module.local_planner.gpd_only_local_planner import GPDOnlyLocalPlanner
-
+from roar_autonomous_system.visualization_module.visualizer import Visualizer
 
 class GPDAgent(Agent):
     def __init__(self, vehicle: Vehicle, front_depth_camera: Camera, show_gpd_data=False):
@@ -21,9 +21,11 @@ class GPDAgent(Agent):
                                                  gpd_detector=self.gpd_detector,
                                                  next_waypoint_distance=10,
                                                  max_turn_degree=10)
+        self.visualizer = Visualizer(agent=self)
 
     def run_step(self, vehicle: Vehicle, sensors_data: SensorsData) -> VehicleControl:
         super(GPDAgent, self).run_step(vehicle=vehicle, sensors_data=sensors_data)
         self.gpd_detector.run_step(vehicle=vehicle, new_data=sensors_data.front_depth.data)
         control = self.local_planner.run_step(vehicle=vehicle)
+        self.visualizer.visualize_semantic_segmentation()
         return control

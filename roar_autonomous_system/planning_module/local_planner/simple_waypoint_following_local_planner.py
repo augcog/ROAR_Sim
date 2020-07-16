@@ -36,6 +36,21 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         return len(self.way_points_queue) == 0
 
     def run_step(self, vehicle: Vehicle) -> VehicleControl:
+        """
+        Run step for the local planner
+        Procedure:
+            1. Sync data
+            2. get the correct look ahead for current speed
+            3. get the correct next waypoint
+            4. feed waypoint into controller
+            5. return result from controller
+        Args:
+            vehicle: current vehicle state
+
+
+        Returns:
+            next control that the local think the agent should execute.
+        """
         self.sync_data(vehicle=vehicle)  # on every run step, sync first
         if len(self.mission_planner.mission_plan) == 0 and len(self.way_points_queue) == 0:
             return VehicleControl()

@@ -47,7 +47,7 @@ class CarlaSettings(BaseModel):
 
     # ROAR sensors settings
     front_depth_cam: Camera = Field(default=Camera(fov=70,
-                                                   location=Location(x=1.6, y=0, z=1.7),
+                                                   location=Location(x=0, y=1.6, z=1.7),
                                                    rotation=Rotation(pitch=0, yaw=0, roll=0),
                                                    image_size_x=800,
                                                    image_size_y=600),

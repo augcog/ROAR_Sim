@@ -7,7 +7,7 @@ from roar_autonomous_system.agent_module.agent import Agent
 
 
 class Visualizer:
-    def __init__(self, agent:Agent):
+    def __init__(self, agent: Agent):
         self.logger = logging.getLogger(__name__)
         self.agent = agent
 
@@ -21,12 +21,11 @@ class Visualizer:
         thickness = 2
         img = cv2.arrowedLine(img, start_point, end_point,
                               color, thickness)
-        # img[coord[1]:coord[1]+5,coord[0]:coord[0]+5] = [0,0,255]
         cv2.imshow("Next Waypoint", img)
         cv2.waitKey(1)
 
     def calculate_img_pos(self,
-                          waypoint_transform: Transform, camera:Camera):
+                          waypoint_transform: Transform, camera: Camera):
         """
         Calculate the 2D image coordinate from 3D world space
 
@@ -49,12 +48,37 @@ class Visualizer:
         cam_veh_matrix = camera.get_matrix()
         veh_world_matrix = self.agent.vehicle.get_matrix()
 
-        world_sensor_matrix = np.linalg.inv(veh_world_matrix @ cam_veh_matrix)
+        sensor_world_matrix_2 = cam_veh_matrix @ veh_world_matrix
+        tmp = np.dot(np.linalg.inv(sensor_world_matrix_2), waypoint)
+        tmp = np.array([tmp[1], -tmp[2], tmp[0]])
+        pos2d = np.dot(self.agent.front_depth_camera.intrinsics_matrix, tmp[:3])
+        pos2d = np.array([
+            pos2d[0] / pos2d[2],
+            pos2d[1] / pos2d[2],
+            pos2d[2]
+        ])
+        pos2d = pos2d.astype(np.int64)
+        print(pos2d)
 
-        cords_x_y_z = (world_sensor_matrix @ np.array(waypoint)).T
+        # world_sensor_matrix = np.dot(veh_world_matrix, cam_veh_matrix)
+        # tmp = np.dot(np.linalg.inv(world_sensor_matrix), waypoint)
+        # tmp = np.array([tmp[1], -tmp[2], tmp[0]])
+        # pos2d = np.dot(intrinsics, tmp[:3])
+        # pos2d = np.array([
+        #     pos2d[0] / pos2d[2],
+        #     pos2d[1] / pos2d[2],
+        #     pos2d[2]
+        # ])
+        # pos2d = pos2d.astype(np.int64)
+        # # return pos2d
+        # # print(pos2d)
+
+        world_sensor_matrix = np.linalg.inv(np.matmul(cam_veh_matrix, veh_world_matrix))
+
+        cords_x_y_z = np.matmul(world_sensor_matrix, waypoint)
 
         cords_y_minus_z_x = np.array([cords_x_y_z[1], -cords_x_y_z[2], cords_x_y_z[0]])
-        raw_p2d = (intrinsics @ cords_y_minus_z_x).T
+        raw_p2d = np.matmul(intrinsics, cords_y_minus_z_x)
         cam_coord = np.array([raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]])
 
         cam_coord = cam_coord.astype(np.int64)
@@ -88,4 +112,20 @@ class Visualizer:
         cv2.imshow("Visualization", img)
         cv2.waitKey(1)
 
+    def visualize_semantic_segmentation(self):
+        """
+
+        Args:
+            semantic_segmentation:
+
+        Returns:
+
+        """
+        try:
+            assert hasattr(self.agent, 'gpd_detector'), "Agent does not have attribute gpd_detector"
+            if self.agent.gpd_detector.semantic_segmentation is not None:
+                cv2.imshow("Semantic Segmentation", self.agent.gpd_detector.semantic_segmentation)
+                cv2.waitKey(1)
+        except Exception as e:
+            self.logger.error(f"Cannot visualize Semantic Segmentation: {e}")
 

@@ -55,16 +55,52 @@ class Vehicle(BaseModel):
         rotation = self.transform.rotation
         yaw, pitch, roll = rotation.yaw, rotation.pitch, rotation.roll
         tx, ty, tz = location.x, location.y, location.z
+
         c_y = np.cos(np.radians(yaw))
         s_y = np.sin(np.radians(yaw))
         c_r = np.cos(np.radians(roll))
         s_r = np.sin(np.radians(roll))
         c_p = np.cos(np.radians(pitch))
         s_p = np.sin(np.radians(pitch))
+
+        R_a = np.array([
+            [c_y, -s_y, 0],
+            [s_y, c_y, 0],
+            [0, 0, 1]
+        ])
+
+        R_b = np.array([
+            [c_p, 0, s_p],
+            [0, 1, 0],
+            [-s_p, 0, c_p]
+        ])
+
+        R_y = np.array([
+            [1, 0, 0],
+            [0, c_r, -s_r],
+            [0, s_r, c_r]
+        ])
+
+        R = R_a @ R_b @ R_y
+
         matrix = np.identity(4)
-        matrix[0, 3] = tx
-        matrix[1, 3] = ty
-        matrix[2, 3] = tz
+
+        # matrix[0, 3] = tx
+        # matrix[1, 3] = ty
+        # matrix[2, 3] = tz
+        # matrix[0, 0] = R[0][0]
+        # matrix[0, 1] = R[0][1]
+        # matrix[0, 2] = R[0][2]
+        # matrix[1, 0] = R[1][0]
+        # matrix[1, 1] = R[1][1]
+        # matrix[1, 2] = R[1][2]
+        # matrix[2, 0] = R[2][0]
+        # matrix[2, 1] = R[2][1]
+        # matrix[2, 2] = R[2][2]
+        
+        matrix[0, 3] = location.x
+        matrix[1, 3] = location.y
+        matrix[2, 3] = location.z
         matrix[0, 0] = c_p * c_y
         matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
         matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
