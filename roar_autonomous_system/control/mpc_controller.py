@@ -49,8 +49,9 @@ class VehicleMPCController(Controller):
         super().__init__(vehicle)
         self.logger = logging.getLogger(__name__)
 
-        # Read in route file and fit a curve
+        # Read in route file
         self.track_DF = pd.read_csv(file_path, header=None)
+        # Fit the route to a curve
         spline_points = 10000
         self.pts_2D = self.track_DF.loc[:, [0, 1]].values
         tck, u = splprep(self.pts_2D.T, u=None, s=2.0, per=1, k=3)
@@ -59,7 +60,7 @@ class VehicleMPCController(Controller):
         self.pts_2D = np.c_[x_new, y_new]
 
         # Modified parm
-        self.last_index = 1
+        self.prev_cte = 0
 
         self.target_speed = target_speed
         self.state_vars = ('x', 'y', 'v', 'ψ', 'cte', 'eψ')
@@ -80,8 +81,8 @@ class VehicleMPCController(Controller):
         self.Lf = 2.5
 
         # How the polynomial fitting the desired curve is fitted
-        self.steps_poly = 3
-        self.poly_degree = 3
+        self.steps_poly = 2
+        self.poly_degree = 2
 
         # Bounds for the optimizer
         self.bounds = (
@@ -110,57 +111,49 @@ class VehicleMPCController(Controller):
 
     def run_step(self, next_waypoint: Transform) -> Control:
         self.sync()
+        # get vehicle location (x, y)
         location = self.vehicle.transform.location
-
         x, y = location.x, location.y
-        wx, wy = next_waypoint.location.x, next_waypoint.location.y
-
-        self.logger.debug(f"car location:  ({x}, {y})")
-        self.logger.debug(f'next waypoint: ({wx}, {wy})')   
-
+        # get vehicle orientation
         orient = self.vehicle.transform.rotation
-        v = Vehicle.get_speed(self.vehicle)
         ψ = np.arctan2(orient.pitch, orient.roll)
-
         cos_ψ = np.cos(ψ)
         sin_ψ = np.sin(ψ)
+        # get vehicle speed
+        v = Vehicle.get_speed(self.vehicle)
+        # get next waypoint location
+        wx, wy = next_waypoint.location.x, next_waypoint.location.y
+        # debug logging
+        self.logger.debug(f"car location:  ({x}, {y})")
+        self.logger.debug(f"car ψ: {ψ}")
+        self.logger.debug(f"car speed: {v}")
+        self.logger.debug(f"next waypoint: ({wx}, {wy})")
 
         ### WIP ###
-        # index = self.track_DF.loc[(self.track_DF[0] == wx) & (self.track_DF[1] == wy)].index
-        # if len(index) > 0:
-        #     which_closest = index[0]
-        # else:
-        #     which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
-        #     x, # we might need to adjust (x,y) of car
-        #     y,
-        #     self.pts_2D
-        # )
-        
-        # get index of closest waypoint, we can just use next
-        which_closest = VehicleMPCController.calculate_closest_3D(location, self.track_DF)
-
-        # Stabilizes polynomial fitting, find four way points to fit a polynomial
-        which_closest_shifted = which_closest - 1
-        indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)        
-        # indeces = indeces % self.pts_2D.shape[0]
-        # pts = self.pts_2D[indeces] # prob use indeces to index track_DF
+        # get the index of next waypoint
+        waypoint_index = self.get_closest_waypoint_index(location, next_waypoint.location)
+        # find more waypoints index to fit a polynomial
+        waypoint_index_shifted = waypoint_index - 2
+        indeces = waypoint_index_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
         indeces = indeces % self.track_DF.shape[0]
+        # get waypoints for polynomial fitting
         pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
-
+        # transform waypoints from world to car coorinate
         pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
-            pts, 
-            x, 
+            pts,
+            x,
             y,
-            cos_ψ, 
+            cos_ψ,
             sin_ψ
         )
+        # fit the polynomial
         poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
         # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
 
         # Debug
-        self.logger.debug(f'\nwhich_closest index: {which_closest}')
+        self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
         self.logger.debug(f'\nindeces:\n  {indeces}')
-        self.logger.debug(f'\npts for poly_fit:\n {pts}')
+        self.logger.debug(f'\npts for poly_fit:\n  {pts}')
         self.logger.debug(f'\npts_car:\n  {pts_car}')
 
         ###########
@@ -172,12 +165,19 @@ class VehicleMPCController(Controller):
         self.state0 = self.get_state0(v, cte, eψ, self.steer, self.throttle, poly)
         result = self.minimize_cost(self.bounds, self.state0, init)
 
+        self.steer = -0.6 * cte - 5.5 * (cte - self.prev_cte)
+        self.prev_cte = cte
+        self.throttle = VehicleMPCController.clip_throttle(self.throttle, v, self.target_speed)
+
         control = Control()
         if 'success' in result.message:
-            control.steering = result.x[-self.steps_ahead]
-            control.throttle = result.x[-2*self.steps_ahead]
+            self.steer = result.x[-self.steps_ahead]
+            self.throttle = result.x[-2*self.steps_ahead]
         else:
             self.logger.debug('Unsuccessful optimization')
+
+        control.steering = self.steer
+        control.throttle = self.throttle
 
         return control
 
@@ -330,16 +330,27 @@ class VehicleMPCController(Controller):
             tol=self.tolerance,
         )
 
+    def get_closest_waypoint_index(self, car_location, waypoint_location):
+        """Get the index of the closest waypoint in self.track_DF
+            car_location: current car location
+            waypoint_location: next_waypoint
+        """
+        index = self.track_DF.loc[(self.track_DF[0] == waypoint_location.x)
+                                  & (self.track_DF[1] == waypoint_location.y)].index
+        if len(index) > 0:
+            return index[0]
+        else:
+            location_arr = np.array([
+                car_location.x,
+                car_location.y,
+                car_location.z,
+            ])
+            dists = np.linalg.norm(self.track_DF - location_arr, axis=1)
+            return np.argmin(dists)
+
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
-
-    @staticmethod
-    def calculate_closest_dists_and_location(x, y, pts_2D):
-        location = np.array([x, y])
-        dists = np.linalg.norm(pts_2D - location, axis=1)
-        which_closest = np.argmin(dists)
-        return which_closest, dists, location
 
     @staticmethod
     def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
@@ -350,28 +361,9 @@ class VehicleMPCController(Controller):
         return pts_car
 
     @staticmethod
-    def modified_transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
-        """Note: this func is modified to use only one waypoint
-        """
-        diff = (np.array(pts) - [x, y])
-        pts_car = np.zeros_like(diff)
-        pts_car[0] = cos_ψ * diff[0] + sin_ψ * diff[1]
-        pts_car[1] = sin_ψ * diff[0] - cos_ψ * diff[1]
-        return pts_car
-
-    @ staticmethod
-    def get_approx_points(x, y, map_2D, last_index):
-        index = map_2D.loc[(map_2D['x'] == x) & (map_2D['y'] == y)].index
-        if len(index) == 0:
-            index = last_index
-        else:
-            index = index[0]
-        four_index = index + random.sample(range(0, 20), 4)
-        four_index = four_index % map_2D.shape[0] # make sure index is in range
-        return map_2D.loc[four_index], index
-    
-    @staticmethod
-    def calculate_closest_3D(car_location, track_DF):
-        location = np.array([car_location.x, car_location.y, car_location.z])
-        dists = np.linalg.norm(track_DF - location, axis=1)
-        return np.argmin(dists)
+    def clip_throttle(throttle, curr_speed, target_speed):
+        return np.clip(
+            throttle - 0.01 * (curr_speed - target_speed),
+            0.4,
+            0.9
+        )
