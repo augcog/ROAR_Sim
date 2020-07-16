@@ -11,6 +11,7 @@ import sympy as sym
 import time
 
 from pathlib import Path
+from scipy.interpolate import splprep, splev
 from scipy.optimize import minimize
 from sympy.tensor.array import derive_by_array
 from roar_autonomous_system.control.controller import Controller
@@ -52,7 +53,7 @@ class VehicleMPCController(Controller):
         track_DF = pd.read_csv(file_path, header=None)
         spline_points = 10000
         self.pts_2D = track_DF.loc[:, [0, 1]].values
-        tck, u = splprep(pts_2D.T, u=None, s=2.0, per=1, k=3)
+        tck, u = splprep(self.pts_2D.T, u=None, s=2.0, per=1, k=3)
         u_new = np.linspace(u.min(), u.max(), spline_points)
         x_new, y_new = splev(u_new, tck, der=0)
         self.pts_2D = np.c_[x_new, y_new]
@@ -111,7 +112,8 @@ class VehicleMPCController(Controller):
         self.sync()
         location = self.vehicle.transform.location
 
-        self.logger.debug(f"Car location: {location}")   
+        self.logger.debug(f"car location:  ({location.x}, {location.y})")
+        self.logger.debug(f'next waypoint: ({next_waypoint.location.x}, {next_waypoint.location.y})')   
 
         orient = self.vehicle.transform.rotation
         v = Vehicle.get_speed(self.vehicle)
@@ -122,44 +124,35 @@ class VehicleMPCController(Controller):
 
         x, y = location.x, location.y
 
-        # modified one-point version
-        # pts = [next_waypoint.location.x, next_waypoint.location.y]
-        # pts_car = VehicleMPCController.modified_transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
-        # poly = np.polyfit(np.array([pts_car[0]]), np.array([pts_car[1]]), self.poly_degree)
-
-        # WIP: get approx waypoints
-        # which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
-        #     x,
-        #     y,
-        #     self.map_2D
-        # )
-
-        # which_closest_shifted = which_closest - 5
-        # indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)
-        # indeces = indeces % self.map_2D.shape[0]
-        # pts = self.map_2D.iloc[indeces]
-
-        # modified pts
-        pts, self.last_index = VehicleMPCController.get_approx_points(
-            next_waypoint.location.x, 
-            next_waypoint.location.y, 
-            self.map_2D,
-            last_index=self.last_index
+        ### WIP ###
+        which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
+            x, # we might need to adjust (x,y) of car
+            y,
+            self.pts_2D
         )
+
+        # Stabilizes polynomial fitting
+        which_closest_shifted = which_closest - 3
+        indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)
+        indeces = indeces % self.pts_2D.shape[0]
+        pts = self.pts_2D[indeces]
 
         pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
             pts, 
             x, 
             y,
-            # sin_ψ, 
             cos_ψ, 
             sin_ψ
         )
         poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+        # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
 
         # Debug
-        self.logger.debug(f'cur waypoint: ({next_waypoint.location.x}, {next_waypoint.location.y})')
-        self.logger.debug(f'closest pts:\n{pts}')
+        
+        self.logger.debug(f'pts for ply_fit:\n{pts}')
+        self.logger.debug(f'pts_car:\n{pts_car}')
+
+        ###########
 
         cte = poly[-1]
         eψ = -np.arctan(poly[-2])
@@ -341,8 +334,8 @@ class VehicleMPCController(Controller):
     def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
         diff = (pts - [x, y])
         pts_car = np.zeros_like(diff)
-        pts_car[:, 0] = cos_ψ * diff.iloc[:, 0] + sin_ψ * diff.iloc[:, 1]
-        pts_car[:, 1] = sin_ψ * diff.iloc[:, 0] - cos_ψ * diff.iloc[:, 1]
+        pts_car[:, 0] = cos_ψ * diff[:, 0] + sin_ψ * diff[:, 1]
+        pts_car[:, 1] = sin_ψ * diff[:, 0] - cos_ψ * diff[:, 1]
         return pts_car
 
     @staticmethod
