@@ -48,12 +48,14 @@ class VehicleMPCController(Controller):
         super().__init__(vehicle)
         self.logger = logging.getLogger(__name__)
 
-        # Read in route file
-        self.map = pd.read_csv(file_path, header=None)
-        self.map.columns = ['x', 'y', 'z']
-        self.map_2D = pd.DataFrame()
-        self.map_2D['x'] = self.map['x']
-        self.map_2D['y'] = self.map['y']
+        # Read in route file and fit a curve
+        track_DF = pd.read_csv(file_path, header=None)
+        spline_points = 10000
+        self.pts_2D = track_DF.loc[:, [0, 1]].values
+        tck, u = splprep(pts_2D.T, u=None, s=2.0, per=1, k=3)
+        u_new = np.linspace(u.min(), u.max(), spline_points)
+        x_new, y_new = splev(u_new, tck, der=0)
+        self.pts_2D = np.c_[x_new, y_new]
 
         # Modified parm
         self.last_index = 1
@@ -107,7 +109,9 @@ class VehicleMPCController(Controller):
 
     def run_step(self, next_waypoint: Transform) -> Control:
         self.sync()
-        location = self.vehicle.transform.location   
+        location = self.vehicle.transform.location
+
+        self.logger.debug(f"Car location: {location}")   
 
         orient = self.vehicle.transform.rotation
         v = Vehicle.get_speed(self.vehicle)
@@ -327,9 +331,9 @@ class VehicleMPCController(Controller):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
 
     @staticmethod
-    def calculate_closest_dists_and_location(x, y, map_2D):
+    def calculate_closest_dists_and_location(x, y, pts_2D):
         location = np.array([x, y])
-        dists = np.linalg.norm(map_2D - location, axis=1)
+        dists = np.linalg.norm(pts_2D - location, axis=1)
         which_closest = np.argmin(dists)
         return which_closest, dists, location
 
