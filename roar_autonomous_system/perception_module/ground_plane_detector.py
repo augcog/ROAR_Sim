@@ -9,7 +9,7 @@ from roar_autonomous_system.utilities_module.camera_models import Camera
 from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
 
 
-class GroundPlaneDetector(Detector):
+class SemanticSegmentationDetector(Detector):
     def __init__(self,
                  vehicle: Vehicle,
                  camera: Camera,
@@ -48,7 +48,7 @@ class GroundPlaneDetector(Detector):
             None
 
         """
-        super(GroundPlaneDetector, self).run_step(vehicle, new_data)
+        super(SemanticSegmentationDetector, self).run_step(vehicle, new_data)
         if self._test_depth_img is None:
             self._test_depth_img = png_to_depth(new_data)
             return

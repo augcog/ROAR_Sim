@@ -30,13 +30,11 @@ class Visualizer:
         Calculate the 2D image coordinate from 3D world space
 
         Args:
+            camera:
             waypoint_transform: Desired point in 3D world space
-            curr_veh_transform: current vehicle transform with respect to world,
-            curr_cam_transform: current camera transform with respect to vehicle
-            cam_intrinsics: current camera intrinsics
 
         Returns:
-            Array if integers [X, Y, ANYNUM]
+            Array if integers [X, Y, depth]
 
         """
         waypoint = np.array([waypoint_transform.location.x,
@@ -112,20 +110,19 @@ class Visualizer:
         cv2.imshow("Visualization", img)
         cv2.waitKey(1)
 
-    def visualize_semantic_segmentation(self):
+    @classmethod
+    def visualize_semantic_segmentation(cls, semantic_segmetation):
         """
 
         Args:
-            semantic_segmentation:
+            semantic_segmetation: Width x Height x 3 array with white = obstacles, black = ground, blue = sky
 
         Returns:
 
         """
-        try:
-            assert hasattr(self.agent, 'gpd_detector'), "Agent does not have attribute gpd_detector"
-            if self.agent.gpd_detector.semantic_segmentation is not None:
-                cv2.imshow("Semantic Segmentation", self.agent.gpd_detector.semantic_segmentation)
-                cv2.waitKey(1)
-        except Exception as e:
-            self.logger.error(f"Cannot visualize Semantic Segmentation: {e}")
+
+        if semantic_segmetation is not None:
+            cv2.imshow("Semantic Segmentation", semantic_segmetation)
+            cv2.waitKey(1)
+
 

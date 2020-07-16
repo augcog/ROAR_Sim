@@ -1,7 +1,7 @@
 from carla_client.settings import CarlaSettings
 from carla_client.carla_runner import CarlaRunner
 import logging
-from roar_autonomous_system.agent_module.gpd_agent import GPDAgent
+from roar_autonomous_system.agent_module.gpd_agent import SemanticSegmentationAgent
 from roar_autonomous_system.agent_module.waypoint_following_agent import WaypointFollowingAgent
 from pathlib import Path
 import numpy as np
@@ -17,7 +17,7 @@ def main():
     try:
         carla_runner = CarlaRunner(carla_settings=settings)
         my_vehicle = carla_runner.set_carla_world()
-        agent = GPDAgent(
+        agent = SemanticSegmentationAgent(
             vehicle=my_vehicle,
             front_depth_camera=settings.front_depth_cam,
         )

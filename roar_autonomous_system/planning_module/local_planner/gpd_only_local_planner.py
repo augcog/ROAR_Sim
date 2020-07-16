@@ -2,16 +2,16 @@
 from roar_autonomous_system.planning_module.local_planner.local_planner import LocalPlanner
 from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
 from roar_autonomous_system.control_module.controller import Controller
-from roar_autonomous_system.perception_module.ground_plane_detector import GroundPlaneDetector
+from roar_autonomous_system.perception_module.ground_plane_detector import SemanticSegmentationDetector
 from roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
 import numpy as np
 import cv2
 
 
-class GPDOnlyLocalPlanner(LocalPlanner):
+class SemanticSegmentationOnlyPlanner(LocalPlanner):
     def __init__(self, vehicle: Vehicle,
                  controller: Controller,
-                 gpd_detector: GroundPlaneDetector,
+                 gpd_detector: SemanticSegmentationDetector,
                  next_waypoint_distance: float = 10,
                  max_turn_degree: int = 10):
         super().__init__(vehicle, controller)
@@ -35,7 +35,7 @@ class GPDOnlyLocalPlanner(LocalPlanner):
                 stop (return a control that does nothing)
         Returns:
         """
-        super(GPDOnlyLocalPlanner, self).run_step(vehicle=vehicle)
+        super(SemanticSegmentationOnlyPlanner, self).run_step(vehicle=vehicle)
         if self.gpd_detector.curr_ground is None:
             return VehicleControl()
         curr_location = self.vehicle.transform.location
