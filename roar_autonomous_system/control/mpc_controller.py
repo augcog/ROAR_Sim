@@ -85,12 +85,32 @@ class VehicleMPCController(Controller):
         self.throttle = None
 
         self.logger.debug("MPC Controller initiated")
-        self.logger.debug(f"  cost_func:      {self.cost_func}")
-        self.logger.debug(f"  cost_grad_func: {self.cost_grad_func}")
-        self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
+        # self.logger.debug(f"  cost_func:      {self.cost_func}")
+        # self.logger.debug(f"  cost_grad_func: {self.cost_grad_func}")
+        # self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
 
     def run_step(self, next_waypoint: Transform) -> Control:
-        # self.logger.debug("Using MPC run_step")
+        location = self.vehicle.transform.location
+        pts = [next_waypoint.location.x, next_waypoint.location.y]
+
+        orient = self.vehicle.transform.rotation
+        v = Vehicle.get_speed(self.vehicle)
+        ψ = np.arctan2(orient.pitch, orient.roll)
+
+        cos_ψ = np.cos(ψ)
+        sin_ψ = np.sin(ψ)
+
+        x, y = location.x, location.y
+        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+
+        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+
+        cte = poly[-1]
+        eψ = -np.arctan(poly[-2])
+
+        init = (0, 0, 0, v, cte, eψ, *poly)
+
+
         return Control()
 
     def sync(self):
@@ -208,6 +228,32 @@ class VehicleMPCController(Controller):
             self.evaluator
         )
 
+    def get_state0(self, v, cte, epsi, a, delta, poly):
+        a = a or 0
+        delta = delta or 0
+
+        x = np.linspace(0, 1, self.steps_ahead)
+        y = np.polyval(poly, x)
+        psi = 0
+
+        self.state0[:self.steps_ahead] = x
+        self.state0[self.steps_ahead:2 * self.steps_ahead] = y
+        self.state0[2 * self.steps_ahead:3 * self.steps_ahead] = psi
+        self.state0[3 * self.steps_ahead:4 * self.steps_ahead] = v
+        self.state0[4 * self.steps_ahead:5 * self.steps_ahead] = cte
+        self.state0[5 * self.steps_ahead:6 * self.steps_ahead] = epsi
+        self.state0[6 * self.steps_ahead:7 * self.steps_ahead] = a
+        self.state0[7 * self.steps_ahead:8 * self.steps_ahead] = delta
+        return self.state0
+
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
+
+    @staticmethod
+    def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
+        diff = (pts - [x, y])
+        pts_car = np.zeros_like(diff)
+        pts_car[:, 0] = cos_ψ * diff[:, 0] + sin_ψ * diff[:, 1]
+        pts_car[:, 1] = sin_ψ * diff[:, 0] - cos_ψ * diff[:, 1]
+        return pts_car
