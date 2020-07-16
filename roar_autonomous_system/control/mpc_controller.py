@@ -55,6 +55,9 @@ class VehicleMPCController(Controller):
         self.map_2D['x'] = self.map['x']
         self.map_2D['y'] = self.map['y']
 
+        # Modified parm
+        self.last_index = 1
+
         self.target_speed = target_speed
         self.state_vars = ('x', 'y', 'v', 'ψ', 'cte', 'eψ')
 
@@ -133,9 +136,21 @@ class VehicleMPCController(Controller):
         # pts = self.map_2D.iloc[indeces]
 
         # modified pts
-        pts = VehicleMPCController.get_approx_points(next_waypoint.location.x, next_waypoint.location.y, self.map_2D)
+        pts, self.last_index = VehicleMPCController.get_approx_points(
+            next_waypoint.location.x, 
+            next_waypoint.location.y, 
+            self.map_2D,
+            last_index=self.last_index
+        )
 
-        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
+            pts, 
+            x, 
+            y,
+            # sin_ψ, 
+            cos_ψ, 
+            sin_ψ
+        )
         poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
 
         # Debug
@@ -159,7 +174,8 @@ class VehicleMPCController(Controller):
         return control
 
     def sync(self):
-        time.sleep(1)
+        # time.sleep(1)
+        pass
 
     def get_func_constraints_and_bounds(self):
         """
@@ -336,8 +352,12 @@ class VehicleMPCController(Controller):
         return pts_car
 
     @ staticmethod
-    def get_approx_points(x, y, map_2D):
-        index = map_2D.loc[(map_2D['x'] == x) & (map_2D['y'] == y)].index[0]
-        four_index = index + random.sample(range(0, 10), 4)
+    def get_approx_points(x, y, map_2D, last_index):
+        index = map_2D.loc[(map_2D['x'] == x) & (map_2D['y'] == y)].index
+        if len(index) == 0:
+            index = last_index
+        else:
+            index = index[0]
+        four_index = index + random.sample(range(0, 20), 4)
         four_index = four_index % map_2D.shape[0] # make sure index is in range
-        return map_2D.loc[four_index]
+        return map_2D.loc[four_index], index
