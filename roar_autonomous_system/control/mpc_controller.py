@@ -5,8 +5,10 @@
 
 import logging
 import numpy as np
+import pandas as pd
 import sympy as sym
 
+from pathlib import Path
 from scipy.optimize import minimize
 from sympy.tensor.array import derive_by_array
 from roar_autonomous_system.control.controller import Controller
@@ -35,6 +37,7 @@ class _EqualityConstraints(object):
 class VehicleMPCController(Controller):
     def __init__(self,
                  vehicle: Vehicle,
+                 file_path: Path, # hard-code read in data for now
                  target_speed=float("inf"),
                  steps_ahead=10,
                  max_throttle=1,
@@ -42,6 +45,13 @@ class VehicleMPCController(Controller):
                  dt=0.1):
         super().__init__(vehicle)
         self.logger = logging.getLogger(__name__)
+
+        # Read in route file
+        self.map = pd.read_csv(file_path, header=None)
+        self.map.columns = ['x', 'y', 'z']
+        self.map_2D = pd.DataFrame()
+        self.map_2D['x'] = self.map['x']
+        self.map_2D['y'] = self.map['y']
 
         self.target_speed = target_speed
         self.state_vars = ('x', 'y', 'v', 'ψ', 'cte', 'eψ')
@@ -91,8 +101,7 @@ class VehicleMPCController(Controller):
         # self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
 
     def run_step(self, next_waypoint: Transform) -> Control:
-        location = self.vehicle.transform.location
-        pts = [next_waypoint.location.x, next_waypoint.location.y]
+        location = self.vehicle.transform.location   
 
         orient = self.vehicle.transform.rotation
         v = Vehicle.get_speed(self.vehicle)
@@ -102,15 +111,26 @@ class VehicleMPCController(Controller):
         sin_ψ = np.sin(ψ)
 
         x, y = location.x, location.y
-        # DEBUG
-        # self.logger.debug(f"x: {x}, y: {y}")
-        # if self.steps_ahead > 0:
-        #     return Control()
-        #
 
-        # Note: we may need to modify these two steps for better performance, the current polyfit is poor b/c we are lacking points
-        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        # modified version
+        pts = [next_waypoint.location.x, next_waypoint.location.y]
+        pts_car = VehicleMPCController.modified_transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
         poly = np.polyfit(np.array([pts_car[0]]), np.array([pts_car[1]]), self.poly_degree)
+
+        # WIP: get approx waypoints
+        # which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
+        #     x,
+        #     y,
+        #     self.map_2D
+        # )
+
+        # which_closest_shifted = which_closest - 5
+        # indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)
+        # indeces = indeces % self.map_2D.shape[0]
+        # pts = self.map_2D.iloc[indeces]
+
+        # pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        # poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
 
         cte = poly[-1]
         eψ = -np.arctan(poly[-2])
@@ -281,7 +301,22 @@ class VehicleMPCController(Controller):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
 
     @staticmethod
+    def calculate_closest_dists_and_location(x, y, map_2D):
+        location = np.array([x, y])
+        dists = np.linalg.norm(map_2D - location, axis=1)
+        which_closest = np.argmin(dists)
+        return which_closest, dists, location
+
+    @staticmethod
     def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
+        diff = (pts - [x, y])
+        pts_car = np.zeros_like(diff)
+        pts_car[:, 0] = cos_ψ * diff.iloc[:, 0] + sin_ψ * diff.iloc[:, 1]
+        pts_car[:, 1] = sin_ψ * diff.iloc[:, 0] - cos_ψ * diff.iloc[:, 1]
+        return pts_car
+
+    @staticmethod
+    def modified_transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
         """Note: this func is modified to use only one waypoint
         """
         diff = (np.array(pts) - [x, y])
