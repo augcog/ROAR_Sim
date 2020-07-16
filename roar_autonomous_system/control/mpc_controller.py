@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import sympy as sym
 
+from scipy.optimize import minimize
 from sympy.tensor.array import derive_by_array
 from roar_autonomous_system.control.controller import Controller
 from roar_autonomous_system.util.models import Control, Vehicle, Transform, Location
@@ -109,9 +110,17 @@ class VehicleMPCController(Controller):
         eψ = -np.arctan(poly[-2])
 
         init = (0, 0, 0, v, cte, eψ, *poly)
+        self.state0 = self.get_state0(v, cte, eψ, self.steer, self.throttle, poly)
+        result = self.minimize_cost(self.bounds, self.state0, init)
 
+        control = Control()
+        if 'success' in result.message:
+            control.steering = result.x[-self.steps_ahead]
+            control.throttle = result.x[-2*self.steps_ahead]
+        else:
+            self.logger.debug('Unsuccessful optimization')
 
-        return Control()
+        return control
 
     def sync(self):
         pass
@@ -245,6 +254,21 @@ class VehicleMPCController(Controller):
         self.state0[6 * self.steps_ahead:7 * self.steps_ahead] = a
         self.state0[7 * self.steps_ahead:8 * self.steps_ahead] = delta
         return self.state0
+
+    def minimize_cost(self, bounds, x0, init):
+        for constr_func in self.constr_funcs:
+            constr_func['args'] = init
+
+        return minimize(
+            fun=self.cost_func,
+            x0=x0,
+            args=init,
+            jac=self.cost_grad_func,
+            bounds=bounds,
+            constraints=self.constr_funcs,
+            method='SLSQP',
+            tol=self.tolerance,
+        )
 
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
