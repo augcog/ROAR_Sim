@@ -70,6 +70,15 @@ class VehicleMPCController(Controller):
         num_vars = (len(self.state_vars) + 2)  # State variables and two actuators
         self.state0 = np.zeros(self.steps_ahead * num_vars)
 
+        # Lambdify and minimize stuff
+        self.evaluator = 'numpy'
+        self.tolerance = 1
+        self.cost_func, self.cost_grad_func, self.constr_funcs = self.get_func_constraints_and_bounds()
+
+        # To keep the previous state
+        self.steer = None
+        self.throttle = None
+
     def get_func_constraints_and_bounds(self):
         """
         Define MPC's cost function and constraints.
@@ -135,6 +144,34 @@ class VehicleMPCController(Controller):
         eq_constr['v'][0] = v[0] - v_init
         eq_constr['cte'][0] = cte[0] - cte_init
         eq_constr['eψ'][0] = eψ[0] - eψ_init
+
+        for t in range(1, self.steps_ahead):
+            curve = sum(poly[-(i+1)] * x[t-1]**i for i in range(len(poly)))
+            # The desired ψ is equal to the derivative of the polynomial curve at
+            #  point x[t-1]
+            ψdes = sum(poly[-(i+1)] * i*x[t-1]**(i-1) for i in range(1, len(poly)))
+
+            eq_constr['x'][t] = x[t] - (x[t-1] + v[t-1] * sym.cos(ψ[t-1]) * self.dt)
+            eq_constr['y'][t] = y[t] - (y[t-1] + v[t-1] * sym.sin(ψ[t-1]) * self.dt)
+            eq_constr['ψ'][t] = ψ[t] - (ψ[t-1] - v[t-1] * δ[t-1] / self.Lf * self.dt)
+            eq_constr['v'][t] = v[t] - (v[t-1] + a[t-1] * self.dt)
+            eq_constr['cte'][t] = cte[t] - (curve - y[t-1] + v[t-1] * sym.sin(eψ[t-1]) * self.dt)
+            eq_constr['eψ'][t] = eψ[t] - (ψ[t-1] - ψdes - v[t-1] * δ[t-1] / self.Lf * self.dt)
+
+        # Generate actual functions from
+        cost_func = self.generate_fun(cost, vars_, init, poly)
+        cost_grad_func = self.generate_grad(cost, vars_, init, poly)
+
+        constr_funcs = []
+        for symbol in self.state_vars:
+            for t in range(self.steps_ahead):
+                func = self.generate_fun(eq_constr[symbol][t], vars_, init, poly)
+                grad_func = self.generate_grad(eq_constr[symbol][t], vars_, init, poly)
+                constr_funcs.append(
+                    {'type': 'eq', 'fun': func, 'jac': grad_func, 'args': None},
+                )
+
+        return cost_func, cost_grad_func, constr_funcs
 
     def run_step(self, next_waypoint: Transform) -> Control:
         pass
