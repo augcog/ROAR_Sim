@@ -50,9 +50,9 @@ class VehicleMPCController(Controller):
         self.logger = logging.getLogger(__name__)
 
         # Read in route file and fit a curve
-        track_DF = pd.read_csv(file_path, header=None)
+        self.track_DF = pd.read_csv(file_path, header=None)
         spline_points = 10000
-        self.pts_2D = track_DF.loc[:, [0, 1]].values
+        self.pts_2D = self.track_DF.loc[:, [0, 1]].values
         tck, u = splprep(self.pts_2D.T, u=None, s=2.0, per=1, k=3)
         u_new = np.linspace(u.min(), u.max(), spline_points)
         x_new, y_new = splev(u_new, tck, der=0)
@@ -123,16 +123,21 @@ class VehicleMPCController(Controller):
         sin_ψ = np.sin(ψ)
 
         x, y = location.x, location.y
+        wx, wy = next_waypoint.location.x, next_waypoint.location.y
 
         ### WIP ###
-        which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
+        index = self.track_DF.loc[(self.track_DF[0] == wx) & (self.track_DF[1] == wy)].index
+        if len(index) > 0:
+            which_closest = index[0]
+        else:
+            which_closest, _, _ = VehicleMPCController.calculate_closest_dists_and_location(
             x, # we might need to adjust (x,y) of car
             y,
             self.pts_2D
         )
 
         # Stabilizes polynomial fitting
-        which_closest_shifted = which_closest - 3
+        which_closest_shifted = which_closest - 5
         indeces = which_closest_shifted + self.steps_poly*np.arange(self.poly_degree+1)
         indeces = indeces % self.pts_2D.shape[0]
         pts = self.pts_2D[indeces]
