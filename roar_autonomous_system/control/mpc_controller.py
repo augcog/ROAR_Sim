@@ -276,7 +276,7 @@ class VehicleMPCController(Controller):
 
     @staticmethod
     def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
-        diff = (pts - [x, y])
+        diff = (np.array(pts) - [x, y])
         pts_car = np.zeros_like(diff)
         pts_car[:, 0] = cos_ψ * diff[:, 0] + sin_ψ * diff[:, 1]
         pts_car[:, 1] = sin_ψ * diff[:, 0] - cos_ψ * diff[:, 1]
