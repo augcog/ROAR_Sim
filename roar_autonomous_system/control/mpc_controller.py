@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import sympy as sym
 
+from sympy.tensor.array import derive_by_array
 from roar_autonomous_system.control.controller import Controller
 from roar_autonomous_system.util.models import Control, Vehicle, Transform, Location
 
@@ -84,6 +85,9 @@ class VehicleMPCController(Controller):
         self.throttle = None
 
         self.logger.debug("MPC Controller initiated")
+        self.logger.debug(f"  cost_func:      {self.cost_func}")
+        self.logger.debug(f"  cost_grad_func: {self.cost_grad_func}")
+        self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
 
     def run_step(self, next_waypoint: Transform) -> Control:
         self.logger.debug("Using MPC run_step")
@@ -94,7 +98,7 @@ class VehicleMPCController(Controller):
 
     def get_func_constraints_and_bounds(self):
         """
-        Define MPC's cost function and constraints.
+        Defines MPC's cost function and constraints.
         """
         # Polynomial coefficients will also be symbolic variables
         poly = self.create_array_of_symbols('poly', self.poly_degree + 1)
@@ -185,6 +189,24 @@ class VehicleMPCController(Controller):
                 )
 
         return cost_func, cost_grad_func, constr_funcs
+
+    def generate_fun(self, symb_fun, vars_, init, poly):
+        """
+        Generates a function of the form `fun(x, *args)`
+        """
+        args = init + poly
+        return sym.lambdify((vars_, *args), symb_fun, self.evaluator)
+
+    def generate_grad(self, symb_fun, vars_, init, poly):
+        """
+        TODO: add comments
+        """
+        args = init + poly
+        return sym.lambdify(
+            (vars_, *args),
+            derive_by_array(symb_fun, vars_ + args)[:len(vars_)],
+            self.evaluator
+        )
 
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
