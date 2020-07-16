@@ -102,9 +102,15 @@ class VehicleMPCController(Controller):
         sin_ψ = np.sin(ψ)
 
         x, y = location.x, location.y
-        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        # DEBUG
+        # self.logger.debug(f"x: {x}, y: {y}")
+        # if self.steps_ahead > 0:
+        #     return Control()
+        #
 
-        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+        # Note: we may need to modify these two steps for better performance, the current polyfit is poor b/c we are lacking points
+        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ)
+        poly = np.polyfit(np.array([pts_car[0]]), np.array([pts_car[1]]), self.poly_degree)
 
         cte = poly[-1]
         eψ = -np.arctan(poly[-2])
@@ -276,8 +282,10 @@ class VehicleMPCController(Controller):
 
     @staticmethod
     def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
+        """Note: this func is modified to use only one waypoint
+        """
         diff = (np.array(pts) - [x, y])
         pts_car = np.zeros_like(diff)
-        pts_car[:, 0] = cos_ψ * diff[:, 0] + sin_ψ * diff[:, 1]
-        pts_car[:, 1] = sin_ψ * diff[:, 0] - cos_ψ * diff[:, 1]
+        pts_car[0] = cos_ψ * diff[0] + sin_ψ * diff[1]
+        pts_car[1] = sin_ψ * diff[0] - cos_ψ * diff[1]
         return pts_car
