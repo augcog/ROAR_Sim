@@ -3,13 +3,17 @@
 
 """ This module contains MPC controller. """
 
+import numpy as np
+import sympy as sym
+
 from roar_autonomous_system.control.controller import Controller
 from roar_autonomous_system.util.models import Control, Vehicle, Transform, Location
+from roar_autonomous_system.control.util import STEER_BOUNDS, THROTTLE_BOUNDS
 
 
 class VehicleMPCController(Controller):
-    def __init__(self, 
-                 vehicle: Vehicle, 
+    def __init__(self,
+                 vehicle: Vehicle,
                  target_speed=float("inf"),
                  steps_ahead=10,
                  dt=0.1):
@@ -43,10 +47,23 @@ class VehicleMPCController(Controller):
                 + self.steps_ahead * [STEER_BOUNDS]
         )
 
+        # State 0 placeholder
+        num_vars = (len(self.state_vars) + 2)  # State variables and two actuators
+        self.state0 = np.zeros(self.steps_ahead * num_vars)
 
-    
+    def get_func_constraints_and_bounds(self):
+        """
+        Define MPC's cost function and constraints.
+        """
+
+
     def run_step(self, next_waypoint: Transform) -> Control:
         pass
 
     def sync(self):
         pass
+
+    @staticmethod
+    def create_array_of_symbols(str_symbol, N):
+        return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
+
