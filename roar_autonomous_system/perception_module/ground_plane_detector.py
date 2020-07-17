@@ -14,8 +14,7 @@ class SemanticSegmentationDetector(Detector):
                  vehicle: Vehicle,
                  camera: Camera,
                  sky_line_level: int = 310,
-                 show: bool = False,
-                 max_detectable_distance_threshold: float = 0.089,
+                 max_detectable_distance_threshold: float = 0.08,
                  min_caliberation_boundary: float = 0.01):
         super().__init__(vehicle=vehicle, camera=camera)
         self.logger = logging.getLogger(__name__)
@@ -58,8 +57,11 @@ class SemanticSegmentationDetector(Detector):
             data = []
             depth_array = png_to_depth(new_data)
             # depth_image = calibration image, grab from somewhere
+            print(np.amin(depth_array), np.amax(depth_array), np.shape(depth_array))
+
             for i in range(self._sky_line_level, depth_array.shape[0]):
                 j = np.argmax(depth_array[i, :])
+
                 if depth_array[i][j] > self._min_caliberation_boundary:
                     xs.append(i)
                     data.append(depth_array[i][j])

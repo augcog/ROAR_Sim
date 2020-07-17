@@ -12,7 +12,7 @@ from roar_autonomous_system.visualization_module.visualizer import Visualizer
 class SemanticSegmentationAgent(Agent):
     def __init__(self, vehicle: Vehicle, front_depth_camera: Camera, show_gpd_data=False):
         super().__init__(vehicle=vehicle, front_depth_camera=front_depth_camera)
-        self.semantic_seg_detector = SemanticSegmentationDetector(vehicle=vehicle, camera=self.front_depth_camera, show=show_gpd_data)
+        self.semantic_seg_detector = SemanticSegmentationDetector(vehicle=vehicle, camera=self.front_depth_camera)
         self.controller = VehiclePIDController(self.vehicle,
                                                args_lateral=PIDParam.default_lateral_param(),
                                                args_longitudinal=PIDParam.default_longitudinal_param(),
