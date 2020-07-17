@@ -81,8 +81,8 @@ class VehicleMPCController(Controller):
         self.Lf = 2.5
 
         # How the polynomial fitting the desired curve is fitted
-        self.steps_poly = 2
-        self.poly_degree = 2
+        self.steps_poly = 5
+        self.poly_degree = 3
 
         # Bounds for the optimizer
         self.bounds = (
@@ -114,10 +114,9 @@ class VehicleMPCController(Controller):
         # get vehicle location (x, y)
         location = self.vehicle.transform.location
         x, y = location.x, location.y
-        # get vehicle orientation
-        orient = self.vehicle.transform.rotation
-        # ψ = np.arctan2(orient.pitch, orient.roll)
-        ψ = orient.yaw
+        # get vehicle rotation
+        rotation = self.vehicle.transform.rotation
+        ψ = rotation.yaw / 180 * np.pi # transform into radient
         cos_ψ = np.cos(ψ)
         sin_ψ = np.sin(ψ)
         # get vehicle speed
