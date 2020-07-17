@@ -148,8 +148,8 @@ class VehicleMPCController(Controller):
             sin_ψ
         )
         # fit the polynomial
-        # poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
-        poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
+        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+        # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
 
         # Debug
         self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
