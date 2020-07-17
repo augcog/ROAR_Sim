@@ -81,7 +81,7 @@ class VehicleMPCController(Controller):
         self.Lf = 2.5
 
         # How the polynomial fitting the desired curve is fitted
-        self.steps_poly = 30
+        self.steps_poly = 30 # modify to 3 when using 3D data
         self.poly_degree = 3
 
         # Bounds for the optimizer
