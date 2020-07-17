@@ -23,7 +23,7 @@ class PathFollowingAgent(Agent):
                                                    target_speed=target_speed)
         self.mpc_controller = VehicleMPCController(vehicle=vehicle,
                                                    file_path=route_file_path,
-                                                   target_speed=target_speed)
+                                                   target_speed=100)
         self.mission_planner = PathFollowingMissionPlanner(file_path=self.route_file_path)
         self.global_occupancy_grid_map = OccupancyMap.create_map(mission_plan=self.mission_planner.mission_plan,
                                                                  map_additional_padding=100)  # initiated right after mission plan

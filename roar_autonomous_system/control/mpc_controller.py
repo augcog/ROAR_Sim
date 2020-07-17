@@ -81,8 +81,8 @@ class VehicleMPCController(Controller):
         self.Lf = 2.5
 
         # How the polynomial fitting the desired curve is fitted
-        self.steps_poly = 2
-        self.poly_degree = 2
+        self.steps_poly = 30  # modify to 3 when using 3D data
+        self.poly_degree = 3
 
         # Bounds for the optimizer
         self.bounds = (
@@ -114,11 +114,11 @@ class VehicleMPCController(Controller):
         # get vehicle location (x, y)
         location = self.vehicle.transform.location
         x, y = location.x, location.y
-        # get vehicle orientation
-        # ψ = np.arctan2(orient.pitch, orient.roll)
-        ψ = self.vehicle.transform.rotation.pitch
-        cos_ψ = np.cos(-ψ * np.pi / 360)
-        sin_ψ = np.sin(-ψ * np.pi / 360)
+        # get vehicle rotation
+        rotation = self.vehicle.transform.rotation
+        ψ = rotation.yaw / 180 * np.pi  # transform into radient
+        cos_ψ = np.cos(ψ)
+        sin_ψ = np.sin(ψ)
         # get vehicle speed
         v = Vehicle.get_speed(self.vehicle)
         # get next waypoint location
@@ -129,28 +129,43 @@ class VehicleMPCController(Controller):
         # self.logger.debug(f"car speed: {v}")
         # self.logger.debug(f"next waypoint: ({wx}, {wy})")
 
-        ### WIP ###
+        ### 3D ###
         # get the index of next waypoint
-        waypoint_index = self.get_closest_waypoint_index(location, next_waypoint.location)
-        # find more waypoints index to fit a polynomial
-        waypoint_index_shifted = waypoint_index - 2
-        indeces = waypoint_index_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
-        indeces = indeces % self.track_DF.shape[0]
-        # get waypoints for polynomial fitting
-        pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
-        # print(pts.T)
+        # waypoint_index = self.get_closest_waypoint_index_3D(location, next_waypoint.location)
+        # # find more waypoints index to fit a polynomial
+        # waypoint_index_shifted = waypoint_index - 2
+        # indeces = waypoint_index_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
+        # indeces = indeces % self.track_DF.shape[0]
+        # # get waypoints for polynomial fitting
+        # pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
+
+        ### 2D ###
+        index_2D = self.get_closest_waypoint_index_2D(location, next_waypoint.location)
+        index_2D_shifted = index_2D - 5
+        indeces_2D = index_2D_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
+        indeces_2D = indeces_2D % self.pts_2D.shape[0]
+        pts = self.pts_2D[indeces_2D]
+
+        self.logger.debug(f'\nwaypoint index:\n  {index_2D}')
+        self.logger.debug(f'\nindeces:\n  {indeces_2D}')
 
         # transform waypoints from world to car coorinate
-        pts_car = self.transform_into_cars_coordinate_system(
+        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
             pts,
             x,
             y,
             cos_ψ,
             sin_ψ
         )
-        print("pts_car", pts_car)
-        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree) # unsuccessful optimization
-        print("poly", poly)
+        # fit the polynomial
+        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+
+        # Debug
+        # self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
+        # self.logger.debug(f'\nindeces:\n  {indeces}')
+        # self.logger.debug(f'\npts for poly_fit:\n  {pts}')
+        # self.logger.debug(f'\npts_car:\n  {pts_car}')
+
         ###########
 
         cte = poly[-1]
@@ -163,7 +178,7 @@ class VehicleMPCController(Controller):
         # self.steer = -0.6 * cte - 5.5 * (cte - self.prev_cte)
         # self.prev_cte = cte
         # self.throttle = VehicleMPCController.clip_throttle(self.throttle, v, self.target_speed)
-        print()
+
         control = Control()
         if 'success' in result.message:
             self.steer = result.x[-self.steps_ahead]
@@ -324,7 +339,7 @@ class VehicleMPCController(Controller):
             tol=self.tolerance,
         )
 
-    def get_closest_waypoint_index(self, car_location, waypoint_location):
+    def get_closest_waypoint_index_3D(self, car_location, waypoint_location):
         """Get the index of the closest waypoint in self.track_DF
             car_location: current car location
             waypoint_location: next_waypoint
@@ -342,19 +357,27 @@ class VehicleMPCController(Controller):
             dists = np.linalg.norm(self.track_DF - location_arr, axis=1)
             return np.argmin(dists)
 
+    def get_closest_waypoint_index_2D(self, car_location, waypoint_location):
+        """Get the index of the closest waypoint in self.pts_2D
+            Note: it may give wrong index when the route is overlapped
+        """
+        location_arr = np.array([
+            car_location.x,
+            car_location.y
+        ])
+        dists = np.linalg.norm(self.pts_2D - location_arr, axis=1)
+        return np.argmin(dists)
+
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
 
-    def transform_into_cars_coordinate_system(self, pts, x, y, cos_ψ, sin_ψ):
-        diff = (pts - [x, y])  # why calculate
-
-        veh_world_rotat_matrix = np.array([
-            [cos_ψ, -sin_ψ],
-            [sin_ψ, cos_ψ]
-        ])
-
-        pts_car = (np.linalg.inv(veh_world_rotat_matrix) @ diff.T).T
+    @staticmethod
+    def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
+        diff = (pts - [x, y])
+        pts_car = np.zeros_like(diff)
+        pts_car[:, 0] = cos_ψ * diff[:, 0] + sin_ψ * diff[:, 1]
+        pts_car[:, 1] = sin_ψ * diff[:, 0] - cos_ψ * diff[:, 1]
         return pts_car
 
     @staticmethod
