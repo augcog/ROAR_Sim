@@ -100,5 +100,4 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         #     f"Target_Location {target_waypoint.location} "
         #     f"| Curr_Location {vehicle_transform.location} "
         #     f"| Distance {int(curr_closest_dist)}")
-
         return control

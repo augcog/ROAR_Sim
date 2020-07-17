@@ -87,7 +87,6 @@ class VehiclePIDController(Controller):
                                                     dt=args_lateral.dt)
         self.logger.debug("PID Controller initiated")
 
-
     def run_step(self, vehicle: Vehicle, next_waypoint: Transform, **kwargs) -> VehicleControl:
         """
         Execute one step of control invoking both lateral and longitudinal
@@ -145,7 +144,7 @@ class VehiclePIDController(Controller):
         control.steering = steering
         self.past_steering = steering
         return control
-    
+
     def sync_data(self, vehicle):
         super(VehiclePIDController, self).sync_data(vehicle=vehicle)
         self._lon_controller.vehicle = self.vehicle
