@@ -28,7 +28,7 @@ class _EqualityConstraints(object):
     def __init__(self, N, state_vars):
         self.dict = {}
         for symbol in state_vars:
-            self.dict[symbol] = N*[None]
+            self.dict[symbol] = N * [None]
 
     def __getitem__(self, key):
         return self.dict[key]
@@ -40,7 +40,7 @@ class _EqualityConstraints(object):
 class VehicleMPCController(Controller):
     def __init__(self,
                  vehicle: Vehicle,
-                 file_path: Path, # hard-code read in data for now
+                 file_path: Path,  # hard-code read in data for now
                  target_speed=float("inf"),
                  steps_ahead=10,
                  max_throttle=1,
@@ -87,8 +87,8 @@ class VehicleMPCController(Controller):
         # Bounds for the optimizer
         self.bounds = (
                 6 * self.steps_ahead * [(None, None)]
-                + self.steps_ahead * [(0, max_throttle)] # throttle bounds
-                + self.steps_ahead * [(-max_steering, max_steering)] # steer bounds
+                + self.steps_ahead * [(0, max_throttle)]  # throttle bounds
+                + self.steps_ahead * [(-max_steering, max_steering)]  # steer bounds
         )
 
         # State 0 placeholder
@@ -115,20 +115,19 @@ class VehicleMPCController(Controller):
         location = self.vehicle.transform.location
         x, y = location.x, location.y
         # get vehicle orientation
-        orient = self.vehicle.transform.rotation
         # ψ = np.arctan2(orient.pitch, orient.roll)
-        ψ = orient.yaw
-        cos_ψ = np.cos(ψ)
-        sin_ψ = np.sin(ψ)
+        ψ = self.vehicle.transform.rotation.pitch
+        cos_ψ = np.cos(-ψ * np.pi / 360)
+        sin_ψ = np.sin(-ψ * np.pi / 360)
         # get vehicle speed
         v = Vehicle.get_speed(self.vehicle)
         # get next waypoint location
         wx, wy = next_waypoint.location.x, next_waypoint.location.y
         # debug logging
-        self.logger.debug(f"car location:  ({x}, {y})")
-        self.logger.debug(f"car ψ: {ψ}")
-        self.logger.debug(f"car speed: {v}")
-        self.logger.debug(f"next waypoint: ({wx}, {wy})")
+        # self.logger.debug(f"car location:  ({x}, {y})")
+        # self.logger.debug(f"car ψ: {ψ}")
+        # self.logger.debug(f"car speed: {v}")
+        # self.logger.debug(f"next waypoint: ({wx}, {wy})")
 
         ### WIP ###
         # get the index of next waypoint
@@ -139,24 +138,19 @@ class VehicleMPCController(Controller):
         indeces = indeces % self.track_DF.shape[0]
         # get waypoints for polynomial fitting
         pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
+        # print(pts.T)
+
         # transform waypoints from world to car coorinate
-        pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
+        pts_car = self.transform_into_cars_coordinate_system(
             pts,
             x,
             y,
             cos_ψ,
             sin_ψ
         )
-        # fit the polynomial
-        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
-        # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
-
-        # Debug
-        self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
-        self.logger.debug(f'\nindeces:\n  {indeces}')
-        self.logger.debug(f'\npts for poly_fit:\n  {pts}')
-        self.logger.debug(f'\npts_car:\n  {pts_car}')
-
+        print("pts_car", pts_car)
+        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree) # unsuccessful optimization
+        print("poly", poly)
         ###########
 
         cte = poly[-1]
@@ -169,11 +163,11 @@ class VehicleMPCController(Controller):
         # self.steer = -0.6 * cte - 5.5 * (cte - self.prev_cte)
         # self.prev_cte = cte
         # self.throttle = VehicleMPCController.clip_throttle(self.throttle, v, self.target_speed)
-
+        print()
         control = Control()
         if 'success' in result.message:
             self.steer = result.x[-self.steps_ahead]
-            self.throttle = result.x[-2*self.steps_ahead]
+            self.throttle = result.x[-2 * self.steps_ahead]
         else:
             self.logger.debug('Unsuccessful optimization')
 
@@ -252,17 +246,17 @@ class VehicleMPCController(Controller):
         eq_constr['eψ'][0] = eψ[0] - eψ_init
 
         for t in range(1, self.steps_ahead):
-            curve = sum(poly[-(i+1)] * x[t-1]**i for i in range(len(poly)))
+            curve = sum(poly[-(i + 1)] * x[t - 1] ** i for i in range(len(poly)))
             # The desired ψ is equal to the derivative of the polynomial curve at
             #  point x[t-1]
-            ψdes = sum(poly[-(i+1)] * i*x[t-1]**(i-1) for i in range(1, len(poly)))
+            ψdes = sum(poly[-(i + 1)] * i * x[t - 1] ** (i - 1) for i in range(1, len(poly)))
 
-            eq_constr['x'][t] = x[t] - (x[t-1] + v[t-1] * sym.cos(ψ[t-1]) * self.dt)
-            eq_constr['y'][t] = y[t] - (y[t-1] + v[t-1] * sym.sin(ψ[t-1]) * self.dt)
-            eq_constr['ψ'][t] = ψ[t] - (ψ[t-1] - v[t-1] * δ[t-1] / self.Lf * self.dt)
-            eq_constr['v'][t] = v[t] - (v[t-1] + a[t-1] * self.dt)
-            eq_constr['cte'][t] = cte[t] - (curve - y[t-1] + v[t-1] * sym.sin(eψ[t-1]) * self.dt)
-            eq_constr['eψ'][t] = eψ[t] - (ψ[t-1] - ψdes - v[t-1] * δ[t-1] / self.Lf * self.dt)
+            eq_constr['x'][t] = x[t] - (x[t - 1] + v[t - 1] * sym.cos(ψ[t - 1]) * self.dt)
+            eq_constr['y'][t] = y[t] - (y[t - 1] + v[t - 1] * sym.sin(ψ[t - 1]) * self.dt)
+            eq_constr['ψ'][t] = ψ[t] - (ψ[t - 1] - v[t - 1] * δ[t - 1] / self.Lf * self.dt)
+            eq_constr['v'][t] = v[t] - (v[t - 1] + a[t - 1] * self.dt)
+            eq_constr['cte'][t] = cte[t] - (curve - y[t - 1] + v[t - 1] * sym.sin(eψ[t - 1]) * self.dt)
+            eq_constr['eψ'][t] = eψ[t] - (ψ[t - 1] - ψdes - v[t - 1] * δ[t - 1] / self.Lf * self.dt)
 
         # Generate actual functions from
         cost_func = self.generate_fun(cost, vars_, init, poly)
@@ -352,12 +346,15 @@ class VehicleMPCController(Controller):
     def create_array_of_symbols(str_symbol, N):
         return sym.symbols('{symbol}0:{N}'.format(symbol=str_symbol, N=N))
 
-    @staticmethod
-    def transform_into_cars_coordinate_system(pts, x, y, cos_ψ, sin_ψ):
-        diff = (pts - [x, y])
-        pts_car = np.zeros_like(diff)
-        pts_car[:, 0] = cos_ψ * diff[:, 0] + sin_ψ * diff[:, 1]
-        pts_car[:, 1] = sin_ψ * diff[:, 0] - cos_ψ * diff[:, 1]
+    def transform_into_cars_coordinate_system(self, pts, x, y, cos_ψ, sin_ψ):
+        diff = (pts - [x, y])  # why calculate
+
+        veh_world_rotat_matrix = np.array([
+            [cos_ψ, -sin_ψ],
+            [sin_ψ, cos_ψ]
+        ])
+
+        pts_car = (np.linalg.inv(veh_world_rotat_matrix) @ diff.T).T
         return pts_car
 
     @staticmethod
