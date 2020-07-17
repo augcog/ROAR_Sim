@@ -101,8 +101,8 @@ class VehicleMPCController(Controller):
         self.cost_func, self.cost_grad_func, self.constr_funcs = self.get_func_constraints_and_bounds()
 
         # To keep the previous state
-        self.steer = None
-        self.throttle = None
+        self.steer = 0
+        self.throttle = 0
 
         self.logger.debug("MPC Controller initiated")
         # self.logger.debug(f"  cost_func:      {self.cost_func}")
@@ -116,7 +116,8 @@ class VehicleMPCController(Controller):
         x, y = location.x, location.y
         # get vehicle orientation
         orient = self.vehicle.transform.rotation
-        ψ = np.arctan2(orient.pitch, orient.roll)
+        # ψ = np.arctan2(orient.pitch, orient.roll)
+        ψ = orient.yaw
         cos_ψ = np.cos(ψ)
         sin_ψ = np.sin(ψ)
         # get vehicle speed
@@ -147,8 +148,8 @@ class VehicleMPCController(Controller):
             sin_ψ
         )
         # fit the polynomial
-        poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
-        # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
+        # poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
+        poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
 
         # Debug
         self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
@@ -165,9 +166,9 @@ class VehicleMPCController(Controller):
         self.state0 = self.get_state0(v, cte, eψ, self.steer, self.throttle, poly)
         result = self.minimize_cost(self.bounds, self.state0, init)
 
-        self.steer = -0.6 * cte - 5.5 * (cte - self.prev_cte)
-        self.prev_cte = cte
-        self.throttle = VehicleMPCController.clip_throttle(self.throttle, v, self.target_speed)
+        # self.steer = -0.6 * cte - 5.5 * (cte - self.prev_cte)
+        # self.prev_cte = cte
+        # self.throttle = VehicleMPCController.clip_throttle(self.throttle, v, self.target_speed)
 
         control = Control()
         if 'success' in result.message:
@@ -182,7 +183,6 @@ class VehicleMPCController(Controller):
         return control
 
     def sync(self):
-        # time.sleep(1)
         pass
 
     def get_func_constraints_and_bounds(self):
