@@ -19,12 +19,12 @@ def main():
     try:
         carla_runner = CarlaRunner(carla_settings=settings)
         my_vehicle = carla_runner.set_carla_world()
-        agent = PurePursuitAgent(vehicle=my_vehicle, route_file_path=Path(settings.waypoint_file_path))
+        # agent = PurePursuitAgent(vehicle=my_vehicle, route_file_path=Path(settings.waypoint_file_path))
 
-        # agent = SemanticSegmentationAgent(
-        #     vehicle=my_vehicle,
-        #     front_depth_camera=settings.front_depth_cam,
-        # )
+        agent = SemanticSegmentationAgent(
+            vehicle=my_vehicle,
+            front_depth_camera=settings.front_depth_cam,
+        )
         # agent = WaypointFollowingAgent(vehicle=my_vehicle,
         #                                front_depth_camera=settings.front_depth_cam,
         #                                front_rgb_camera=settings.front_rgb_cam,
