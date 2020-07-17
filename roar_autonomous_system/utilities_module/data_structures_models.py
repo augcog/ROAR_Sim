@@ -10,10 +10,11 @@ class Location(BaseModel):
     z: float = Field(..., title="Z coordinate", description="Distance in meters from origin to spot on Z axis")
 
     def distance(self, other_location):
-        """Euclidean distance"""
+        """Euclidean distance between current location and other location"""
         return distance.euclidean((self.x, self.y, self.z), (other_location.x, other_location.y, other_location.z))
 
     def __add__(self, other):
+        """"""
         return Location(x=self.x + other.x, y=self.y + other.y, z=self.z + other.z)
 
     def __str__(self):

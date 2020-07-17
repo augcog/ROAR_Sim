@@ -21,6 +21,8 @@ class Agent(ABC):
                  front_depth_camera: Optional[Camera] = None,
                  rear_rgb_camera: Optional[Camera] = None,
                  imu: Optional[IMUData] = None):
+        """Initiating the Agent with given vehicle, front and back RGB cameras, front depth camera and IMU sensor"""
+
         self.vehicle = vehicle
         self.front_rgb_camera = front_rgb_camera
         self.front_depth_camera = front_depth_camera
@@ -33,6 +35,8 @@ class Agent(ABC):
         self.transform_history: List[Transform] = []
 
     def init_cam(self):
+        """Calculate intrinsic matrices for each existing camera (front/back RGB and front depth). """
+
         if self.front_rgb_camera is not None:
             self.front_rgb_camera.intrinsics_matrix = self.front_rgb_camera.calculate_intrinsic_matrix()
         if self.front_depth_camera is not None:
@@ -58,6 +62,8 @@ class Agent(ABC):
         return VehicleControl()
 
     def sync_data(self, sensors_data: SensorsData, vehicle: Vehicle):
+        """Syncing the data from cameras with the ROAR Agent's camera data. """
+
         self.vehicle = vehicle
 
         if self.front_rgb_camera is not None:

@@ -14,21 +14,30 @@ import cv2
 class CarlaBridge(Bridge):
 
     def convert_location_from_source_to_agent(self, source: carla.Location) -> Location:
+        """Convert a CARLA raw location to Location(x=float,y=float,z=float)."""
+
         return Location(x=source.x, y=source.y, z=source.z)
 
     def convert_rotation_from_source_to_agent(self, source: carla.Rotation) -> Rotation:
+        """Convert a CARLA raw rotation to Rotation(pitch=float,yaw=float,roll=float)."""
+
         return Rotation(pitch=source.pitch, yaw=source.yaw, roll=source.roll)
 
     def convert_transform_from_source_to_agent(self, source: carla.Transform) -> Transform:
+        """Convert CARLA raw location and rotation to Transform(location,rotation)."""
         return Transform(
             location=self.convert_location_from_source_to_agent(source=source.location),
             rotation=self.convert_rotation_from_source_to_agent(source=source.rotation))
 
     def convert_control_from_source_to_agent(self, source: carla.VehicleControl) -> VehicleControl:
+        """Convert CARLA raw vehicle control to VehicleControl(throttle,steering)."""
+
         return VehicleControl(throttle=-1 * source.throttle if source.reverse else source.throttle,
                               steering=source.steer)
 
     def convert_rgb_from_source_to_agent(self, source: carla.Image) -> Union[RGBData, None]:
+        """Convert CARLA raw Image to a Union with RGB numpy array"""
+
         try:
             source.convert(cc.Raw)
             return RGBData(data=self._to_rgb_array(source))
@@ -36,6 +45,7 @@ class CarlaBridge(Bridge):
             return None
 
     def convert_depth_from_source_to_agent(self, source: carla.Image) -> Union[DepthData, None]:
+        """Convert CARLA raw depth info to """
         try:
             array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
             array = np.reshape(array, (source.height, source.width, 4)) # BGRA

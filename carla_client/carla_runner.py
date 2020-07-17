@@ -13,7 +13,11 @@ from carla_client.util.keyboard_control import KeyboardControl
 
 
 class CarlaRunner:
+    """An Environment that holds and runs vehicle. """
+
     def __init__(self, carla_settings:CarlaSettings):
+        """Create an Environment with given Carla Settings"""
+
         self.carla_settings = carla_settings
         self.carla_bridge = CarlaBridge()
         self.world = None
@@ -25,6 +29,8 @@ class CarlaRunner:
         self.logger = logging.getLogger(__name__)
 
     def set_carla_world(self) -> Vehicle:
+        """Initiating the vehicle with loading messages"""
+
         try:
 
             pygame.init()
@@ -53,6 +59,8 @@ class CarlaRunner:
             raise e
 
     def start_game_loop(self, agent: Agent, use_manual_control=False):
+        """Start running the vehicle and stop when finished running the track"""
+
         self.agent = agent
         try:
             self.logger.debug("Initiating game")
@@ -94,6 +102,14 @@ class CarlaRunner:
             exit(0)
 
     def convert_data(self) -> Tuple[SensorsData, Vehicle]:
+        """
+        Convert data from source to agent
+
+        Returns:
+            sensors_data: sensor data for agent
+            new_vehicle: the current player's vehicle state
+
+        """
         sensor_data: SensorsData = self.carla_bridge.convert_sensor_data_from_source_to_agent(
             {
                 "front_rgb": None if self.world.front_rgb_sensor_data is None else self.world.front_rgb_sensor_data,

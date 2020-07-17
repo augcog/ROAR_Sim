@@ -13,7 +13,11 @@ import weakref
 
 
 class World(object):
+    """An World that holds all display settings"""
+
     def __init__(self, carla_world: carla.World, hud: HUD, settings: CarlaSettings):
+        """Create a World with the given carla_world, head-up display and server setting."""
+
         self.logger = logging.getLogger(__name__)
         self.settings: CarlaSettings = settings
         self.carla_world: carla.World = carla_world
@@ -76,6 +80,8 @@ class World(object):
 
     def set_player(self, actor_filter: str = "vehicle.tesla.model3", player_role_name: str = "hero",
                    color: CarlaCarColor = CarlaCarColors.GREY, spawn_point_id: int = random.choice(list(range(8)))):
+        """Set up a hero-named player with Grey Tesla Model3 Vehicle """
+
         blueprint = self.carla_world.get_blueprint_library().find(actor_filter)
         blueprint.set_attribute('role_name', player_role_name)
         if blueprint.has_attribute('color'):
