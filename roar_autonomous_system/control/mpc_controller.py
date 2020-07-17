@@ -81,7 +81,7 @@ class VehicleMPCController(Controller):
         self.Lf = 2.5
 
         # How the polynomial fitting the desired curve is fitted
-        self.steps_poly = 5
+        self.steps_poly = 30
         self.poly_degree = 3
 
         # Bounds for the optimizer
@@ -124,20 +124,31 @@ class VehicleMPCController(Controller):
         # get next waypoint location
         wx, wy = next_waypoint.location.x, next_waypoint.location.y
         # debug logging
-        self.logger.debug(f"car location:  ({x}, {y})")
-        self.logger.debug(f"car ψ: {ψ}")
-        self.logger.debug(f"car speed: {v}")
-        self.logger.debug(f"next waypoint: ({wx}, {wy})")
+        # self.logger.debug(f"car location:  ({x}, {y})")
+        # self.logger.debug(f"car ψ: {ψ}")
+        # self.logger.debug(f"car speed: {v}")
+        # self.logger.debug(f"next waypoint: ({wx}, {wy})")
 
-        ### WIP ###
+        ### 3D ###
         # get the index of next waypoint
-        waypoint_index = self.get_closest_waypoint_index(location, next_waypoint.location)
-        # find more waypoints index to fit a polynomial
-        waypoint_index_shifted = waypoint_index - 2
-        indeces = waypoint_index_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
-        indeces = indeces % self.track_DF.shape[0]
-        # get waypoints for polynomial fitting
-        pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
+        # waypoint_index = self.get_closest_waypoint_index_3D(location, next_waypoint.location)
+        # # find more waypoints index to fit a polynomial
+        # waypoint_index_shifted = waypoint_index - 2
+        # indeces = waypoint_index_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
+        # indeces = indeces % self.track_DF.shape[0]
+        # # get waypoints for polynomial fitting
+        # pts = np.array([[self.track_DF.iloc[i][0], self.track_DF.iloc[i][1]] for i in indeces])
+
+        ### 2D ###
+        index_2D = self.get_closest_waypoint_index_2D(location, next_waypoint.location)
+        index_2D_shifted = index_2D - 5
+        indeces_2D = index_2D_shifted + self.steps_poly * np.arange(self.poly_degree + 1)
+        indeces_2D = indeces_2D % self.pts_2D.shape[0]
+        pts = self.pts_2D[indeces_2D]
+
+        self.logger.debug(f'\nwaypoint index:\n  {index_2D}')
+        self.logger.debug(f'\nindeces:\n  {indeces_2D}')
+
         # transform waypoints from world to car coorinate
         pts_car = VehicleMPCController.transform_into_cars_coordinate_system(
             pts,
@@ -148,13 +159,12 @@ class VehicleMPCController(Controller):
         )
         # fit the polynomial
         poly = np.polyfit(pts_car[:, 0], pts_car[:, 1], self.poly_degree)
-        # poly = np.polyfit(pts[:, 0], pts[:, 1], self.poly_degree) # unsuccessful optimization
 
         # Debug
-        self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
-        self.logger.debug(f'\nindeces:\n  {indeces}')
-        self.logger.debug(f'\npts for poly_fit:\n  {pts}')
-        self.logger.debug(f'\npts_car:\n  {pts_car}')
+        # self.logger.debug(f'\nwaypoint index:\n  {waypoint_index}')
+        # self.logger.debug(f'\nindeces:\n  {indeces}')
+        # self.logger.debug(f'\npts for poly_fit:\n  {pts}')
+        # self.logger.debug(f'\npts_car:\n  {pts_car}')
 
         ###########
 
@@ -329,7 +339,7 @@ class VehicleMPCController(Controller):
             tol=self.tolerance,
         )
 
-    def get_closest_waypoint_index(self, car_location, waypoint_location):
+    def get_closest_waypoint_index_3D(self, car_location, waypoint_location):
         """Get the index of the closest waypoint in self.track_DF
             car_location: current car location
             waypoint_location: next_waypoint
@@ -346,6 +356,17 @@ class VehicleMPCController(Controller):
             ])
             dists = np.linalg.norm(self.track_DF - location_arr, axis=1)
             return np.argmin(dists)
+    
+    def get_closest_waypoint_index_2D(self, car_location, waypoint_location):
+        """Get the index of the closest waypoint in self.pts_2D
+            Note: it may give wrong index when the route is overlapped
+        """
+        location_arr = np.array([
+            car_location.x,
+            car_location.y
+        ])
+        dists = np.linalg.norm(self.pts_2D - location_arr, axis=1)
+        return np.argmin(dists)
 
     @staticmethod
     def create_array_of_symbols(str_symbol, N):
