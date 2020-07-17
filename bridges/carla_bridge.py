@@ -14,8 +14,15 @@ import cv2
 class CarlaBridge(Bridge):
 
     def convert_location_from_source_to_agent(self, source: carla.Location) -> Location:
-        """Convert a CARLA raw location to Location(x=float,y=float,z=float)."""
 
+        """
+        Convert Location data from Carla.location to Agent's lcoation data type
+        Args:
+            source: carla.location
+
+        Returns:
+
+        """
         return Location(x=source.x, y=source.y, z=source.z)
 
     def convert_rotation_from_source_to_agent(self, source: carla.Rotation) -> Rotation:
@@ -48,7 +55,7 @@ class CarlaBridge(Bridge):
         """Convert CARLA raw depth info to """
         try:
             array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
-            array = np.reshape(array, (source.height, source.width, 4)) # BGRA
+            array = np.reshape(array, (source.height, source.width, 4))  # BGRA
             array = array[:, :, :3]  # BGR
             array = array[:, :, ::-1]  # RGB
             return DepthData(data=array)

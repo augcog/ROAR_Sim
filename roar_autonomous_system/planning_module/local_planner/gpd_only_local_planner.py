@@ -2,16 +2,16 @@
 from roar_autonomous_system.planning_module.local_planner.local_planner import LocalPlanner
 from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
 from roar_autonomous_system.control_module.controller import Controller
-from roar_autonomous_system.perception_module.ground_plane_detector import GroundPlaneDetector
+from roar_autonomous_system.perception_module.ground_plane_detector import SemanticSegmentationDetector
 from roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
 import numpy as np
 import cv2
 
 
-class GPDOnlyLocalPlanner(LocalPlanner):
+class SemanticSegmentationOnlyPlanner(LocalPlanner):
     def __init__(self, vehicle: Vehicle,
                  controller: Controller,
-                 gpd_detector: GroundPlaneDetector,
+                 gpd_detector: SemanticSegmentationDetector,
                  next_waypoint_distance: float = 10,
                  max_turn_degree: int = 10):
         super().__init__(vehicle, controller)
@@ -35,31 +35,31 @@ class GPDOnlyLocalPlanner(LocalPlanner):
                 stop (return a control that does nothing)
         Returns:
         """
-        super(GPDOnlyLocalPlanner, self).run_step(vehicle=vehicle)
+        super(SemanticSegmentationOnlyPlanner, self).run_step(vehicle=vehicle)
         if self.gpd_detector.curr_ground is None:
             return VehicleControl()
         curr_location = self.vehicle.transform.location
         is_front_clear = self.is_front_clear()
         is_left_clear = self.is_left_clear()
         is_right_clear = self.is_right_clear()
-        copy_depth = self.gpd_detector.curr_depth_img.copy()
+        copy_depth = self.gpd_detector.semantic_segmentation.copy()
         copy_depth[320:600, 200 - 10: 200 + 10] = 255  # left
         copy_depth[330:600, 400 - 10: 400 + 10] = 255  # straight
         copy_depth[320:600, 600 - 10: 600 + 10] = 255  # right
         next_way_point = None
         if is_front_clear:
             # generate front waypoint
-            print("Going Straight")
+            # print("Going Straight")
             return VehicleControl(throttle=0.75, steering=0)
 
         elif is_right_clear:
-            print("Turning Right")
+            # print("Turning Right")
             return VehicleControl(throttle=0.5, steering=0.2)
         elif is_left_clear:
-            print("Turning Left")
+            # print("Turning Left")
             return VehicleControl(throttle=0.5, steering=-0.2)
         else:
-            print("I am stucked")
+            # print("I am stucked")
             return VehicleControl()
 
     def is_done(self):

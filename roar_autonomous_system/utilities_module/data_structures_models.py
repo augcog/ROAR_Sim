@@ -20,6 +20,9 @@ class Location(BaseModel):
     def __str__(self):
         return f"{self.x:.3},{self.y:.3},{self.z:.3}"
 
+    def to_array(self) -> np.array :
+        return np.array([self.x, self.y, self.z])
+
 
 class Rotation(BaseModel):
     pitch: float = Field(..., title="Pitch", description="Degree around the Y-axis")
@@ -29,6 +32,8 @@ class Rotation(BaseModel):
     def __str__(self):
         return f"{self.pitch},{self.yaw},{self.roll}"
 
+    def to_array(self) -> np.array:
+        return np.array([self.pitch, self.yaw, self.roll])
 
 class Transform(BaseModel):
     location: Location = Field(default=Location(x=0, y=0, z=0))

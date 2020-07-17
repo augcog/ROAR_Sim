@@ -9,13 +9,12 @@ from roar_autonomous_system.utilities_module.camera_models import Camera
 from roar_autonomous_system.utilities_module.vehicle_models import Vehicle
 
 
-class GroundPlaneDetector(Detector):
+class SemanticSegmentationDetector(Detector):
     def __init__(self,
                  vehicle: Vehicle,
                  camera: Camera,
                  sky_line_level: int = 310,
-                 show: bool = False,
-                 max_detectable_distance_threshold: float = 0.089,
+                 max_detectable_distance_threshold: float = 0.08,
                  min_caliberation_boundary: float = 0.01):
         super().__init__(vehicle=vehicle, camera=camera)
         self.logger = logging.getLogger(__name__)
@@ -25,9 +24,8 @@ class GroundPlaneDetector(Detector):
         self._test_depth_img: Optional[np.array] = None
         self._predict_matrix: Optional[np.array] = None  # preds
 
-        self.curr_depth_img: Optional[np.array] = None
+        self.semantic_segmentation: Optional[np.array] = None
         self.curr_ground: Optional[np.array] = None
-        self.show = show
 
         self.logger.debug("Ground Plane Detector Initialized")
 
@@ -49,7 +47,7 @@ class GroundPlaneDetector(Detector):
             None
 
         """
-        super(GroundPlaneDetector, self).run_step(vehicle, new_data)
+        super(SemanticSegmentationDetector, self).run_step(vehicle, new_data)
         if self._test_depth_img is None:
             self._test_depth_img = png_to_depth(new_data)
             return
@@ -59,8 +57,11 @@ class GroundPlaneDetector(Detector):
             data = []
             depth_array = png_to_depth(new_data)
             # depth_image = calibration image, grab from somewhere
+            print(np.amin(depth_array), np.amax(depth_array), np.shape(depth_array))
+
             for i in range(self._sky_line_level, depth_array.shape[0]):
                 j = np.argmax(depth_array[i, :])
+
                 if depth_array[i][j] > self._min_caliberation_boundary:
                     xs.append(i)
                     data.append(depth_array[i][j])
@@ -76,17 +77,16 @@ class GroundPlaneDetector(Detector):
             self._predict_matrix = pred_func(rows)
             return
         else:
-            depth_img = new_data.copy()
-            depth_array = png_to_depth(depth_img)  # this turns it into 2D np array of shape (Width x Height)
-            diff = np.abs(depth_array - self._predict_matrix)
-            dets = (diff > self._max_detectable_distance_threshold)
-            # dets is a 2D array of shape WidthxHeight of boolean. True = obstacle, False=otherwise
-            depth_img[dets > 0] = 255
-            self.curr_depth_img = depth_img
-            self.curr_ground = ~dets
-            if self.show:
-                self.show_first_person_view(depth_img)
-                # self.show_bird_eye_view(depth_img)
+            depth_array = png_to_depth(new_data.copy())  # this turns it into 2D np array of shape (Width x Height)
+            semantic_seg = np.zeros(shape=np.shape(new_data))
+
+            # find sky and ground
+            sky = np.where(depth_array == 1)
+            ground = np.where(np.abs(depth_array - self._predict_matrix) > self._max_detectable_distance_threshold)
+
+            semantic_seg[ground] = [255, 255, 255]
+            semantic_seg[sky] = [255, 0, 0]  # BGR???
+            self.semantic_segmentation = semantic_seg
 
     def recalibrate(self,
                     sky_line_level: int = 310,
@@ -103,19 +103,6 @@ class GroundPlaneDetector(Detector):
         self._sky_line_level = sky_line_level
         self._max_detectable_distance_threshold = max_detectable_distance_threshold
         self._min_caliberation_boundary = min_caliberation_boundary
-
-    @classmethod
-    def show_first_person_view(cls, depth_image):
-        """
-        show the depth image
-        Args:
-            depth_image: Width x height x 3 shaped image
-        Returns:
-        """
-        gray = cv2.cvtColor(depth_image, cv2.COLOR_BGR2GRAY)
-        color = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
-        cv2.imshow('First Person', color)
-        cv2.waitKey(1)
 
     def Sk(self, S_k_1, y_k, y_k_1, x_k, x_k_1):
         return S_k_1 + 0.5 * (y_k + y_k_1) * (x_k - x_k_1)
