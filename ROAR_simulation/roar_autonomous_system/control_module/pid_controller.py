@@ -68,7 +68,7 @@ class VehiclePIDController(Controller):
         """
 
         super().__init__(vehicle)
-        self.logger = logging.Logger(__name__)
+        self.logger = logging.getLogger(__name__)
         self.max_throttle = max_throttle
         self.max_steer = max_steering
 
