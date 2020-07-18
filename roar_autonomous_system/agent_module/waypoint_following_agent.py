@@ -15,6 +15,7 @@ from roar_autonomous_system.utilities_module.data_structures_models import Trans
 import numpy as np
 import cv2
 from roar_autonomous_system.visualization_module.visualizer import Visualizer
+from roar_autonomous_system.utilities_module.utilities import png_to_depth
 
 
 class WaypointFollowingAgent(Agent):
@@ -62,18 +63,39 @@ class WaypointFollowingAgent(Agent):
                 pos2 = self.visualizer.calculate_img_pos(waypoint_location_2, self.front_depth_camera)
 
                 print(pos0, pos1, pos2)
+
                 curr_image = self.front_rgb_camera.data.copy()
-                curr_image[pos0[1]: pos0[1] + 5, pos0[0]: pos0[0] + 5] = [0, 255,0 ]
+                curr_image[pos0[1]: pos0[1] + 5, pos0[0]: pos0[0] + 5] = [0, 255, 0]
                 curr_image[pos1[1]: pos1[1] + 5, pos1[0]: pos1[0] + 5] = [255, 255, 0]
                 curr_image[pos2[1]: pos2[1] + 5, pos2[0]: pos2[0] + 5] = [0, 0, 255]
+
+
 
                 cv2.imshow("image", curr_image)
                 cv2.waitKey(1)
 
-
-
-
+                # projected_waypoint_0 = self.img_to_world(pos0)
+                # print(f"Actual_Waypoint_0 = {np.round(waypoint_location_0.location.to_array(), 3)} "
+                #       f"| projected waypoint 0 = {np.round(projected_waypoint_0, 3)} "
+                #       f"| abs_diff = {np.linalg.norm(waypoint_location_0.location.to_array()[:2] - projected_waypoint_0[:2])}")
+                # print()
             except:
                 print("Failed")
                 pass
         return control
+
+    def img_to_world(self, img_coords: np.array):
+        depth = png_to_depth(self.front_depth_camera.data)[img_coords[1]][img_coords[0]] * 1000
+
+        P = np.linalg.inv(self.front_depth_camera.intrinsics_matrix) @ np.array([img_coords[0], img_coords[1], 1]) * depth
+
+        cords_xyz = np.array([P[2], P[0], -P[1], 1])
+        veh_cam_matrix = self.front_depth_camera.transform.get_matrix()  # 4 x 4
+        world_veh_matrix = self.vehicle.transform.get_matrix()  # 4 x 4
+
+        cam_world = np.dot(world_veh_matrix, veh_cam_matrix)
+
+        waypoint_location = cam_world @ cords_xyz
+
+        return waypoint_location
+

@@ -63,12 +63,12 @@ class Transform(BaseModel):
         matrix[2, 3] = tz
         matrix[0, 0] = c_p * c_y
         matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
-        matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
+        matrix[0, 2] = c_y * s_p * c_r + s_y * s_r
         matrix[1, 0] = s_y * c_p
         matrix[1, 1] = s_y * s_p * s_r + c_y * c_r
-        matrix[1, 2] = -s_y * s_p * c_r + c_y * s_r
+        matrix[1, 2] = s_y * s_p * c_r - c_y * s_r
         matrix[2, 0] = s_p
-        matrix[2, 1] = -c_p * s_r
+        matrix[2, 1] = c_p * s_r
         matrix[2, 2] = c_p * c_r
         return matrix
 

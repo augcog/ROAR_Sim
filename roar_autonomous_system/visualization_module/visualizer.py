@@ -40,16 +40,24 @@ class Visualizer:
         waypoint_location = waypoint_transform.location.to_array()
         waypoint_location = np.concatenate([waypoint_location, [1]])  # 4 x 1 array [X, Y, Z, 1]
         veh_cam_matrix = self.agent.front_depth_camera.transform.get_matrix()  # 4 x 4
+        # veh_cam_matrix[1][3] = veh_cam_matrix[0][3]
         world_veh_matrix = self.agent.vehicle.transform.get_matrix()  # 4 x 4
 
-        world_cam_matrix = np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
+        # cam_transform = Transform(
+        #     location=Location(x=self.agent.vehicle.transform.location.x, y=self.agent.vehicle.transform.location.y - 1.6, z=self.agent.vehicle.transform.location.z),
+        #     rotation=self.agent.vehicle.transform.rotation
+        # )
+        # print(cam_transform)
+        # cam_world = cam_transform.get_matrix().T
 
-        cords_xyz = world_cam_matrix @ waypoint_location
+        cam_world = np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
+
+        cords_xyz = cam_world @ waypoint_location
 
         cords_y_minus_z_x = np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
         raw_p2d = camera.intrinsics_matrix @ cords_y_minus_z_x
-        cam_cords = np.array([raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]])
-        return cam_cords.astype(np.int64)
+        img_cords = np.array([raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]])
+        return img_cords.astype(np.int64)
 
     def visualize(self, next_waypoint_transform: Transform):
         """
