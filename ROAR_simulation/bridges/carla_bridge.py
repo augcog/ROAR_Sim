@@ -3,14 +3,24 @@ from carla import ColorConverter as cc
 from ROAR_simulation.carla_client.util.sensors import IMUSensor
 from ROAR_simulation.bridges.bridge import Bridge
 from typing import Union
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Location, Rotation, RGBData, DepthData, \
-    SensorsData, IMUData, Vector3D, Transform
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    VehicleControl,
+    Vehicle,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    Location,
+    Rotation,
+    RGBData,
+    DepthData,
+    SensorsData,
+    IMUData,
+    Vector3D,
+    Transform,
+)
 import numpy as np
 
 
 class CarlaBridge(Bridge):
-
     def convert_location_from_source_to_agent(self, source: carla.Location) -> Location:
 
         """
@@ -28,19 +38,28 @@ class CarlaBridge(Bridge):
 
         return Rotation(pitch=source.pitch, yaw=source.yaw, roll=source.roll)
 
-    def convert_transform_from_source_to_agent(self, source: carla.Transform) -> Transform:
+    def convert_transform_from_source_to_agent(
+        self, source: carla.Transform
+    ) -> Transform:
         """Convert CARLA raw location and rotation to Transform(location,rotation)."""
         return Transform(
             location=self.convert_location_from_source_to_agent(source=source.location),
-            rotation=self.convert_rotation_from_source_to_agent(source=source.rotation))
+            rotation=self.convert_rotation_from_source_to_agent(source=source.rotation),
+        )
 
-    def convert_control_from_source_to_agent(self, source: carla.VehicleControl) -> VehicleControl:
+    def convert_control_from_source_to_agent(
+        self, source: carla.VehicleControl
+    ) -> VehicleControl:
         """Convert CARLA raw vehicle control to VehicleControl(throttle,steering)."""
 
-        return VehicleControl(throttle=-1 * source.throttle if source.reverse else source.throttle,
-                              steering=source.steer)
+        return VehicleControl(
+            throttle=-1 * source.throttle if source.reverse else source.throttle,
+            steering=source.steer,
+        )
 
-    def convert_rgb_from_source_to_agent(self, source: carla.Image) -> Union[RGBData, None]:
+    def convert_rgb_from_source_to_agent(
+        self, source: carla.Image
+    ) -> Union[RGBData, None]:
         """Convert CARLA raw Image to a Union with RGB numpy array"""
 
         try:
@@ -49,7 +68,9 @@ class CarlaBridge(Bridge):
         except:
             return None
 
-    def convert_depth_from_source_to_agent(self, source: carla.Image) -> Union[DepthData, None]:
+    def convert_depth_from_source_to_agent(
+        self, source: carla.Image
+    ) -> Union[DepthData, None]:
         """Convert CARLA raw depth info to """
         try:
             array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
@@ -64,36 +85,62 @@ class CarlaBridge(Bridge):
         return Vector3D(x=source.x, y=source.y, z=source.z)
 
     def convert_imu_from_source_to_agent(self, source: IMUSensor) -> IMUData:
-        return IMUData(accelerometer=Vector3D(x=source.accelerometer[0],
-                                              y=source.accelerometer[1],
-                                              z=source.accelerometer[2]),
-                       gyroscope=Vector3D(x=source.gyroscope[0],
-                                          y=source.gyroscope[1],
-                                          z=source.gyroscope[2]))
+        return IMUData(
+            accelerometer=Vector3D(
+                x=source.accelerometer[0],
+                y=source.accelerometer[1],
+                z=source.accelerometer[2],
+            ),
+            gyroscope=Vector3D(
+                x=source.gyroscope[0], y=source.gyroscope[1], z=source.gyroscope[2]
+            ),
+        )
 
     def convert_sensor_data_from_source_to_agent(self, source: dict) -> SensorsData:
-        return SensorsData(front_rgb=self.convert_rgb_from_source_to_agent(source=source.get("front_rgb", None)),
-                           rear_rgb=self.convert_rgb_from_source_to_agent(source=source.get("rear_rgb", None)),
-                           front_depth=self.convert_depth_from_source_to_agent(source=source.get("front_depth", None)),
-                           imu_data=self.convert_imu_from_source_to_agent(source=source.get("imu", None)))
+        return SensorsData(
+            front_rgb=self.convert_rgb_from_source_to_agent(
+                source=source.get("front_rgb", None)
+            ),
+            rear_rgb=self.convert_rgb_from_source_to_agent(
+                source=source.get("rear_rgb", None)
+            ),
+            front_depth=self.convert_depth_from_source_to_agent(
+                source=source.get("front_depth", None)
+            ),
+            imu_data=self.convert_imu_from_source_to_agent(
+                source=source.get("imu", None)
+            ),
+        )
 
     def convert_vehicle_from_source_to_agent(self, source: carla.Vehicle) -> Vehicle:
-        control: VehicleControl = self.convert_control_from_source_to_agent(source.get_control())
+        control: VehicleControl = self.convert_control_from_source_to_agent(
+            source.get_control()
+        )
         # this is cheating here, vehicle does not know its own location
-        transform: Transform = self.convert_transform_from_source_to_agent(source.get_transform())
-        velocity: Vector3D = self.convert_vector3d_from_source_to_agent(source.get_velocity())
+        transform: Transform = self.convert_transform_from_source_to_agent(
+            source.get_transform()
+        )
+        velocity: Vector3D = self.convert_vector3d_from_source_to_agent(
+            source.get_velocity()
+        )
         return Vehicle(velocity=velocity, transform=transform, control=control)
 
-    def convert_control_from_agent_to_source(self, control: VehicleControl) -> carla.VehicleControl:
-        return carla.VehicleControl(throttle=abs(control.throttle),
-                                    steer=control.steering,
-                                    brake=0,
-                                    hand_brake=False,
-                                    reverse=True if control.throttle < 0 else False,
-                                    manual_gear_shift=False,
-                                    gear=1)
+    def convert_control_from_agent_to_source(
+        self, control: VehicleControl
+    ) -> carla.VehicleControl:
+        return carla.VehicleControl(
+            throttle=abs(control.throttle),
+            steer=control.steering,
+            brake=0,
+            hand_brake=False,
+            reverse=True if control.throttle < 0 else False,
+            manual_gear_shift=False,
+            gear=1,
+        )
 
-    def convert_vector3d_from_agent_to_source(self, vector3d: Vector3D) -> carla.Vector3D:
+    def convert_vector3d_from_agent_to_source(
+        self, vector3d: Vector3D
+    ) -> carla.Vector3D:
         return carla.Vector3D(x=vector3d.x, y=vector3d.y, z=vector3d.z)
 
     def convert_location_from_agent_to_source(self, source: Location) -> carla.Location:
@@ -102,10 +149,13 @@ class CarlaBridge(Bridge):
     def convert_rotation_from_agent_to_source(self, source: Rotation) -> carla.Rotation:
         return carla.Rotation(pitch=source.pitch, yaw=source.yaw, roll=source.roll)
 
-    def convert_transform_from_agent_to_source(self, source: Transform) -> carla.Transform:
+    def convert_transform_from_agent_to_source(
+        self, source: Transform
+    ) -> carla.Transform:
         return carla.Transform(
             location=self.convert_location_from_agent_to_source(source=source.location),
-            rotation=self.convert_rotation_from_agent_to_source(source=source.rotation))
+            rotation=self.convert_rotation_from_agent_to_source(source=source.rotation),
+        )
 
     def _to_bgra_array(self, image):
         """Convert a CARLA raw image to a BGRA numpy array."""

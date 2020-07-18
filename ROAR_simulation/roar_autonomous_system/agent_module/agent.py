@@ -1,9 +1,17 @@
 from abc import ABC, abstractmethod
 import logging
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+)
 from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models import Camera
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import SensorsData, IMUData, Transform
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    SensorsData,
+    IMUData,
+    Transform,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    VehicleControl,
+)
 from typing import Optional, List
 
 
@@ -15,12 +23,14 @@ class Agent(ABC):
 
     """
 
-    def __init__(self,
-                 vehicle: Vehicle,
-                 front_rgb_camera: Optional[Camera] = None,
-                 front_depth_camera: Optional[Camera] = None,
-                 rear_rgb_camera: Optional[Camera] = None,
-                 imu: Optional[IMUData] = None):
+    def __init__(
+        self,
+        vehicle: Vehicle,
+        front_rgb_camera: Optional[Camera] = None,
+        front_depth_camera: Optional[Camera] = None,
+        rear_rgb_camera: Optional[Camera] = None,
+        imu: Optional[IMUData] = None,
+    ):
         """Initiating the Agent with given vehicle, front and back RGB cameras, front depth camera and IMU sensor"""
 
         self.vehicle = vehicle
@@ -38,12 +48,17 @@ class Agent(ABC):
         """Calculate intrinsic matrices for each existing camera (front/back RGB and front depth). """
 
         if self.front_rgb_camera is not None:
-            self.front_rgb_camera.intrinsics_matrix = self.front_rgb_camera.calculate_intrinsic_matrix()
+            self.front_rgb_camera.intrinsics_matrix = (
+                self.front_rgb_camera.calculate_intrinsic_matrix()
+            )
         if self.front_depth_camera is not None:
-            self.front_depth_camera.intrinsics_matrix = self.front_depth_camera.calculate_intrinsic_matrix()
+            self.front_depth_camera.intrinsics_matrix = (
+                self.front_depth_camera.calculate_intrinsic_matrix()
+            )
         if self.rear_rgb_camera is not None:
-            self.rear_rgb_camera.intrinsics_matrix = self.rear_rgb_camera.calculate_intrinsic_matrix()
-
+            self.rear_rgb_camera.intrinsics_matrix = (
+                self.rear_rgb_camera.calculate_intrinsic_matrix()
+            )
 
     @abstractmethod
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
@@ -67,13 +82,25 @@ class Agent(ABC):
         self.vehicle = vehicle
 
         if self.front_rgb_camera is not None:
-            self.front_rgb_camera.data = sensors_data.front_rgb.data if sensors_data.front_rgb is not None else None
+            self.front_rgb_camera.data = (
+                sensors_data.front_rgb.data
+                if sensors_data.front_rgb is not None
+                else None
+            )
 
         if self.front_depth_camera is not None:
-            self.front_depth_camera.data = sensors_data.front_depth.data if sensors_data.front_depth is not None else None
+            self.front_depth_camera.data = (
+                sensors_data.front_depth.data
+                if sensors_data.front_depth is not None
+                else None
+            )
 
         if self.rear_rgb_camera is not None:
-            self.rear_rgb_camera.data = sensors_data.rear_rgb.data if sensors_data.rear_rgb is not None else None
+            self.rear_rgb_camera.data = (
+                sensors_data.rear_rgb.data
+                if sensors_data.rear_rgb is not None
+                else None
+            )
 
         if self.imu is not None:
             self.imu = sensors_data.imu_data

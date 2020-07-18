@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 import logging
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+)
 from typing import Any
+
 
 class AbstractPlanner(ABC):
     def __init__(self, vehicle: Vehicle):

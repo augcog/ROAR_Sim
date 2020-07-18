@@ -3,8 +3,8 @@ numpy==1.19.0
 open3d==0.10.0.0
 opencv-python==4.2.0.34
 Pillow==7.1.2
+pre-commit
 pydantic==1.5.1
 pygame==1.9.6
 scipy==1.5.0
 sympy==1.6.1
-

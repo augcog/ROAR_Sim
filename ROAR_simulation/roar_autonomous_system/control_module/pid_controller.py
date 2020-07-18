@@ -7,8 +7,14 @@
 """ This module contains PID controllers to perform lateral and longitudinal control. """
 from pydantic import BaseModel, Field
 from ROAR_simulation.roar_autonomous_system.control_module.controller import Controller
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    VehicleControl,
+    Vehicle,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    Transform,
+    Location,
+)
 from collections import deque
 import numpy as np
 import math
@@ -45,13 +51,15 @@ class VehiclePIDController(Controller):
     low level control a vehicle from client side
     """
 
-    def __init__(self,
-                 vehicle: Vehicle,
-                 args_lateral: PIDParam,
-                 args_longitudinal: PIDParam,
-                 target_speed=float("inf"),
-                 max_throttle=1,
-                 max_steering=1):
+    def __init__(
+        self,
+        vehicle: Vehicle,
+        args_lateral: PIDParam,
+        args_longitudinal: PIDParam,
+        target_speed=float("inf"),
+        max_throttle=1,
+        max_steering=1,
+    ):
         """
         Constructor method.
         :param vehicle: actor to apply to local planner logic onto
@@ -75,19 +83,25 @@ class VehiclePIDController(Controller):
         self.target_speed = target_speed
 
         self.past_steering = self.vehicle.control.steering
-        self._lon_controller = PIDLongitudinalController(self.vehicle,
-                                                         K_P=args_longitudinal.K_P,
-                                                         K_D=args_longitudinal.K_D,
-                                                         K_I=args_longitudinal.K_I,
-                                                         dt=args_longitudinal.dt)
-        self._lat_controller = PIDLateralController(self.vehicle,
-                                                    K_P=args_lateral.K_P,
-                                                    K_D=args_lateral.K_D,
-                                                    K_I=args_lateral.K_I,
-                                                    dt=args_lateral.dt)
+        self._lon_controller = PIDLongitudinalController(
+            self.vehicle,
+            K_P=args_longitudinal.K_P,
+            K_D=args_longitudinal.K_D,
+            K_I=args_longitudinal.K_I,
+            dt=args_longitudinal.dt,
+        )
+        self._lat_controller = PIDLateralController(
+            self.vehicle,
+            K_P=args_lateral.K_P,
+            K_D=args_lateral.K_D,
+            K_I=args_lateral.K_I,
+            dt=args_lateral.dt,
+        )
         self.logger.debug("PID Controller initiated")
 
-    def run_step(self, vehicle: Vehicle, next_waypoint: Transform, **kwargs) -> VehicleControl:
+    def run_step(
+        self, vehicle: Vehicle, next_waypoint: Transform, **kwargs
+    ) -> VehicleControl:
         """
         Execute one step of control invoking both lateral and longitudinal
         PID controllers to reach a target waypoint
@@ -198,7 +212,11 @@ class PIDLongitudinalController:
         else:
             _de = 0.0
             _ie = 0.0
-        output = float(np.clip((self._k_p * error) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0))
+        output = float(
+            np.clip(
+                (self._k_p * error) + (self._k_d * _de) + (self._k_i * _ie), -1.0, 1.0
+            )
+        )
 
         return output
 
@@ -233,7 +251,9 @@ class PIDLateralController:
             -1 maximum steering to left
             +1 maximum steering to right
         """
-        return self._pid_control(target_waypoint=target_waypoint, vehicle_transform=self.vehicle.transform)
+        return self._pid_control(
+            target_waypoint=target_waypoint, vehicle_transform=self.vehicle.transform
+        )
 
     def _pid_control(self, target_waypoint, vehicle_transform) -> float:
         """
@@ -244,16 +264,28 @@ class PIDLateralController:
         """
         # calculate a vector that represent where you are going
         v_begin = vehicle_transform.location
-        v_end = v_begin + Location(x=math.cos(math.radians(vehicle_transform.rotation.yaw)),
-                                   y=math.sin(math.radians(vehicle_transform.rotation.yaw)),
-                                   z=0)
+        v_end = v_begin + Location(
+            x=math.cos(math.radians(vehicle_transform.rotation.yaw)),
+            y=math.sin(math.radians(vehicle_transform.rotation.yaw)),
+            z=0,
+        )
         v_vec = np.array([v_end.x - v_begin.x, v_end.y - v_begin.y, 0.0])
 
         # calculate error projection
-        w_vec = np.array([target_waypoint.location.x - v_begin.x,
-                          target_waypoint.location.y - v_begin.y,
-                          0.0])
-        _dot = math.acos(np.clip(np.dot(w_vec, v_vec) / (np.linalg.norm(w_vec) * np.linalg.norm(v_vec)), -1.0, 1.0))
+        w_vec = np.array(
+            [
+                target_waypoint.location.x - v_begin.x,
+                target_waypoint.location.y - v_begin.y,
+                0.0,
+            ]
+        )
+        _dot = math.acos(
+            np.clip(
+                np.dot(w_vec, v_vec) / (np.linalg.norm(w_vec) * np.linalg.norm(v_vec)),
+                -1.0,
+                1.0,
+            )
+        )
 
         _cross = np.cross(v_vec, w_vec)
 
@@ -268,4 +300,6 @@ class PIDLateralController:
             _de = 0.0
             _ie = 0.0
 
-        return float(np.clip((self.k_p * _dot) + (self.k_d * _de) + (self.k_i * _ie), -1.0, 1.0))
+        return float(
+            np.clip((self.k_p * _dot) + (self.k_d * _de) + (self.k_i * _ie), -1.0, 1.0)
+        )

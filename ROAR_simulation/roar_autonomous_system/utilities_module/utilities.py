@@ -15,4 +15,3 @@ def png_to_depth(im: np.array) -> np.array:
     normalized_depth = np.dot(im[:, :, :3], [65536.0, 256.0, 1.0])
     normalized_depth /= 16777215.0
     return normalized_depth
-

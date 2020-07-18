@@ -1,19 +1,25 @@
 from ROAR_simulation.roar_autonomous_system.perception_module.detector import Detector
 import numpy as np
 from typing import Optional
-from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import (
+    png_to_depth,
+)
 import logging
 from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models import Camera
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+)
 
 
 class SemanticSegmentationDetector(Detector):
-    def __init__(self,
-                 vehicle: Vehicle,
-                 camera: Camera,
-                 sky_line_level: int = 310,
-                 max_detectable_distance_threshold: float = 0.08,
-                 min_caliberation_boundary: float = 0.01):
+    def __init__(
+        self,
+        vehicle: Vehicle,
+        camera: Camera,
+        sky_line_level: int = 310,
+        max_detectable_distance_threshold: float = 0.08,
+        min_caliberation_boundary: float = 0.01,
+    ):
         super().__init__(vehicle=vehicle, camera=camera)
         self.logger = logging.getLogger(__name__)
         self._sky_line_level = sky_line_level
@@ -56,15 +62,14 @@ class SemanticSegmentationDetector(Detector):
             depth_array = png_to_depth(new_data)
             # depth_image = calibration image, grab from somewhere
 
-            for i in range(self._sky_line_level+10, depth_array.shape[0]):
+            for i in range(self._sky_line_level + 10, depth_array.shape[0]):
                 j = np.argmax(depth_array[i, :])
 
                 if depth_array[i][j] > self._min_caliberation_boundary:
                     xs.append(i)
                     data.append(depth_array[i][j])
             a, b, c, p, q = self.fit(
-                np.array(xs, dtype=np.float64),
-                np.array(data, dtype=np.float64)
+                np.array(xs, dtype=np.float64), np.array(data, dtype=np.float64)
             )
             test_image = self._test_depth_img
             pred_func = self.construct_f(a, b, c, p, q)
@@ -74,21 +79,28 @@ class SemanticSegmentationDetector(Detector):
             self._predict_matrix = pred_func(rows)
             return
         else:
-            depth_array = png_to_depth(new_data.copy())  # this turns it into 2D np array of shape (Width x Height)
+            depth_array = png_to_depth(
+                new_data.copy()
+            )  # this turns it into 2D np array of shape (Width x Height)
             semantic_seg = np.zeros(shape=np.shape(new_data))
 
             # find sky and ground
             sky = np.where(depth_array == 1)
-            ground = np.where(np.abs(depth_array - self._predict_matrix) > self._max_detectable_distance_threshold)
+            ground = np.where(
+                np.abs(depth_array - self._predict_matrix)
+                > self._max_detectable_distance_threshold
+            )
 
             semantic_seg[ground] = [255, 255, 255]
             semantic_seg[sky] = [255, 0, 0]  # BGR???
             self.semantic_segmentation = semantic_seg
 
-    def recalibrate(self,
-                    sky_line_level: int = 310,
-                    max_detectable_distance_threshold: float = 0.089,
-                    min_caliberation_boundary: float = 0.01):
+    def recalibrate(
+        self,
+        sky_line_level: int = 310,
+        max_detectable_distance_threshold: float = 0.089,
+        min_caliberation_boundary: float = 0.01,
+    ):
         """
         Force a recalibration of the ground plane prediction matrix
         Returns:
@@ -152,8 +164,9 @@ class SemanticSegmentationDetector(Detector):
         F4xy = self.F4(x, y)
         F5xy = self.F5(y)
         F = np.array([F1xy, F2xy, F3xy, F4xy, F5xy])
-        f = np.array([np.sum(F1xy), np.sum(F2xy), np.sum(F3xy),
-                      np.sum(F4xy), np.sum(F5xy)])
+        f = np.array(
+            [np.sum(F1xy), np.sum(F2xy), np.sum(F3xy), np.sum(F4xy), np.sum(F5xy)]
+        )
         F = F @ F.T
         A, B, C, D, E = np.linalg.inv(F) @ f
         pre_sqrt = np.clip(B ** 2 + 4 * A, 0, np.inf)  # edits 1
