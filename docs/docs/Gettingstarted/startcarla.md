@@ -3,7 +3,7 @@
 ## QuickStart
 **Required Equipment:** Linux/Windows Computer
     
-**Approximate Time:** 15 minutes
+**Approximate Time:** 15 minutes    
 
 0. Download the this code [here](https://drive.google.com/file/d/12vOc6ukmZjkahjXZCWq-hy0iDBiEuEZq/view?usp=sharing) [as of writing this readme, we still need to create a public github repo]
 1. Download the right distribution of Carla for your Operation System [here](https://drive.google.com/drive/folders/1xGz2r6fiXCHn57_ZOS710RX2IoCKzWWx)
@@ -27,7 +27,7 @@
 1. Conda not found 
     - You should download miniconda3 Linux/Windows 64-bit [miniconda3](https://docs.conda.io/en/latest/miniconda.html)
     - Follow the below instructions to install miniconda successfully 
-    ![](miniconda3.png)
+    ![](../Images/miniconda3.png)
     - If still cannot call conda, try (directory may vary):
         - `sudo chown -R /home/username/miniconda3/'`
         - `sudo chmod -R +x /home/username/miniconda3/`
