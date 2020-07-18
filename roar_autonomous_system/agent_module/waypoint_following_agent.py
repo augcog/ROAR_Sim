@@ -27,8 +27,8 @@ class WaypointFollowingAgent(Agent):
                                                    args_longitudinal=PIDParam.default_longitudinal_param(),
                                                    target_speed=target_speed)
         self.mission_planner = WaypointFollowingMissionPlanner(file_path=self.route_file_path, vehicle=vehicle)
-        self.global_occupancy_grid_map = OccupancyMap.create_map(mission_plan=self.mission_planner.mission_plan,
-                                                                 map_additional_padding=100)  # TODO revamp this
+        # self.global_occupancy_grid_map = OccupancyMap.create_map(mission_plan=self.mission_planner.mission_plan,
+        #                                                          map_additional_padding=100)  # TODO revamp this
         # initiated right after mission plan
 
         self.behavior_planner = BehaviorPlanner(vehicle=vehicle)
@@ -51,29 +51,4 @@ class WaypointFollowingAgent(Agent):
             self.logger.debug("Path Following Agent is Done. Idling.")
         else:
             control = self.local_planner.run_step(vehicle=vehicle)
-            try:
-                # self.visualizer.visualize_waypoint(self.local_planner.way_points_queue[0])
-                waypoint_location_0 = self.local_planner.way_points_queue[0]
-                waypoint_location_1 = self.local_planner.way_points_queue[1]
-                waypoint_location_2 = self.local_planner.way_points_queue[2]
-
-                pos0 = self.visualizer.calculate_img_pos(waypoint_location_0, self.front_depth_camera)
-                pos1 = self.visualizer.calculate_img_pos(waypoint_location_1, self.front_depth_camera)
-                pos2 = self.visualizer.calculate_img_pos(waypoint_location_2, self.front_depth_camera)
-
-                print(pos0, pos1, pos2)
-                curr_image = self.front_rgb_camera.data.copy()
-                curr_image[pos0[1]: pos0[1] + 5, pos0[0]: pos0[0] + 5] = [0, 255,0 ]
-                curr_image[pos1[1]: pos1[1] + 5, pos1[0]: pos1[0] + 5] = [255, 255, 0]
-                curr_image[pos2[1]: pos2[1] + 5, pos2[0]: pos2[0] + 5] = [0, 0, 255]
-
-                cv2.imshow("image", curr_image)
-                cv2.waitKey(1)
-
-
-
-
-            except:
-                print("Failed")
-                pass
         return control
