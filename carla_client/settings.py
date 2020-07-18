@@ -16,7 +16,7 @@ from carla_client.util.utilities import CarlaWeathers, CarlaWeather, CarlaCarCol
 from pathlib import Path
 from typing import Optional
 from roar_autonomous_system.utilities_module.camera_models import Camera
-from roar_autonomous_system.utilities_module.data_structures_models import Location, Rotation
+from roar_autonomous_system.utilities_module.data_structures_models import Location, Rotation, Transform
 
 
 class CarlaSettings(BaseModel):
@@ -47,20 +47,22 @@ class CarlaSettings(BaseModel):
 
     # ROAR sensors settings
     front_depth_cam: Camera = Field(default=Camera(fov=70,
-                                                   location=Location(x=0, y=1.6, z=1.7),
-                                                   rotation=Rotation(pitch=0, yaw=0, roll=0),
+                                                   transform=Transform(location=Location(x=1.6, y=0, z=1.7),
+                                                                       rotation=Rotation(pitch=0, yaw=0, roll=0)),
+
                                                    image_size_x=800,
                                                    image_size_y=600),
                                     title="Front Depth Camera")
     front_rgb_cam: Camera = Field(default=Camera(fov=70,
-                                                 location=Location(x=1.6, y=0, z=1.7),
-                                                 rotation=Rotation(pitch=0, yaw=0, roll=0),
+                                                 transform=Transform(location=Location(x=1.6, y=0, z=1.7),
+                                                                     rotation=Rotation(pitch=0, yaw=0, roll=0)),
                                                  image_size_x=800,
                                                  image_size_y=600),
                                   title="Front RGB Camera")
     rear_rgb_cam: Camera = Field(default=Camera(fov=145,
-                                                location=Location(x=-1.5, y=0.0, z=1.4),
-                                                rotation=Rotation(pitch=0.0, yaw=180, roll=0.0),
+                                                transform=Transform(location=Location(x=-1.5, y=0.0, z=1.4),
+                                                                    rotation=Rotation(pitch=0.0, yaw=180, roll=0.0)),
+
                                                 image_size_x=800,
                                                 image_size_y=600),
                                  title="Rear RGB Camera")

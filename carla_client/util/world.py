@@ -217,8 +217,8 @@ class World(object):
         self = weak_self()
         if not self:
             return
-        image.convert(cc.LogarithmicDepth)
-        # image.convert(cc.Depth)
+        # image.convert(cc.LogarithmicDepth)
+        image.convert(cc.Depth)
         self.front_depth_sensor_data = image
 
     @staticmethod

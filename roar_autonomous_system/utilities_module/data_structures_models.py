@@ -39,6 +39,40 @@ class Transform(BaseModel):
     location: Location = Field(default=Location(x=0, y=0, z=0))
     rotation: Rotation = Field(default=Rotation(pitch=0, yaw=0, roll=0))
 
+    def get_matrix(self):
+        """
+        Calculate extrinsics matrix with respect to parent object
+        http://planning.cs.uiuc.edu/node104.html
+
+        Returns:
+
+        """
+        location = self.location
+        rotation = self.rotation
+        yaw, pitch, roll = rotation.yaw, rotation.pitch, rotation.roll
+        tx, ty, tz = location.x, location.y, location.z
+        c_y = np.cos(np.radians(yaw))
+        s_y = np.sin(np.radians(yaw))
+        c_r = np.cos(np.radians(roll))
+        s_r = np.sin(np.radians(roll))
+        c_p = np.cos(np.radians(pitch))
+        s_p = np.sin(np.radians(pitch))
+
+        matrix = np.identity(4)
+        matrix[0, 3] = tx
+        matrix[1, 3] = ty
+        matrix[2, 3] = tz
+        matrix[0, 0] = c_p * c_y
+        matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
+        matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r
+        matrix[1, 0] = s_y * c_p
+        matrix[1, 1] = s_y * s_p * s_r + c_y * c_r
+        matrix[1, 2] = -s_y * s_p * c_r + c_y * s_r
+        matrix[2, 0] = s_p
+        matrix[2, 1] = -c_p * s_r
+        matrix[2, 2] = c_p * c_r
+        return matrix
+
 
 class Vector3D(BaseModel):
     x: float = Field(default=0)

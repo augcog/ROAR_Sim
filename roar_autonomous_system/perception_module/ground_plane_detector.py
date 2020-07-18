@@ -57,9 +57,8 @@ class SemanticSegmentationDetector(Detector):
             data = []
             depth_array = png_to_depth(new_data)
             # depth_image = calibration image, grab from somewhere
-            print(np.amin(depth_array), np.amax(depth_array), np.shape(depth_array))
 
-            for i in range(self._sky_line_level, depth_array.shape[0]):
+            for i in range(self._sky_line_level+10, depth_array.shape[0]):
                 j = np.argmax(depth_array[i, :])
 
                 if depth_array[i][j] > self._min_caliberation_boundary:
