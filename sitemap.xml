@@ -1,31 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://roar-decal.github.io/Carla/</loc>
-     <lastmod>2020-07-17</lastmod>
+     <lastmod>2020-07-18</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://roar-decal.github.io/Carla/Gettingstarted/startcarla/</loc>
-     <lastmod>2020-07-17</lastmod>
+     <loc>https://roar-decal.github.io/Carla/getting_started/quick_start/</loc>
+     <lastmod>2020-07-18</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://roar-decal.github.io/Carla/layout/projectlayout/</loc>
-     <lastmod>2020-07-17</lastmod>
+     <loc>https://roar-decal.github.io/Carla/project_overview/project_module_TADs/</loc>
+     <lastmod>2020-07-18</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://roar-decal.github.io/Carla/lectures_folder/A%26JN/</loc>
-     <lastmod>2020-07-17</lastmod>
+     <loc>https://roar-decal.github.io/Carla/project_overview/code_layout/</loc>
+     <lastmod>2020-07-18</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://roar-decal.github.io/Carla/lectures_folder/CV/</loc>
-     <lastmod>2020-07-17</lastmod>
+     <loc>https://roar-decal.github.io/Carla/code_documentations/bridges/</loc>
+     <lastmod>2020-07-18</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
-     <loc>https://roar-decal.github.io/Carla/lectures_folder/PID/</loc>
-     <lastmod>2020-07-17</lastmod>
-     <changefreq>daily</changefreq>
-    </url><url>
-     <loc>https://roar-decal.github.io/Carla/lectures_folder/3DPrint/</loc>
-     <lastmod>2020-07-17</lastmod>
+     <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/agents/</loc>
+     <lastmod>2020-07-18</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>

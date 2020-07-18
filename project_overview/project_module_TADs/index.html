@@ -6,10 +6,10 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Robot Autonomous Racing DeCal is a course dedicated to teaching students to gain a holistic view and hands-on(virtual) experiences about building a high-performance fully-autonomous 1/10 scale RC car from scratch." name="description"/>
-<link href="https://roar-decal.github.io/Carla/Gettingstarted/startcarla/" rel="canonical"/>
+<link href="https://roar-decal.github.io/Carla/project_overview/project_module_TADs/" rel="canonical"/>
 <link href="../../assets/images/favicon.png" rel="shortcut icon"/>
 <meta content="mkdocs-1.1.2, mkdocs-material-5.4.0" name="generator"/>
-<title>Setup - ROAR</title>
+<title>Project Module TAD - ROAR</title>
 <link href="../../assets/stylesheets/main.fe0cca5b.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
@@ -20,7 +20,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#roar-carla-simulation">
+<a class="md-skip" href="#roar-carla-overall-architecture">
           Skip to content
         </a>
 </div>
@@ -41,7 +41,7 @@
           </span>
 <span class="md-header-nav__topic md-ellipsis">
             
-              Setup
+              Project Module TAD
             
           </span>
 </div>
@@ -95,16 +95,37 @@
       Home
     </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../getting_started/quick_start/" title="Setup">
+      Setup
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-3">
+      Project Overview
+      <span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="Project Overview" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-3">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+        Project Overview
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item md-nav__item--active">
 <input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
-        Setup
+        Project Module TAD
         <span class="md-nav__icon md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
 </span>
 </label>
-<a class="md-nav__link md-nav__link--active" href="./" title="Setup">
-      Setup
+<a class="md-nav__link md-nav__link--active" href="./" title="Project Module TAD">
+      Project Module TAD
     </a>
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">
@@ -115,62 +136,85 @@
     </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#quickstart">
-    QuickStart
+<a class="md-nav__link" href="#roar-carla-overall-architecture">
+    ROAR Carla Overall Architecture
   </a>
-<nav aria-label="QuickStart" class="md-nav">
-<ul class="md-nav__list">
+</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#common-errors">
-    Common Errors
+<a class="md-nav__link" href="#environment-maps">
+    Environment Maps
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environmental-perception">
+    Environmental Perception
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#motion-planning">
+    Motion Planning
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vehicle-controller">
+    Vehicle Controller
   </a>
 </li>
 </ul>
 </nav>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../layout/projectlayout/" title="Overview of Project Layout">
-      Overview of Project Layout
+<a class="md-nav__link" href="../code_layout/" title="Code Layout">
+      Code Layout
     </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
 <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
 <label class="md-nav__link" for="nav-4">
-      Lectures
+      Code Documentations
       <span class="md-nav__icon md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
 </span>
 </label>
-<nav aria-label="Lectures" class="md-nav" data-md-level="1">
+<nav aria-label="Code Documentations" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="nav-4">
 <span class="md-nav__icon md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </span>
-        Lectures
+        Code Documentations
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../lectures_folder/A%26JN/" title="Arduino/Jetson Nano">
-      Arduino/Jetson Nano
+<a class="md-nav__link" href="../../code_documentations/bridges/" title="Bridges">
+      Bridges
     </a>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-2" id="nav-4-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-2">
+      ROAR Autonomous System
+      <span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="ROAR Autonomous System" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-2">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+        ROAR Autonomous System
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../lectures_folder/CV/" title="Computer Vision">
-      Computer Vision
+<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/agents/" title="Agents">
+      Agents
     </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../lectures_folder/PID/" title="PID Control">
-      PID Control
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../lectures_folder/3DPrint/" title="3D Printing">
-      3D Printing
-    </a>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -192,18 +236,29 @@
     </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#quickstart">
-    QuickStart
-  </a>
-<nav aria-label="QuickStart" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#common-errors">
-    Common Errors
+<a class="md-nav__link" href="#roar-carla-overall-architecture">
+    ROAR Carla Overall Architecture
   </a>
 </li>
-</ul>
-</nav>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environment-maps">
+    Environment Maps
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environmental-perception">
+    Environmental Perception
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#motion-planning">
+    Motion Planning
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#vehicle-controller">
+    Vehicle Controller
+  </a>
 </li>
 </ul>
 </nav>
@@ -212,54 +267,17 @@
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
-<h1 id="roar-carla-simulation">ROAR Carla Simulation</h1>
-<h2 id="quickstart">QuickStart</h2>
-<p><strong>Required Equipment:</strong> Linux/Windows Computer</p>
-<p><strong>Approximate Time:</strong> 15 minutes</p>
-<ol>
-<li>Download the this code <a href="https://drive.google.com/file/d/12vOc6ukmZjkahjXZCWq-hy0iDBiEuEZq/view?usp=sharing">here</a> [as of writing this readme, we still need to create a public github repo]</li>
-<li>Download the right distribution of Carla for your Operation System <a href="https://drive.google.com/drive/folders/1xGz2r6fiXCHn57_ZOS710RX2IoCKzWWx">here</a><ul>
-<li>You should download either <code>roar_easy_linux.zip</code> or <code>roar_easy_windows.zip</code></li>
-</ul>
-</li>
-<li>Initiate a virtual environment.<ul>
-<li><code>conda create -n ROAR python=3.7</code></li>
-<li><code>conda activate ROAR</code></li>
-</ul>
-</li>
-<li>Install required packages<ul>
-<li><code>pip install -r requirements.txt</code></li>
-</ul>
-</li>
-<li>You are all set up.<ul>
-<li>Start the server<ul>
-<li>on Windows, you may double click the <code>CarlaUE4.exe</code> or you may use a commandline prompt and type in <code>CarlaUE4.exe</code></li>
-<li>on Ubuntu, you can directly type <code>./CarlaUE4.sh</code></li>
-</ul>
-</li>
-<li>Start Client connection<ul>
-<li><code>python carla_runner.py</code></li>
-<li>You should be on manual control now. </li>
-<li>To switch to autonomous mode, open up <code>carla_runner.py</code> and scroll down the end, change the line `settings.enable_aut</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<h3 id="common-errors">Common Errors</h3>
-<ol>
-<li>Conda not found <ul>
-<li>You should download miniconda3 Linux/Windows 64-bit <a href="https://docs.conda.io/en/latest/miniconda.html">miniconda3</a></li>
-<li>Follow the below instructions to install miniconda successfully 
-<img alt="" src="../miniconda3.png"/></li>
-<li>If still cannot call conda, try (directory may vary):<ul>
-<li><code>sudo chown -R /home/username/miniconda3/'</code></li>
-<li><code>sudo chmod -R +x /home/username/miniconda3/</code></li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
+<h1>Project Module TAD</h1>
+<h2 id="roar-carla-overall-architecture">ROAR Carla Overall Architecture</h2>
+<p><img alt="" src="../../images/roar_simulation_overall_architecture.png"/></p>
+<h2 id="environment-maps">Environment Maps</h2>
+<p><img alt="" src="../../images/EnvMaps.jpg"/></p>
+<h2 id="environmental-perception">Environmental Perception</h2>
+<p><img alt="" src="../../images/EnvPerception.jpg"/></p>
+<h2 id="motion-planning">Motion Planning</h2>
+<p><img alt="" src="../../images/MotionPlanning.jpg"/></p>
+<h2 id="vehicle-controller">Vehicle Controller</h2>
+<p><img alt="" src="../../images/VehicleController.jpg"/></p>
 </article>
 </div>
 </div>
@@ -267,7 +285,7 @@
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../.." rel="prev" title="Home">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../../getting_started/quick_start/" rel="prev" title="Setup">
 <div class="md-footer-nav__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -276,17 +294,17 @@
 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Home
+                Setup
               </div>
 </div>
 </a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../../layout/projectlayout/" rel="next" title="Overview of Project Layout">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../code_layout/" rel="next" title="Code Layout">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Overview of Project Layout
+                Code Layout
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">
