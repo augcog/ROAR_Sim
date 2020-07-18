@@ -1,5 +1,5 @@
 import logging
-from roar_autonomous_system.utilities_module.data_structures_models import Transform
+from roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
 from roar_autonomous_system.utilities_module.camera_models import Camera
 import numpy as np
 import cv2
@@ -37,50 +37,19 @@ class Visualizer:
             Array if integers [X, Y, depth]
 
         """
-        waypoint = np.array([waypoint_transform.location.x,
-                             waypoint_transform.location.y,
-                             waypoint_transform.location.z, 1])  # 4x1
-        intrinsics = camera.intrinsics_matrix  # 3x3 matrix
+        waypoint_location = waypoint_transform.location.to_array()
+        waypoint_location = np.concatenate([waypoint_location, [1]])  # 4 x 1 array [X, Y, Z, 1]
+        veh_cam_matrix = self.agent.front_depth_camera.transform.get_matrix()  # 4 x 4
+        world_veh_matrix = self.agent.vehicle.transform.get_matrix()  # 4 x 4
 
-        # 4x4 matrix
-        cam_veh_matrix = camera.get_matrix()
-        veh_world_matrix = self.agent.vehicle.get_matrix()
+        world_cam_matrix = np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
 
-        sensor_world_matrix_2 = cam_veh_matrix @ veh_world_matrix
-        tmp = np.dot(np.linalg.inv(sensor_world_matrix_2), waypoint)
-        tmp = np.array([tmp[1], -tmp[2], tmp[0]])
-        pos2d = np.dot(self.agent.front_depth_camera.intrinsics_matrix, tmp[:3])
-        pos2d = np.array([
-            pos2d[0] / pos2d[2],
-            pos2d[1] / pos2d[2],
-            pos2d[2]
-        ])
-        pos2d = pos2d.astype(np.int64)
-        print(pos2d)
+        cords_xyz = world_cam_matrix @ waypoint_location
 
-        # world_sensor_matrix = np.dot(veh_world_matrix, cam_veh_matrix)
-        # tmp = np.dot(np.linalg.inv(world_sensor_matrix), waypoint)
-        # tmp = np.array([tmp[1], -tmp[2], tmp[0]])
-        # pos2d = np.dot(intrinsics, tmp[:3])
-        # pos2d = np.array([
-        #     pos2d[0] / pos2d[2],
-        #     pos2d[1] / pos2d[2],
-        #     pos2d[2]
-        # ])
-        # pos2d = pos2d.astype(np.int64)
-        # # return pos2d
-        # # print(pos2d)
-
-        world_sensor_matrix = np.linalg.inv(np.matmul(cam_veh_matrix, veh_world_matrix))
-
-        cords_x_y_z = np.matmul(world_sensor_matrix, waypoint)
-
-        cords_y_minus_z_x = np.array([cords_x_y_z[1], -cords_x_y_z[2], cords_x_y_z[0]])
-        raw_p2d = np.matmul(intrinsics, cords_y_minus_z_x)
-        cam_coord = np.array([raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]])
-
-        cam_coord = cam_coord.astype(np.int64)
-        return cam_coord
+        cords_y_minus_z_x = np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
+        raw_p2d = camera.intrinsics_matrix @ cords_y_minus_z_x
+        cam_cords = np.array([raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]])
+        return cam_cords.astype(np.int64)
 
     def visualize(self, next_waypoint_transform: Transform):
         """
@@ -124,5 +93,3 @@ class Visualizer:
         if semantic_segmetation is not None:
             cv2.imshow("Semantic Segmentation", semantic_segmetation)
             cv2.waitKey(1)
-
-
