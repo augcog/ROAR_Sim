@@ -1,13 +1,9 @@
-from carla_client.settings import CarlaSettings
-from carla_client.carla_runner import CarlaRunner
+from ROAR_simulation.carla_client.settings import CarlaSettings
+from ROAR_simulation.carla_client.carla_runner import CarlaRunner
 import logging
-from roar_autonomous_system.agent_module.gpd_agent import SemanticSegmentationAgent
-from roar_autonomous_system.agent_module.waypoint_following_agent import WaypointFollowingAgent
-from roar_autonomous_system.agent_module.purpursuit_agent import PurePursuitAgent
+from ROAR_simulation.roar_autonomous_system.agent_module.waypoint_following_agent import WaypointFollowingAgent
 from pathlib import Path
 import numpy as np
-
-
 
 def main():
     log_level = logging.DEBUG
@@ -38,3 +34,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
