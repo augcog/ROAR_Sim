@@ -127,7 +127,6 @@ class VehiclePIDController(Controller):
 
         acceptable_target_speed = self.target_speed
         if abs(self.vehicle.control.steering) < 0.05:
-            self.logger.debug("Eco Boost in effect")
             acceptable_target_speed += 20  # eco boost
 
         acceleration = self._lon_controller.run_step(acceptable_target_speed)

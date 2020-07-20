@@ -51,9 +51,11 @@ class Visualizer:
 
         cords_y_minus_z_x = np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
         raw_p2d = camera.intrinsics_matrix @ cords_y_minus_z_x
+        # print(raw_p2d)
         cam_cords = np.array(
             [raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]]
         )
+        cam_cords = np.round(cam_cords, 0)
         return cam_cords.astype(np.int64)
 
     def visualize(self, next_waypoint_transform: Transform):

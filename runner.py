@@ -37,7 +37,7 @@ def main():
             route_file_path=Path(settings.waypoint_file_path,),
             target_speed=120,
         )
-        carla_runner.start_game_loop(agent=agent, use_manual_control=False)
+        carla_runner.start_game_loop(agent=agent, use_manual_control=True)
     except Exception as e:
         print(f"ERROR: Something bad happened. Safely exiting. Error:{e}")
 
