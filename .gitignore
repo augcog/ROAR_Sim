@@ -6,3 +6,4 @@ data
 site
 .DS_Store
 ./.ipynb_checkpoints
+misc
