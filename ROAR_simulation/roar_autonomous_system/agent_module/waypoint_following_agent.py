@@ -87,15 +87,9 @@ class WaypointFollowingAgent(Agent):
         else:
             control = self.local_planner.run_step(vehicle=vehicle)
 
-            # try:
-            #     waypoint0 = self.local_planner.way_points_queue[0]
-            #     pos = self.visualizer.calculate_img_pos(waypoint0,
-            #                                             self.front_depth_camera)
-            #
-            #     depth = self.front_depth_camera.data[pos[1]][pos[0]] * 1000
-            #     print(depth)
-            #
-            # except:
-            #     print("Failed")
-
+            try:
+                waypoint0 = self.local_planner.way_points_queue[0]
+                self.visualizer.visualize_waypoint(waypoint0)
+            except:
+                print("Failed")
         return control

@@ -26,7 +26,7 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer impo
 
 class SemanticSegmentationAgent(Agent):
     def __init__(
-        self, vehicle: Vehicle, front_depth_camera: Camera, show_gpd_data=False
+        self, vehicle: Vehicle, front_depth_camera: Camera
     ):
         super().__init__(vehicle=vehicle, front_depth_camera=front_depth_camera)
         self.semantic_seg_detector = SemanticSegmentationDetector(

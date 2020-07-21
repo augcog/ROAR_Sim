@@ -139,5 +139,5 @@ class CarlaSettings(BaseModel):
     )
     show_sensors_data: bool = Field(default=False)
     graph_post_modem_data: bool = Field(default=False)
-    save_sensor_data: bool = Field(default=True)
+    save_sensor_data: bool = Field(default=False)
     print_keyboard_hint: bool = Field(default=False)

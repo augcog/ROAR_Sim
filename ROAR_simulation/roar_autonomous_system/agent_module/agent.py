@@ -23,6 +23,7 @@ import os
 import cv2
 import numpy as np
 
+
 class Agent(ABC):
     """
     Abstract Agent class that define the minimum of a ROAR agent.
@@ -52,9 +53,12 @@ class Agent(ABC):
         self.logger = logging.getLogger(__name__)
         self.transform_history: List[Transform] = []
         self.output_folder_path = output_folder_path
-        self.front_depth_camera_output_folder_path = output_folder_path / "front_depth"
-        self.front_rgb_camera_output_folder_path = output_folder_path / "front_rgb"
-        self.rear_rgb_camera_output_folder_path = output_folder_path / "rear_rgb"
+        self.front_depth_camera_output_folder_path = output_folder_path / \
+                                                     "front_depth"
+        self.front_rgb_camera_output_folder_path = output_folder_path / \
+                                                   "front_rgb"
+        self.rear_rgb_camera_output_folder_path = output_folder_path / \
+                                                  "rear_rgb"
         self.should_save_sensor_data = should_save_sensor_data
         self.time_counter = 0
 

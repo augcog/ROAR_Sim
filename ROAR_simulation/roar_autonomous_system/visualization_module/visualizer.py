@@ -95,7 +95,9 @@ class Visualizer:
         """
 
         Args:
-            semantic_segmetation: Width x Height x 3 array with white = obstacles, black = ground, blue = sky
+            semantic_segmetation: Width x Height x 3 array
+                                  with white = obstacles, black = ground,
+                                  blue = sky
 
         Returns:
 
