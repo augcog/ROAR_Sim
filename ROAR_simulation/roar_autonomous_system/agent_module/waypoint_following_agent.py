@@ -4,15 +4,15 @@ from ROAR_simulation.roar_autonomous_system.control_module.pid_controller \
     import (
     VehiclePIDController,
 )
-from ROAR_simulation.roar_autonomous_system.planning_module.local_planner\
+from ROAR_simulation.roar_autonomous_system.planning_module.local_planner \
     .simple_waypoint_following_local_planner import (
     SimpleWaypointFollowingLocalPlanner,
 )
-from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner\
+from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner \
     .behavior_planner import (
     BehaviorPlanner,
 )
-from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner\
+from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner \
     .waypoint_following_mission_planner import (
     WaypointFollowingMissionPlanner,
 )
@@ -20,7 +20,7 @@ from ROAR_simulation.roar_autonomous_system.control_module.pid_controller \
     import (
     PIDParam,
 )
-from ROAR_simulation.roar_autonomous_system.utilities_module\
+from ROAR_simulation.roar_autonomous_system.utilities_module \
     .data_structures_models import (
     SensorsData,
 )
@@ -34,16 +34,17 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
     import (
     Visualizer,
 )
-from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import \
+    png_to_depth
 
 import cv2
 import numpy as np
 
 
 class WaypointFollowingAgent(Agent):
-    def __init__(self, vehicle, route_file_path: Path, target_speed=40,
+    def __init__(self, vehicle, route_file_path: Path, target_speed=40, *args,
                  **kwargs):
-        super().__init__(vehicle, **kwargs)
+        super().__init__(vehicle, *args, **kwargs)
         self.logger = logging.getLogger("PathFollowingAgent")
         self.route_file_path = route_file_path
         self.pid_controller = VehiclePIDController(
@@ -86,82 +87,15 @@ class WaypointFollowingAgent(Agent):
         else:
             control = self.local_planner.run_step(vehicle=vehicle)
 
-            waypoint0 = self.local_planner.way_points_queue[0]
-            waypoint1 = self.local_planner.way_points_queue[1]
-            waypoint2 = self.local_planner.way_points_queue[2]
-
-
-            pos0 = self.visualizer.calculate_img_pos(
-                waypoint_transform=waypoint0,
-                camera=self.front_depth_camera)
-            pos1 = self.visualizer.calculate_img_pos(
-                waypoint_transform=waypoint1,
-                camera=self.front_depth_camera)
-            pos2 = self.visualizer.calculate_img_pos(
-                waypoint_transform=waypoint2,
-                camera=self.front_depth_camera)
-
-            image = self.front_rgb_camera.data.copy()
-
-            image[pos0[1]:pos0[1] + 5, pos0[0]:pos0[0] + 5] = [0, 255, 255]
-            # image[pos1[1]:pos1[1] + 5, pos1[0]:pos1[0] + 5] = [255, 0, 0]
-            # image[pos2[1]:pos2[1] + 5, pos2[0]:pos2[0] + 5] = [255, 0, 255]
-
-            cv2.imshow("image", image)
-            cv2.waitKey(1)
-            # print("************")
-            # print(f"depth0 0 1 | {self.front_depth_camera.data[pos0[0]][pos0[1]]} -> depth = {png_to_depth(self.front_depth_camera.data)[pos0[0]][pos0[1]] * 1000}")
-            # print(
-            #     f"depth0 1 0 | {self.front_depth_camera.data[pos0[1]][pos0[0]]} -> depth = {png_to_depth(self.front_depth_camera.data)[pos0[1]][pos0[0]] * 1000}")
-            # print()
-            # print(f"depth1 0 1 | {self.front_depth_camera.data[pos1[0]][pos1[1]]} -> depth = {png_to_depth(self.front_depth_camera.data)[pos1[0]][pos1[1]] * 1000}")
-            # print(
-            #     f"depth1 1 0 | {self.front_depth_camera.data[pos1[1]][pos1[0]]} -> depth = {png_to_depth(self.front_depth_camera.data)[pos1[1]][pos1[0]] * 1000}")
-            # print()
-            # print(f"depth2 0 1 | {self.front_depth_camera.data[pos2[0]][pos2[1]]} -> depth = {png_to_depth(self.front_depth_camera.data)[pos2[0]][pos2[1]] * 1000}")
-            # print(
-            #     f"depth2 1 0 | {self.front_depth_camera.data[pos2[1]][pos2[0]]} -> depth = {png_to_depth(self.front_depth_camera.data)[pos2[1]][pos2[0]] * 1000}")
+            # try:
+            #     waypoint0 = self.local_planner.way_points_queue[0]
+            #     pos = self.visualizer.calculate_img_pos(waypoint0,
+            #                                             self.front_depth_camera)
             #
-            # array = self.front_depth_camera.data[pos0[1]][pos0[0]]
-            # result = (array[0] + array[1] * 256 + array[2] * 256 * 256) / (256 * 256 * 256 - 1)
-            # print(result)
-            # print("************")
-            # print()
-
-
-            depth0 = png_to_depth(self.front_depth_camera.data)[pos0[1]][pos0[0]] * 1000
-            # depth1 = png_to_depth(self.front_depth_camera.data)[pos1[1]][pos1[0]] * 1000
-
-            if self.counter % 5 == 0:
-                print(f"depth diff = {abs(pos0[2] - depth0)} | depth = {depth0} "
-                      f"| transformed_depth = {pos0[2]} | norm = {np.round(np.linalg.norm(self.vehicle.transform.location.to_array() - waypoint0.location.to_array()), 3)}")
-            self.counter += 1
-            depth_array = png_to_depth(self.front_depth_camera.data)
-            depth_array[depth_array > 0.089] = 0
-            depth_array = depth_array / np.amax(depth_array)
-            cv2.imshow("depthimg", depth_array)
-            cv2.waitKey(1)
-            # print(f"depth = {depth1} | transformed_depth = {pos1[2]} |
-            # curr_veh= {np.round(self.vehicle.transform.location.to_array(
-            # ), 3)}" f" | acutal = {np.round(waypoint1.location.to_array(),
-            # 3)}") print() raw_p2d = np.array([pos0[0] * depth0, pos0[1] *
-            # depth0, 1]) cords_y_minus_z_x = np.linalg.inv(
-            # self.front_depth_camera.intrinsics_matrix) @ raw_p2d cords_xyz
-            # = np.array([cords_y_minus_z_x[2], cords_y_minus_z_x[0],
-            # -cords_y_minus_z_x[1]])
+            #     depth = self.front_depth_camera.data[pos[1]][pos[0]] * 1000
+            #     print(depth)
             #
-            # veh_cam_matrix = self.front_depth_camera.transform.get_matrix()  # 4 x 4
-            # world_veh_matrix = self.vehicle.transform.get_matrix()  # 4 x 4
-            #
-            # world_cam_matrix = np.linalg.inv(
-            #     np.dot(world_veh_matrix, veh_cam_matrix))
-            #
-            # waypoint_location = np.linalg.inv(world_cam_matrix) @ cords_xyz
-            #
-            # print(f"Correct Waypoint = {np.round(waypoint0.location.to_array() ,3)}"
-            #       f" | Projected Waypoint = {np.round(waypoint_location, 3)} "
-            #       f"| abs error {np.linalg.norm( waypoint0.location.to_array() - waypoint_location )}")
-
-
+            # except:
+            #     print("Failed")
 
         return control

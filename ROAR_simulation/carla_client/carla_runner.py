@@ -14,7 +14,7 @@ import carla
 from ROAR_simulation.carla_client.util.hud import HUD
 from ROAR_simulation.carla_client.util.world import World
 from ROAR_simulation.carla_client.util.keyboard_control import KeyboardControl
-
+import cv2
 
 class CarlaRunner:
     def __init__(self, carla_settings: CarlaSettings):
@@ -94,7 +94,11 @@ class CarlaRunner:
                 self.world.render(display=self.display)
                 pygame.display.flip()
                 sensor_data, new_vehicle = self.convert_data()
-
+                # save semantic segmentation
+                if self.world.semantic_segmentation_sensor_data:
+                    from carla import ColorConverter as cc
+                    from pathlib import Path
+                    self.world.semantic_segmentation_sensor_data.save_to_disk((Path("/home/michael/Desktop/projects/ROAR/data/output") / "ss"/ f"frame_{self.agent.time_counter}.png").as_posix(), cc.CityScapesPalette)
                 if self.carla_settings.enable_autopilot:
                     if self.agent is None:
                         raise Exception("In autopilot mode, but no agent is defined.")

@@ -12,10 +12,7 @@ def png_to_depth(im: np.array) -> np.array:
     Returns:
         depth image
     """
-    im = im.astype(np.float64)
-    # return (im[:, :, 0] + im[:, :, 1] * 256 + im[:, :, 2] * 256 * 256) / (
-    #             256 * 256 * 256 - 1)
-
+    # im = im.astype(np.float64)
     normalized_depth = np.dot(im[:, :, :3], [1, 256, 65536.0])
     normalized_depth /= 16777215.0
     return normalized_depth
