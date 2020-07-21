@@ -6,7 +6,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models impo
 from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
     SensorsData,
 )
-from ROAR_simulation.roar_autonomous_system.perception_module.ground_plane_detector import (
+from ROAR_simulation.roar_autonomous_system.perception_module.semantic_segmentation_detector import (
     SemanticSegmentationDetector,
 )
 from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models import Camera
