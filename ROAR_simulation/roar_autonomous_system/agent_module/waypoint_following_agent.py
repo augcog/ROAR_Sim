@@ -1,36 +1,50 @@
 from ROAR_simulation.roar_autonomous_system.agent_module.agent import Agent
 from pathlib import Path
-from ROAR_simulation.roar_autonomous_system.control_module.pid_controller import (
+from ROAR_simulation.roar_autonomous_system.control_module.pid_controller \
+    import (
     VehiclePIDController,
 )
-from ROAR_simulation.roar_autonomous_system.planning_module.local_planner.simple_waypoint_following_local_planner import (
+from ROAR_simulation.roar_autonomous_system.planning_module.local_planner \
+    .simple_waypoint_following_local_planner import (
     SimpleWaypointFollowingLocalPlanner,
 )
-from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner import (
+from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner \
+    .behavior_planner import (
     BehaviorPlanner,
 )
-from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner.waypoint_following_mission_planner import (
+from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner \
+    .waypoint_following_mission_planner import (
     WaypointFollowingMissionPlanner,
 )
-from ROAR_simulation.roar_autonomous_system.control_module.pid_controller import (
+from ROAR_simulation.roar_autonomous_system.control_module.pid_controller \
+    import (
     PIDParam,
 )
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+from ROAR_simulation.roar_autonomous_system.utilities_module \
+    .data_structures_models import (
     SensorsData,
 )
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models \
+    import (
     VehicleControl,
     Vehicle,
 )
 import logging
-from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer import (
+from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
+    import (
     Visualizer,
 )
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import \
+    png_to_depth
+
+import cv2
+import numpy as np
 
 
 class WaypointFollowingAgent(Agent):
-    def __init__(self, vehicle, route_file_path: Path, target_speed=40, **kwargs):
-        super().__init__(vehicle, **kwargs)
+    def __init__(self, vehicle, route_file_path: Path, target_speed=40, *args,
+                 **kwargs):
+        super().__init__(vehicle, *args, **kwargs)
         self.logger = logging.getLogger("PathFollowingAgent")
         self.route_file_path = route_file_path
         self.pid_controller = VehiclePIDController(
@@ -54,13 +68,15 @@ class WaypointFollowingAgent(Agent):
         )
         self.visualizer = Visualizer(agent=self)
         self.logger.debug(
-            f"Waypoint Following Agent Initiated. Reading from {route_file_path.as_posix()}"
+            f"Waypoint Following Agent Initiated. Reading f"
+            f"rom {route_file_path.as_posix()}"
         )
         self.curr_max_err = 0
         self.counter = 0
         self.total_err = 0
 
-    def run_step(self, vehicle: Vehicle, sensors_data: SensorsData) -> VehicleControl:
+    def run_step(self, vehicle: Vehicle,
+                 sensors_data: SensorsData) -> VehicleControl:
         super(WaypointFollowingAgent, self).run_step(
             vehicle=vehicle, sensors_data=sensors_data
         )
@@ -70,4 +86,10 @@ class WaypointFollowingAgent(Agent):
             self.logger.debug("Path Following Agent is Done. Idling.")
         else:
             control = self.local_planner.run_step(vehicle=vehicle)
+
+            try:
+                waypoint0 = self.local_planner.way_points_queue[0]
+                self.visualizer.visualize_waypoint(waypoint0)
+            except:
+                print("Failed")
         return control

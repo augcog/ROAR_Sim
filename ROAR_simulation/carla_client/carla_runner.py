@@ -1,10 +1,12 @@
 from ROAR_simulation.carla_client.settings import CarlaSettings
 import logging
 import pygame
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+from ROAR_simulation.roar_autonomous_system.utilities_module \
+    .data_structures_models import (
     SensorsData,
 )
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models \
+    import (
     Vehicle,
 )
 from ROAR_simulation.roar_autonomous_system.agent_module.agent import Agent
@@ -37,7 +39,8 @@ class CarlaRunner:
             pygame.init()
             pygame.font.init()
             self.logger.debug(
-                f"Connecting to {self.carla_settings.host}: {self.carla_settings.port}"
+                f"Connecting to {self.carla_settings.host}:"
+                f"{self.carla_settings.port}"
             )
             self.client = carla.Client(
                 self.carla_settings.host, self.carla_settings.port
@@ -70,11 +73,13 @@ class CarlaRunner:
             )
 
         except Exception as e:
-            self.logger.error(f"Unable to initiate the world due to error: {e}")
+            self.logger.error(
+                f"Unable to initiate the world due to error: {e}")
             raise e
 
     def start_game_loop(self, agent: Agent, use_manual_control=False):
-        """Start running the vehicle and stop when finished running the track"""
+        """Start running the vehicle and stop when finished running the
+        track """
 
         self.agent = agent
         try:
@@ -94,17 +99,16 @@ class CarlaRunner:
                 self.world.render(display=self.display)
                 pygame.display.flip()
                 sensor_data, new_vehicle = self.convert_data()
-
                 if self.carla_settings.enable_autopilot:
                     if self.agent is None:
-                        raise Exception("In autopilot mode, but no agent is defined.")
+                        raise Exception("In autopilot mode, but no agent is "
+                                        "defined.")
                     agent_control = self.agent.run_step(
                         vehicle=new_vehicle, sensors_data=sensor_data
                     )
                     if not use_manual_control:
-                        carla_control = self.carla_bridge.convert_control_from_agent_to_source(
-                            agent_control
-                        )
+                        carla_control = self.carla_bridge. \
+                            convert_control_from_agent_to_source(agent_control)
                 self.world.player.apply_control(carla_control)
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
@@ -132,20 +136,16 @@ class CarlaRunner:
             new_vehicle: the current player's vehicle state
 
         """
-        sensor_data: SensorsData = self.carla_bridge.convert_sensor_data_from_source_to_agent(
-            {
-                "front_rgb": None
-                if self.world.front_rgb_sensor_data is None
-                else self.world.front_rgb_sensor_data,
-                "rear_rgb": None
-                if self.world.rear_rgb_sensor_data is None
-                else self.world.rear_rgb_sensor_data,
-                "front_depth": None
-                if self.world.front_depth_sensor_data is None
-                else self.world.front_depth_sensor_data,
-                "imu": self.world.imu_sensor,
-            }
-        )
+        sensor_data: SensorsData = self.carla_bridge. \
+            convert_sensor_data_from_source_to_agent({
+            "front_rgb": None if self.world.front_rgb_sensor_data is None else
+            self.world.front_rgb_sensor_data,
+            "rear_rgb": None if self.world.rear_rgb_sensor_data is None else
+            self.world.rear_rgb_sensor_data,
+            "front_depth": None if self.world.front_depth_sensor_data is None
+            else self.world.front_depth_sensor_data,
+            "imu": self.world.imu_sensor,
+        })
         new_vehicle = self.carla_bridge.convert_vehicle_from_source_to_agent(
             self.world.player
         )

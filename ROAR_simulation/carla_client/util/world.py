@@ -25,8 +25,10 @@ import weakref
 class World(object):
     """An World that holds all display settings"""
 
-    def __init__(self, carla_world: carla.World, hud: HUD, settings: CarlaSettings):
-        """Create a World with the given carla_world, head-up display and server setting."""
+    def __init__(self, carla_world: carla.World, hud: HUD,
+                 settings: CarlaSettings):
+        """Create a World with the given carla_world, head-up display and
+        server setting."""
 
         self.logger = logging.getLogger(__name__)
         self.settings: CarlaSettings = settings
@@ -38,7 +40,8 @@ class World(object):
             print("RuntimeError: {}".format(error))
             print("  The server could not send the OpenDRIVE (.xodr) file:")
             print(
-                "  Make sure it exists, has the same name of your town, and is correct."
+                "  Make sure it exists, has the same name of your town, "
+                "and is correct."
             )
             sys.exit(1)
         self.hud = hud
@@ -93,11 +96,11 @@ class World(object):
         self.logger.debug("World Initialized")
 
     def set_player(
-        self,
-        actor_filter: str = "vehicle.tesla.model3",
-        player_role_name: str = "hero",
-        color: CarlaCarColor = CarlaCarColors.GREY,
-        spawn_point_id: int = random.choice(list(range(8))),
+            self,
+            actor_filter: str = "vehicle.tesla.model3",
+            player_role_name: str = "hero",
+            color: CarlaCarColor = CarlaCarColors.GREY,
+            spawn_point_id: int = random.choice(list(range(8))),
     ):
         """Set up a hero-named player with Grey Tesla Model3 Vehicle """
 
@@ -113,7 +116,8 @@ class World(object):
                 blueprint, self.map.get_spawn_points()[spawn_point_id]
             )
         except Exception as e:
-            raise ValueError(f"Cannot spawn actor at ID [{spawn_point_id}]. Error: {e}")
+            raise ValueError(
+                f"Cannot spawn actor at ID [{spawn_point_id}]. Error: {e}")
 
     def set_camera(self, cam_index: int = 0, cam_pos_index: int = 0):
         self.camera_manager = CameraManager(self.player, self.hud, self._gamma)
@@ -150,7 +154,8 @@ class World(object):
 
     def destroy(self):
         self.logger.debug(
-            f"destroying all actors belonging to [{self.actor_role_name}] in this world"
+            f"destroying all actors belonging to [{self.actor_role_name}] in "
+            f"this world"
         )
         if self.radar_sensor is not None:
             self.toggle_radar()
@@ -217,19 +222,21 @@ class World(object):
         )
 
     def _spawn_custom_sensor(
-        self,
-        blueprint_filter: str,
-        transform: carla.Transform,
-        attachment: carla.AttachmentType,
-        attributes: dict,
+            self,
+            blueprint_filter: str,
+            transform: carla.Transform,
+            attachment: carla.AttachmentType,
+            attributes: dict,
     ):
-        blueprint = self.carla_world.get_blueprint_library().find(blueprint_filter)
+        blueprint = self.carla_world.get_blueprint_library().find(
+            blueprint_filter)
         for key, val in attributes.items():
             if blueprint.has_attribute(key):
                 blueprint.set_attribute(key, str(val))
             else:
                 self.logger.error(
-                    f"Unable to set attribute [{key}] for blueprint [{blueprint_filter}]"
+                    f"Unable to set attribute [{key}] for blueprint ["
+                    f"{blueprint_filter}]"
                 )
 
         return self.carla_world.spawn_actor(
@@ -258,8 +265,6 @@ class World(object):
         self = weak_self()
         if not self:
             return
-        # image.convert(cc.LogarithmicDepth)
-        image.convert(cc.Depth)
         self.front_depth_sensor_data = image
 
     @staticmethod

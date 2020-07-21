@@ -15,14 +15,15 @@ class Visualizer:
 
     def visualize_waypoint(self, waypoint_transform: Transform):
         coord = self.calculate_img_pos(
-            waypoint_transform=waypoint_transform, camera=self.agent.front_depth_camera
+            waypoint_transform=waypoint_transform,
+            camera=self.agent.front_depth_camera
         )
         img = self.agent.front_rgb_camera.data.copy()
-        start_point = (400, 600)
-        end_point = (coord[0], coord[1])
-        color = (0, 255, 0)
-        thickness = 2
-        img = cv2.arrowedLine(img, start_point, end_point, color, thickness)
+        img = cv2.arrowedLine(img,
+                              (400, 600),
+                              (coord[0], coord[1]),
+                              (0, 255, 0),
+                              2)
         cv2.imshow("Next Waypoint", img)
         cv2.waitKey(1)
 
@@ -42,7 +43,7 @@ class Visualizer:
         waypoint_location = np.concatenate(
             [waypoint_location, [1]]
         )  # 4 x 1 array [X, Y, Z, 1]
-        veh_cam_matrix = self.agent.front_depth_camera.transform.get_matrix()  # 4 x 4
+        veh_cam_matrix = camera.transform.get_matrix()  # 4 x 4
         world_veh_matrix = self.agent.vehicle.transform.get_matrix()  # 4 x 4
 
         world_cam_matrix = np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
@@ -51,10 +52,11 @@ class Visualizer:
 
         cords_y_minus_z_x = np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
         raw_p2d = camera.intrinsics_matrix @ cords_y_minus_z_x
+        # print(raw_p2d)
         cam_cords = np.array(
             [raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]]
         )
-        return cam_cords.astype(np.int64)
+        return np.round(cam_cords, 0).astype(np.int64)
 
     def visualize(self, next_waypoint_transform: Transform):
         """
@@ -93,7 +95,9 @@ class Visualizer:
         """
 
         Args:
-            semantic_segmetation: Width x Height x 3 array with white = obstacles, black = ground, blue = sky
+            semantic_segmetation: Width x Height x 3 array
+                                  with white = obstacles, black = ground,
+                                  blue = sky
 
         Returns:
 

@@ -6,7 +6,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models impo
 from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
     SensorsData,
 )
-from ROAR_simulation.roar_autonomous_system.perception_module.ground_plane_detector import (
+from ROAR_simulation.roar_autonomous_system.perception_module.semantic_segmentation_detector import (
     SemanticSegmentationDetector,
 )
 from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models import Camera
@@ -26,7 +26,7 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer impo
 
 class SemanticSegmentationAgent(Agent):
     def __init__(
-        self, vehicle: Vehicle, front_depth_camera: Camera, show_gpd_data=False
+        self, vehicle: Vehicle, front_depth_camera: Camera
     ):
         super().__init__(vehicle=vehicle, front_depth_camera=front_depth_camera)
         self.semantic_seg_detector = SemanticSegmentationDetector(

@@ -17,6 +17,8 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_mod
     Vector3D,
     Transform,
 )
+
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
 import numpy as np
 
 
@@ -77,6 +79,7 @@ class CarlaBridge(Bridge):
             array = np.reshape(array, (source.height, source.width, 4))  # BGRA
             array = array[:, :, :3]  # BGR
             array = array[:, :, ::-1]  # RGB
+            array = png_to_depth(array)
             return DepthData(data=array)
         except:
             return None
