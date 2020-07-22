@@ -16,3 +16,34 @@ def png_to_depth(im: np.array) -> np.array:
     normalized_depth = np.dot(im[:, :, :3], [1, 256, 65536.0])
     normalized_depth /= 16777215.0
     return normalized_depth
+
+
+def img_to_world(depth_img,
+                 intrinsics_matrix,
+                 extrinsics_matrix,
+                 sky_level=0.9,
+                 depth_scaling_factor=1000) -> np.ndarray:
+    # get a 2 x N array for their indices
+    ground_loc = np.where(depth_img < sky_level)
+    depth_val = depth_img[depth_img < sky_level] * depth_scaling_factor
+    ground_loc = ground_loc * depth_val
+
+    # compute raw_points
+    raw_points = np.vstack([ground_loc, depth_val])
+
+    # convert to cords_y_minus_z_x
+    cords_y_minus_z_x = np.linalg.inv(intrinsics_matrix) @ raw_points
+
+    # convert to cords_xyz_1
+    ones = np.ones((1, np.shape(cords_y_minus_z_x)[1]))
+
+    cords_xyz_1 = np.vstack([
+        cords_y_minus_z_x[2, :],
+        cords_y_minus_z_x[0, :],
+        -cords_y_minus_z_x[1, :],
+        ones
+    ])
+
+    # multiply by cam_world_matrix
+    points = extrinsics_matrix @ cords_xyz_1  # i have all points now
+    return points

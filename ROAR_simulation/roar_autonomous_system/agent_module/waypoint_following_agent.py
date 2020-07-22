@@ -35,7 +35,8 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
     Visualizer,
 )
 from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import \
-    png_to_depth
+    png_to_depth, img_to_world
+from ROAR_simulation.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
 
 import cv2
 import numpy as np
@@ -66,14 +67,18 @@ class WaypointFollowingAgent(Agent):
             behavior_planner=self.behavior_planner,
             closeness_threshold=1,
         )
+        self.occupancy_grid_map = OccupancyGridMap(min_x=-500,
+                                                   min_y=-500,
+                                                   max_x=500,
+                                                   max_y=500)
         self.visualizer = Visualizer(agent=self)
+
         self.logger.debug(
             f"Waypoint Following Agent Initiated. Reading f"
             f"rom {route_file_path.as_posix()}"
         )
-        self.curr_max_err = 0
-        self.counter = 0
-        self.total_err = 0
+
+
 
     def run_step(self, vehicle: Vehicle,
                  sensors_data: SensorsData) -> VehicleControl:
@@ -88,8 +93,19 @@ class WaypointFollowingAgent(Agent):
             control = self.local_planner.run_step(vehicle=vehicle)
 
             try:
-                waypoint0 = self.local_planner.way_points_queue[0]
-                self.visualizer.visualize_waypoint(waypoint0)
-            except:
-                print("Failed")
+                veh_cam_matrix = \
+                    self.front_depth_camera.transform.get_matrix()  # 4 x 4
+                world_veh_matrix = self.vehicle.transform.get_matrix()
+                cam_world_matrix = world_veh_matrix @ veh_cam_matrix
+
+                depth_img = self.front_depth_camera.data.copy()
+                # print(np.shape(depth_img))
+                world_cords = img_to_world(
+                    depth_img=depth_img,
+                    intrinsics_matrix=self.front_depth_camera.intrinsics_matrix,
+                    extrinsics_matrix=cam_world_matrix)
+                self.occupancy_grid_map.update_grid_map(world_cords_xy=world_cords[:2, :].T)
+                self.occupancy_grid_map.visualize(vehicle_location=self.vehicle.transform.location)
+            except Exception as e:
+                print(f"Failed: {e}")
         return control
