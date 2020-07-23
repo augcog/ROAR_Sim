@@ -1,21 +1,33 @@
 # ROAR Carla Simlulation
 
 ### QuickStart
-0. Download the this code [here](https://drive.google.com/file/d/12vOc6ukmZjkahjXZCWq-hy0iDBiEuEZq/view?usp=sharing) [as of writing this readme, we still need to create a public github repo]
-1. Download the right distribution of Carla for your Operation System [here](https://drive.google.com/drive/folders/1xGz2r6fiXCHn57_ZOS710RX2IoCKzWWx)
-    - You should download either `roar_easy_linux.zip` or `roar_easy_windows.zip`
-2. Initiate a virtual environment.
+
+
+#### Windows:
+1. Clone this repo
+    - `git clone https://github.com/augcog/ROAR-Sim.git`
+2. Download Carla Server package
+    - [https://drive.google.com/drive/folders/1FlkNCNENaC3qrTub7mqra7EH7iSbRNiI](https://drive.google.com/drive/folders/1FlkNCNENaC3qrTub7mqra7EH7iSbRNiI)
+    - put it OUTSIDE of the `ROAR-Sim` folder, doesn't matter where
+3. Download data file 
+    - make a file under ROAR-Sim called `data`
+    - Download map waypoint file 
+        - [https://drive.google.com/drive/folders/1FlkNCNENaC3qrTub7mqra7EH7iSbRNiI](https://drive.google.com/drive/folders/1FlkNCNENaC3qrTub7mqra7EH7iSbRNiI)
+4. Check your file directory, it should be:
+    - `ROAR-Sim`
+        - `data`
+            - `MY_WAYPOINT_FILE.txt`
+        - `ROAR_simulation`
+        - `runner.py`
+        - ... other files and folders
+5. Create virtual environment and install dependencies
     - `conda create -n ROAR python=3.7`
     - `conda activate ROAR`
-3. Install required packages
-    - `pip install -r requirements txt`
-4. You are all set up.
-    - Start the server
-        - on Windows, you may double click the `CarlaUE4.exe` or you may use a commandline prompt and type in `CarlaUE4.exe`
-        - on Ubuntu, you can directly type `./CarlaUE4.sh`
-    - Start Client connection
-        - `python carla_runner.py`
-        - You should be on manual control now. 
-        - To switch to autonomous mode, open up `carla_runner.py` and scroll down the end, change the line `settings.enable_autopilot = False` to `settings.enable_autopilot = True`
-    
+    - `pip install -r requirements.txt`
+6. Enjoy
+    - Double click the `CarlaUE4.exe` file in the Carla Server package to launch the server
+    - `python runner.py`
+        
+#### Linux:
+Same as Windows, in step 6, just type in `./CarlaUE4.sh` to start the server
     
