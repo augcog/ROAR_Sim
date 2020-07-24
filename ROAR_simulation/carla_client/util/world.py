@@ -4,7 +4,7 @@ import logging
 import random
 import sys
 from ROAR_simulation.bridges.carla_bridge import CarlaBridge
-from ROAR_simulation.carla_client.settings import CarlaSettings
+from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 from ROAR_simulation.carla_client.util.hud import HUD
 from ROAR_simulation.carla_client.util.utilities import CarlaCarColor, \
     CarlaCarColors, get_actor_display_name
@@ -13,7 +13,7 @@ from ROAR_simulation.carla_client.util.sensors import CollisionSensor, \
 from ROAR_simulation.carla_client.util.camera_manager import CameraManager
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
-    AgentSettings
+    AgentConfig
 import weakref
 
 
@@ -21,14 +21,14 @@ class World(object):
     """An World that holds all display settings"""
 
     def __init__(self, carla_world: carla.World,
-                 hud: HUD, carla_settings: CarlaSettings,
-                 agent_settings: AgentSettings):
+                 hud: HUD, carla_settings: CarlaConfig,
+                 agent_settings: AgentConfig):
         """Create a World with the given carla_world, head-up display and
         server setting."""
 
         self.logger = logging.getLogger(__name__)
-        self.carla_settings: CarlaSettings = carla_settings
-        self.agent_settings: AgentSettings = agent_settings
+        self.carla_settings: CarlaConfig = carla_settings
+        self.agent_settings: AgentConfig = agent_settings
         self.carla_world: carla.World = carla_world
         self.actor_role_name = carla_settings.role_name
         try:

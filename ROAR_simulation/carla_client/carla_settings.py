@@ -29,7 +29,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module\
     Location, Rotation, Transform
 
 
-class CarlaSettings(BaseModel):
+class CarlaConfig(BaseModel):
     # carla server setting
     host: str = Field(default="127.0.0.1", title="Host IP",
                       description="The IP Address of the Carla Server")

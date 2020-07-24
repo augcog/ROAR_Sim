@@ -31,3 +31,15 @@
 #### Linux:
 Same as Windows, in step 6, just type in `./CarlaUE4.sh` to start the server
     
+    
+    
+### FAQ:
+1. If you see an error such as 
+`
+WARNING: sensor object went out of the scope but the sensor is still alive in the simulation: Actor 69 (sensor.other.collision) ` 
+
+    - Just restart the server
+
+
+2. If you see `ERROR: Something bad happened. Safely exiting. Error:time-out of 2000ms while waiting for the simulator, make sure the simulator is ready and connected to 127.0.0.1:2000`
+    - Make sure your server has launched

@@ -1,7 +1,7 @@
-from ROAR_simulation.carla_client.settings import CarlaSettings
+from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
-    AgentSettings
+    AgentConfig
 from ROAR_simulation.carla_client.carla_runner import CarlaRunner
 import logging
 from ROAR_simulation.roar_autonomous_system.agent_module\
@@ -15,19 +15,20 @@ from ROAR_simulation.roar_autonomous_system.agent_module\
     SemanticSegmentationAgent
 from pathlib import Path
 import numpy as np
+import os
 
 
 def main():
-    log_level = logging.DEBUG
     logging.basicConfig(format='%(asctime)s - %(name)s '
                                '- %(levelname)s - %(message)s',
-                        level=log_level)
+                        level=logging.DEBUG)
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
-    carla_settings = CarlaSettings()
-    agent_settings = AgentSettings()
     np.set_printoptions(suppress=True)
 
     try:
+        carla_settings = CarlaConfig()
+        agent_settings = AgentConfig.parse_file(
+            Path(os.getcwd()) / "ROAR_simulation" / "agent_config.json")
         carla_runner = CarlaRunner(carla_settings=carla_settings,
                                    agent_settings=agent_settings)
         my_vehicle = carla_runner.set_carla_world()

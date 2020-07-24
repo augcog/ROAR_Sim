@@ -1,4 +1,4 @@
-from ROAR_simulation.carla_client.settings import CarlaSettings
+from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 import logging
 import pygame
 from ROAR_simulation.roar_autonomous_system.utilities_module\
@@ -16,13 +16,13 @@ from ROAR_simulation.carla_client.util.world import World
 from ROAR_simulation.carla_client.util.keyboard_control import KeyboardControl
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
-    AgentSettings
+    AgentConfig
 
 
 class CarlaRunner:
 
-    def __init__(self, carla_settings: CarlaSettings,
-                 agent_settings: AgentSettings):
+    def __init__(self, carla_settings: CarlaConfig,
+                 agent_settings: AgentConfig):
 
         self.carla_settings = carla_settings
         self.agent_settings = agent_settings

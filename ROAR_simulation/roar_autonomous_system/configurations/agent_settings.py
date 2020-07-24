@@ -9,7 +9,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module. \
 import os
 
 
-class AgentSettings(BaseModel):
+class AgentConfig(BaseModel):
     # ROAR sensors settings
     front_depth_cam: Camera = Field(default=Camera(fov=70,
                                                    transform=Transform(

@@ -62,13 +62,13 @@ from pygame.locals import K_x
 from typing import Tuple
 import logging
 import carla
-from ROAR_simulation.carla_client.settings import CarlaSettings
+from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 
 
 class KeyboardControl(object):
     """Class that handles keyboard input."""
 
-    def __init__(self, world, carla_setting: CarlaSettings):
+    def __init__(self, world, carla_setting: CarlaConfig):
         self.logger = logging.getLogger(__name__)
         if carla_setting.print_keyboard_hint:
             print(__doc__)

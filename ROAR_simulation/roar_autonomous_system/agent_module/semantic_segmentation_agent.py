@@ -22,11 +22,11 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
     Visualizer
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
-    AgentSettings
+    AgentConfig
 
 
 class SemanticSegmentationAgent(Agent):
-    def __init__(self, vehicle: Vehicle, agent_settings: AgentSettings):
+    def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig):
         super().__init__(vehicle=vehicle, agent_settings=agent_settings)
         self.semantic_seg_detector = \
             SemanticSegmentationDetector(vehicle=vehicle,

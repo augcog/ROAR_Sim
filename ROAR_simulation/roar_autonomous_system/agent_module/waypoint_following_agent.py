@@ -27,11 +27,11 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
     Visualizer
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
-    AgentSettings
+    AgentConfig
 
 
 class WaypointFollowingAgent(Agent):
-    def __init__(self, vehicle, agent_settings: AgentSettings, target_speed=40,
+    def __init__(self, vehicle, agent_settings: AgentConfig, target_speed=40,
                  **kwargs):
         super().__init__(vehicle=vehicle,
                          agent_settings=agent_settings,
