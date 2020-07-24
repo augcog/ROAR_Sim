@@ -31,7 +31,8 @@ class WaypointFollowingAgent(Agent):
 
         self.behavior_planner = BehaviorPlanner(vehicle=vehicle)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(vehicle=vehicle,
-                                                                 controller=self.pid_controller,
+                                                                #  controller=self.pid_controller,
+                                                                 controller=self.mpc_controller,
                                                                  mission_planner=self.mission_planner,
                                                                  behavior_planner=self.behavior_planner,
                                                                  closeness_threshold=1)
