@@ -5,6 +5,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models impor
 from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import SensorsData, IMUData, Transform
 from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
 from typing import Optional, List
+from ROAR_simulation.roar_autonomous_system.configurations.agent_settings import AgentSettings
 
 
 class Agent(ABC):
@@ -17,16 +18,15 @@ class Agent(ABC):
 
     def __init__(self,
                  vehicle: Vehicle,
-                 front_rgb_camera: Optional[Camera] = None,
-                 front_depth_camera: Optional[Camera] = None,
-                 rear_rgb_camera: Optional[Camera] = None,
+                 agent_settings: AgentSettings,
                  imu: Optional[IMUData] = None):
         """Initiating the Agent with given vehicle, front and back RGB cameras, front depth camera and IMU sensor"""
 
         self.vehicle = vehicle
-        self.front_rgb_camera = front_rgb_camera
-        self.front_depth_camera = front_depth_camera
-        self.rear_rgb_camera = rear_rgb_camera
+        self.agent_settings = agent_settings
+        self.front_rgb_camera = agent_settings.front_rgb_cam
+        self.front_depth_camera = agent_settings.front_depth_cam
+        self.rear_rgb_camera = agent_settings.rear_rgb_cam
 
         self.init_cam()
 
