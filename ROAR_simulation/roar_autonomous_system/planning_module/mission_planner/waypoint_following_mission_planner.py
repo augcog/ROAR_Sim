@@ -1,9 +1,17 @@
-from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner.mission_planner import MissionPlanner
+from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner.mission_planner import (
+    MissionPlanner,
+)
 from pathlib import Path
 import logging
 from typing import List, Optional
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    Transform,
+    Location,
+    Rotation,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+)
 from collections import deque
 
 
@@ -55,17 +63,22 @@ class WaypointFollowingMissionPlanner(MissionPlanner):
         Read data file and generate a list of (x, y, z) where each of x, y, z is of type float
         """
         result = []
-        with open(self.file_path.as_posix(), 'r') as f:
+        with open(self.file_path.as_posix(), "r") as f:
             for line in f:
                 result.append(self._read_line(line=line))
         return result
 
     def _raw_coord_to_transform(self, raw: List[float]) -> Optional[Transform]:
         if len(raw) == 3:
-            return Transform(location=Location(x=raw[0], y=raw[1], z=raw[2]), rotation=Rotation(pitch=0, yaw=0, roll=0))
+            return Transform(
+                location=Location(x=raw[0], y=raw[1], z=raw[2]),
+                rotation=Rotation(pitch=0, yaw=0, roll=0),
+            )
         elif len(raw) == 6:
-            return Transform(location=Location(x=raw[0], y=raw[1], z=raw[2]),
-                             rotation=Rotation(pitch=raw[4], yaw=raw[5], roll=raw[6]))
+            return Transform(
+                location=Location(x=raw[0], y=raw[1], z=raw[2]),
+                rotation=Rotation(pitch=raw[4], yaw=raw[5], roll=raw[6]),
+            )
         else:
             self.logger.error(f"Point {raw} is invalid, skipping")
             return None

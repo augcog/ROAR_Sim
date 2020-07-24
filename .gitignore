@@ -1,4 +1,5 @@
 data/output
+data/*.zip
 */__pycache__/
 *__pycache__
 .idea

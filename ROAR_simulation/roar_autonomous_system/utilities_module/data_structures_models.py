@@ -5,13 +5,28 @@ from typing import Union
 
 
 class Location(BaseModel):
-    x: float = Field(..., title="X coordinate", description="Distance in meters from origin to spot on X axis")
-    y: float = Field(..., title="Y coordinate", description="Distance in meters from origin to spot on Y axis")
-    z: float = Field(..., title="Z coordinate", description="Distance in meters from origin to spot on Z axis")
+    x: float = Field(
+        ...,
+        title="X coordinate",
+        description="Distance in meters from origin to spot on X axis",
+    )
+    y: float = Field(
+        ...,
+        title="Y coordinate",
+        description="Distance in meters from origin to spot on Y axis",
+    )
+    z: float = Field(
+        ...,
+        title="Z coordinate",
+        description="Distance in meters from origin to spot on Z axis",
+    )
 
     def distance(self, other_location):
         """Euclidean distance between current location and other location"""
-        return distance.euclidean((self.x, self.y, self.z), (other_location.x, other_location.y, other_location.z))
+        return distance.euclidean(
+            (self.x, self.y, self.z),
+            (other_location.x, other_location.y, other_location.z),
+        )
 
     def __add__(self, other):
         """"""
@@ -20,7 +35,7 @@ class Location(BaseModel):
     def __str__(self):
         return f"{self.x:.3},{self.y:.3},{self.z:.3}"
 
-    def to_array(self) -> np.array :
+    def to_array(self) -> np.array:
         return np.array([self.x, self.y, self.z])
 
 
@@ -34,6 +49,7 @@ class Rotation(BaseModel):
 
     def to_array(self) -> np.array:
         return np.array([self.pitch, self.yaw, self.roll])
+
 
 class Transform(BaseModel):
     location: Location = Field(default=Location(x=0, y=0, z=0))
@@ -81,23 +97,34 @@ class Vector3D(BaseModel):
 
 
 class RGBData(BaseModel):
-    data: np.ndarray = Field(..., title="RGB Data", description="Array of size (WIDTH, HEIGHT, 3)")
+    data: np.ndarray = Field(
+        ..., title="RGB Data", description="Array of size (WIDTH, HEIGHT, 3)"
+    )
 
     class Config:
         arbitrary_types_allowed = True
 
 
 class DepthData(BaseModel):
-    data: np.ndarray = Field(..., title="Depth Data", description="Array of size (WIDTH, HEIGHT, 3)")
+    data: np.ndarray = Field(
+        ..., title="Depth Data", description="Array of size (WIDTH, HEIGHT, 3)"
+    )
 
     class Config:
         arbitrary_types_allowed = True
 
 
 class IMUData(BaseModel):
-    accelerometer: Vector3D = Field(default=Vector3D(), title="Accelerometer data",
-                                    description="Linear acceleration in m/s^2")
-    gyroscope: Vector3D = Field(default=Vector3D(), title="Gyroscope data", description="Angular velocity in rad/sec")
+    accelerometer: Vector3D = Field(
+        default=Vector3D(),
+        title="Accelerometer data",
+        description="Linear acceleration in m/s^2",
+    )
+    gyroscope: Vector3D = Field(
+        default=Vector3D(),
+        title="Gyroscope data",
+        description="Angular velocity in rad/sec",
+    )
 
 
 class SensorsData(BaseModel):

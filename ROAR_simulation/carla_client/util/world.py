@@ -6,10 +6,12 @@ import sys
 from ROAR_simulation.bridges.carla_bridge import CarlaBridge
 from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 from ROAR_simulation.carla_client.util.hud import HUD
+
 from ROAR_simulation.carla_client.util.utilities import CarlaCarColor, \
     CarlaCarColors, get_actor_display_name
 from ROAR_simulation.carla_client.util.sensors import CollisionSensor, \
     GnssSensor, LaneInvasionSensor, IMUSensor, RadarSensor
+
 from ROAR_simulation.carla_client.util.camera_manager import CameraManager
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
@@ -68,10 +70,12 @@ class World(object):
 
         # set player
         self.logger.debug("Setting Player")
-        self.set_player(actor_filter=self._actor_filter,
-                        player_role_name=self.actor_role_name,
-                        color=self._car_color,
-                        spawn_point_id=self._spawn_point_id)
+        self.set_player(
+            actor_filter=self._actor_filter,
+            player_role_name=self.actor_role_name,
+            color=self._car_color,
+            spawn_point_id=self._spawn_point_id,
+        )
         # set camera
         self.logger.debug("Setting Camera")
         self.set_camera()
@@ -97,12 +101,12 @@ class World(object):
         """Set up a hero-named player with Grey Tesla Model3 Vehicle """
 
         blueprint = self.carla_world.get_blueprint_library().find(actor_filter)
-        blueprint.set_attribute('role_name', player_role_name)
-        if blueprint.has_attribute('color'):
-            blueprint.set_attribute('color', color.to_string())
-        if blueprint.has_attribute('is_invincible'):
+        blueprint.set_attribute("role_name", player_role_name)
+        if blueprint.has_attribute("color"):
+            blueprint.set_attribute("color", color.to_string())
+        if blueprint.has_attribute("is_invincible"):
             self.logger.debug("TESLA IS INVINCIBLE")
-            blueprint.set_attribute('is_invincible', 'true')
+            blueprint.set_attribute("is_invincible", "true")
         try:
             self.player = \
                 self.carla_world.spawn_actor(blueprint,
@@ -156,7 +160,8 @@ class World(object):
             self.lane_invasion_sensor.sensor,
             self.gnss_sensor.sensor,
             self.imu_sensor.sensor,
-            self.player]
+            self.player,
+        ]
         for actor in actors:
             if actor is not None:
                 actor.destroy()
@@ -246,8 +251,6 @@ class World(object):
         self = weak_self()
         if not self:
             return
-        # image.convert(cc.LogarithmicDepth)
-        image.convert(cc.Depth)
         self.front_depth_sensor_data = image
 
     @staticmethod

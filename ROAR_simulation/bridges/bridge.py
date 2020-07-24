@@ -1,12 +1,24 @@
 """
-This file defines a basic Bridge for extensibility of the ROAR Autonomous software
+This file defines a basic Bridge for extensibility of the ROAR Autonomous
+software
 
 """
 from abc import abstractmethod, ABC
 import logging
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Location, Rotation, RGBData, DepthData, \
-    SensorsData, IMUData, Vector3D, Transform
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    VehicleControl,
+    Vehicle,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    Location,
+    Rotation,
+    RGBData,
+    DepthData,
+    SensorsData,
+    IMUData,
+    Vector3D,
+    Transform,
+)
 from typing import Any
 
 
@@ -69,4 +81,3 @@ class Bridge(ABC):
     @abstractmethod
     def convert_vector3d_from_agent_to_source(self, vector3d: Vector3D) -> Any:
         pass
-

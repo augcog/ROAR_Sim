@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 import logging
 
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+    VehicleControl,
+)
 
 
 class Controller(ABC):

@@ -1,7 +1,10 @@
 from pydantic import BaseModel, Field
 from typing import Union
 import math
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Vector3D
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    Transform,
+    Vector3D,
+)
 
 
 class VehicleControl(BaseModel):
@@ -27,12 +30,15 @@ class Vehicle(BaseModel):
     """
     Encodes the Vehicle's state at the last tick
     """
+
     velocity: Vector3D
     transform: Union[Transform, None] = Field(default=None)
     control: VehicleControl  # ?
-    wheel_base: float = Field(default=2.875,
-                              title="Wheel Base length of the vehilce in meters",
-                              description="Default to tesla model 3's wheel base")
+    wheel_base: float = Field(
+        default=2.875,
+        title="Wheel Base length of the vehilce in meters",
+        description="Default to tesla model 3's wheel base",
+    )
 
     @staticmethod
     def get_speed(vehicle):

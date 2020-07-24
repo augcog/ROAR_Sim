@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import logging
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+)
 from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models import Camera
 import numpy as np
 
@@ -13,7 +15,7 @@ class Detector(ABC):
         self.camera: Camera = camera
 
     @abstractmethod
-    def run_step(self, vehicle: Vehicle, new_data:np.array):
+    def run_step(self, vehicle: Vehicle, new_data: np.array):
         """
         On every step, detect something from the current frame
         Returns:

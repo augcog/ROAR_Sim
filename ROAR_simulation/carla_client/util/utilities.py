@@ -26,6 +26,7 @@ class CarlaWeather(BaseModel):
     """
     Default weather is sunny
     """
+
     cloudiness: float = Field(default=10)
     precipitation: float = Field(default=0)
     precipitation_deposits: float = Field(default=0)
@@ -55,8 +56,8 @@ class CarlaWeathers:
 
 
 def get_actor_display_name(actor, truncate=250):
-    name = ' '.join(actor.type_id.replace('_', '.').title().split('.')[1:])
-    return (name[:truncate - 1] + u'\u2026') if len(name) > truncate else name
+    name = " ".join(actor.type_id.replace("_", ".").title().split(".")[1:])
+    return (name[: truncate - 1] + "\u2026") if len(name) > truncate else name
 
 
 def create_dir_if_not_exist(path: Path):

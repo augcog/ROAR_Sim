@@ -62,7 +62,8 @@ class CarlaRunner:
 
             self.logger.debug(f"Connecting to Keyboard controls")
             self.controller = KeyboardControl(world=self.world,
-                                              carla_setting=self.carla_settings)
+                                              carla_setting=self.carla_settings
+                                              )
             self.logger.debug("All settings done")
 
             return self.carla_bridge. \
@@ -136,13 +137,12 @@ class CarlaRunner:
         sensor_data: SensorsData = \
             self.carla_bridge.convert_sensor_data_from_source_to_agent(
             {
-                "front_rgb": None if self.world.front_rgb_sensor_data is
-                                     None else
-                self.world.front_rgb_sensor_data,
+                "front_rgb": None if self.world.front_rgb_sensor_data is None
+                else self.world.front_rgb_sensor_data,
                 "rear_rgb": None if self.world.rear_rgb_sensor_data is None
                 else self.world.rear_rgb_sensor_data,
-                "front_depth": None if self.world.front_depth_sensor_data is
-                                       None else
+                "front_depth":
+                    None if self.world.front_depth_sensor_data is None else
                 self.world.front_depth_sensor_data,
                 "imu": self.world.imu_sensor
             }

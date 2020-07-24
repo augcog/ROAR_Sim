@@ -1,21 +1,42 @@
-from ROAR_simulation.roar_autonomous_system.planning_module.local_planner.local_planner import LocalPlanner
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
+from ROAR_simulation.roar_autonomous_system.planning_module.local_planner.local_planner import (
+    LocalPlanner,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+    Transform,
+)
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+    Vehicle,
+    VehicleControl,
+)
 from ROAR_simulation.roar_autonomous_system.control_module.controller import Controller
-from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner.mission_planner import MissionPlanner
-from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner import BehaviorPlanner
+from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner.mission_planner import (
+    MissionPlanner,
+)
+from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner import (
+    BehaviorPlanner,
+)
 import logging
 from typing import Union
-from ROAR_simulation.roar_autonomous_system.utilities_module.errors import AgentException
+from ROAR_simulation.roar_autonomous_system.utilities_module.errors import (
+    AgentException,
+)
 
 
 class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
-    def __init__(self, vehicle: Vehicle, controller: Controller, mission_planner: MissionPlanner,
-                 behavior_planner: BehaviorPlanner, closeness_threshold=0.5):
-        super().__init__(vehicle=vehicle,
-                         controller=controller,
-                         mission_planner=mission_planner,
-                         behavior_planner=behavior_planner)
+    def __init__(
+        self,
+        vehicle: Vehicle,
+        controller: Controller,
+        mission_planner: MissionPlanner,
+        behavior_planner: BehaviorPlanner,
+        closeness_threshold=0.5,
+    ):
+        super().__init__(
+            vehicle=vehicle,
+            controller=controller,
+            mission_planner=mission_planner,
+            behavior_planner=behavior_planner,
+        )
         self.logger = logging.getLogger("SimplePathFollowingLocalPlanner")
         self.set_mission_plan()
         self.logger.debug("Simple Path Following Local Planner Initiated")
@@ -29,7 +50,9 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         :return: None
         """
         self.way_points_queue.clear()
-        while self.mission_planner.mission_plan:  # this actually clears the mission plan!!
+        while (
+            self.mission_planner.mission_plan
+        ):  # this actually clears the mission plan!!
             self.way_points_queue.append(self.mission_planner.mission_plan.popleft())
 
     def is_done(self):
@@ -52,7 +75,10 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
             next control that the local think the agent should execute.
         """
         self.sync_data(vehicle=vehicle)  # on every run step, sync first
-        if len(self.mission_planner.mission_plan) == 0 and len(self.way_points_queue) == 0:
+        if (
+            len(self.mission_planner.mission_plan) == 0
+            and len(self.way_points_queue) == 0
+        ):
             return VehicleControl()
 
         # get vehicle's location
@@ -95,7 +121,9 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         # target_waypoint = Transform.average(self.way_points_queue[0], self.way_points_queue[1])
         # target_waypoint = Transform.average(self.way_points_queue[2], target_waypoint)
 
-        control: VehicleControl = self.controller.run_step(vehicle=vehicle, next_waypoint=target_waypoint)
+        control: VehicleControl = self.controller.run_step(
+            vehicle=vehicle, next_waypoint=target_waypoint
+        )
         # self.logger.debug(
         #     f"Target_Location {target_waypoint.location} "
         #     f"| Curr_Location {vehicle_transform.location} "
