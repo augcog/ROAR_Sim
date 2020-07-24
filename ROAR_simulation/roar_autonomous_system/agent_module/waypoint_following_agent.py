@@ -1,6 +1,7 @@
 from ROAR_simulation.roar_autonomous_system.agent_module.agent import Agent
 from pathlib import Path
 from ROAR_simulation.roar_autonomous_system.control_module.pid_controller import VehiclePIDController
+from ROAR_simulation.roar_autonomous_system.control_module.mpc_controller import VehicleMPCController
 from ROAR_simulation.roar_autonomous_system.planning_module.local_planner.simple_waypoint_following_local_planner import \
     SimpleWaypointFollowingLocalPlanner
 from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner import BehaviorPlanner
@@ -21,6 +22,9 @@ class WaypointFollowingAgent(Agent):
         self.pid_controller = VehiclePIDController(vehicle=vehicle,
                                                    args_lateral=PIDParam.default_lateral_param(),
                                                    args_longitudinal=PIDParam.default_longitudinal_param(),
+                                                   target_speed=target_speed)
+        self.mpc_controller = VehicleMPCController(vehicle=vehicle,
+                                                   route_file_path=route_file_path,
                                                    target_speed=target_speed)
         self.mission_planner = WaypointFollowingMissionPlanner(file_path=self.route_file_path, vehicle=vehicle)
         # initiated right after mission plan
