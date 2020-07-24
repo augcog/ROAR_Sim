@@ -104,8 +104,8 @@ class VehicleMPCController(Controller):
         # self.logger.debug(f"  cost_grad_func: {self.cost_grad_func}")
         # self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
     
-    def run_step(self, next_waypoint: Transform) -> VehicleControl:
-        self.sync()
+    def run_step(self, vehicle: Vehicle, next_waypoint: Transform, **kwargs) -> VehicleControl:
+        super(VehicleMPCController, self).run_step(vehicle, next_waypoint)
         # get vehicle location (x, y)
         location = self.vehicle.transform.location
         x, y = location.x, location.y
@@ -186,7 +186,7 @@ class VehicleMPCController(Controller):
 
         return control
 
-    def sync(self):
+    def sync_data(self, vehicle):
         pass
 
     def get_func_constraints_and_bounds(self):
