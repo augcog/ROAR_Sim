@@ -3,6 +3,8 @@ from ROAR_simulation.carla_client.carla_runner import CarlaRunner
 import logging
 from ROAR_simulation.roar_autonomous_system.agent_module.waypoint_following_agent import WaypointFollowingAgent
 from ROAR_simulation.roar_autonomous_system.agent_module.purpursuit_agent import PurePursuitAgent
+from ROAR_simulation.roar_autonomous_system.agent_module.mpc_agent import MPCAgent
+from ROAR_simulation.roar_autonomous_system.agent_module.pid_agent import PIDAgent
 from pathlib import Path
 import numpy as np
 
@@ -16,12 +18,25 @@ def main():
     try:
         carla_runner = CarlaRunner(carla_settings=settings)
         my_vehicle = carla_runner.set_carla_world()
-        agent = PurePursuitAgent(vehicle=my_vehicle, route_file_path=Path(settings.waypoint_file_path))
+        # agent = PurePursuitAgent(
+        #               vehicle=my_vehicle,
+        #               route_file_path=Path(settings.waypoint_file_path))
 
         # agent = SemanticSegmentationAgent(
         #     vehicle=my_vehicle,
         #     front_depth_camera=settings.front_depth_cam,
         # )
+
+        # agent = PIDAgent(
+        #     vehicle=my_vehicle,
+        #     route_file_path=Path(settings.waypoint_file_path),
+        #     target_speed=60
+        # )
+        agent = MPCAgent(
+            vehicle=my_vehicle,
+            route_file_path=Path(settings.waypoint_file_path),
+            target_speed=60
+        )
         # agent = WaypointFollowingAgent(vehicle=my_vehicle,
         #                                front_depth_camera=settings.front_depth_cam,
         #                                front_rgb_camera=settings.front_rgb_cam,
