@@ -104,7 +104,7 @@ class VehicleMPCController(Controller):
         # self.logger.debug(f"  cost_grad_func: {self.cost_grad_func}")
         # self.logger.debug(f"  constr_funcs:   {self.constr_funcs}")
     
-    def run_step(self, next_waypoint: Transform) -> Control:
+    def run_step(self, next_waypoint: Transform) -> VehicleControl:
         self.sync()
         # get vehicle location (x, y)
         location = self.vehicle.transform.location
@@ -174,7 +174,7 @@ class VehicleMPCController(Controller):
         # self.prev_cte = cte
         # self.throttle = VehicleMPCController.clip_throttle(self.throttle, v, self.target_speed)
 
-        control = Control()
+        control = VehicleControl()
         if 'success' in result.message:
             self.steer = result.x[-self.steps_ahead]
             self.throttle = result.x[-2*self.steps_ahead]
