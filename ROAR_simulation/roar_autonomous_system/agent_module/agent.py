@@ -23,6 +23,10 @@ import os
 import cv2
 import numpy as np
 
+from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
+    import \
+    AgentConfig
+
 
 class Agent(ABC):
     """
@@ -32,35 +36,35 @@ class Agent(ABC):
 
     """
 
-    def __init__(
-            self,
-            vehicle: Vehicle,
-            front_rgb_camera: Optional[Camera] = None,
-            front_depth_camera: Optional[Camera] = None,
-            rear_rgb_camera: Optional[Camera] = None,
-            imu: Optional[IMUData] = None,
-            output_folder_path: Path = Path(os.getcwd()),
-            should_save_sensor_data: bool = False
-    ):
+    def __init__(self,
+                 vehicle: Vehicle,
+                 agent_settings: AgentConfig,
+                 imu: Optional[IMUData] = None):
         """Initiating the Agent with given vehicle, front and back RGB
-        cameras, front depth camera and IMU sensor"""
+        cameras,
+        front depth camera and IMU sensor"""
+        self.logger = logging.getLogger(__name__)
 
         self.vehicle = vehicle
-        self.front_rgb_camera = front_rgb_camera
-        self.front_depth_camera = front_depth_camera
-        self.rear_rgb_camera = rear_rgb_camera
+        self.agent_settings = agent_settings
+        self.front_rgb_camera = agent_settings.front_rgb_cam
+        self.front_depth_camera = agent_settings.front_depth_cam
+        self.rear_rgb_camera = agent_settings.rear_rgb_cam
         self.imu = imu
-        self.logger = logging.getLogger(__name__)
-        self.transform_history: List[Transform] = []
-        self.output_folder_path = output_folder_path
-        self.front_depth_camera_output_folder_path = output_folder_path / \
-                                                     "front_depth"
-        self.front_rgb_camera_output_folder_path = output_folder_path / \
-                                                   "front_rgb"
-        self.rear_rgb_camera_output_folder_path = output_folder_path / \
-                                                  "rear_rgb"
-        self.should_save_sensor_data = should_save_sensor_data
+
+        self.output_folder_path = \
+            Path(self.agent_settings.output_data_folder_path)
+        self.front_depth_camera_output_folder_path = \
+            self.output_folder_path / "front_depth"
+        self.front_rgb_camera_output_folder_path = \
+            self.output_folder_path / "front_rgb"
+        self.rear_rgb_camera_output_folder_path = \
+            self.output_folder_path / "rear_rgb"
+        self.should_save_sensor_data = self.agent_settings.save_sensor_data
+
         self.time_counter = 0
+
+        self.transform_history: List[Transform] = []
 
         self.init_cam()
 
@@ -154,4 +158,4 @@ class Agent(ABC):
                         self.rear_rgb_camera.data)
         except Exception as e:
             self.logger.error(
-                f"Failed to save at {self.time_counter}. Error: {e}")
+                f"Failed to save at Frame {self.time_counter}. Error: {e}")

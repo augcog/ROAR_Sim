@@ -62,34 +62,31 @@ from pygame.locals import K_x
 from typing import Tuple
 import logging
 import carla
-from ROAR_simulation.carla_client.settings import CarlaSettings
+from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 
 
 class KeyboardControl(object):
     """Class that handles keyboard input."""
 
-    def __init__(self, world, carla_setting: CarlaSettings):
+    def __init__(self, world, carla_setting: CarlaConfig):
         self.logger = logging.getLogger(__name__)
         if carla_setting.print_keyboard_hint:
             print(__doc__)
             print()
-        self._autopilot_enabled = carla_setting.enable_autopilot
         if isinstance(world.player, carla.Vehicle):
             self._control = carla.VehicleControl()
             self._lights = carla.VehicleLightState.NONE
-            self.logger.debug(f"Autopilot mode -> {self._autopilot_enabled}")
-            # world.player.set_autopilot(self._autopilot_enabled) # this is using UE4's hardcoded logic
             world.player.set_light_state(self._lights)
         elif isinstance(world.player, carla.Walker):
             self._control = carla.WalkerControl()
-            self._autopilot_enabled = False
             self._rotation = world.player.get_transform().rotation
         else:
             raise NotImplementedError("Actor type not supported")
         self._steer_cache = 0.0
         self.logger.debug("Keyboard Control initiated")
 
-    def parse_events(self, client, world, clock) -> Tuple[bool, carla.VehicleControl]:
+    def parse_events(self, client, world, clock) -> \
+            Tuple[bool, carla.VehicleControl]:
         """
         Parse keyboard press.
         :param client: carla.Client
@@ -151,13 +148,6 @@ class KeyboardControl(object):
                         self._control.gear = max(-1, self._control.gear - 1)
                     elif self._control.manual_gear_shift and event.key == K_PERIOD:
                         self._control.gear = self._control.gear + 1
-                    elif event.key == K_p and not pygame.key.get_mods() & KMOD_CTRL:
-                        self._autopilot_enabled = not self._autopilot_enabled
-                        world.player.set_autopilot(self._autopilot_enabled)
-                        world.hud.notification(
-                            "Autopilot %s"
-                            % ("On" if self._autopilot_enabled else "Off")
-                        )
                     elif event.key == K_l and pygame.key.get_mods() & KMOD_CTRL:
                         current_lights ^= carla.VehicleLightState.Special1
                     elif event.key == K_l and pygame.key.get_mods() & KMOD_SHIFT:
@@ -185,37 +175,27 @@ class KeyboardControl(object):
                         current_lights ^= carla.VehicleLightState.LeftBlinker
                     elif event.key == K_x:
                         current_lights ^= carla.VehicleLightState.RightBlinker
-
-        if not self._autopilot_enabled:
-            if isinstance(self._control, carla.VehicleControl):
-                self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
-                self._control.reverse = self._control.gear < 0
-                # Set automatic control-related vehicle lights
-                if self._control.brake:
-                    current_lights |= carla.VehicleLightState.Brake
-                else:  # Remove the Brake flag
-                    current_lights &= (
-                        carla.VehicleLightState.All ^ carla.VehicleLightState.Brake
-                    )
-                if self._control.reverse:
-                    current_lights |= carla.VehicleLightState.Reverse
-                else:  # Remove the Reverse flag
-                    current_lights &= (
-                        carla.VehicleLightState.All ^ carla.VehicleLightState.Reverse
-                    )
-                if (
-                    current_lights != self._lights
-                ):  # Change the light state only if necessary
-                    self._lights = current_lights
-                    world.player.set_light_state(carla.VehicleLightState(self._lights))
-            elif isinstance(self._control, carla.WalkerControl):
-                self._parse_walker_keys(
-                    pygame.key.get_pressed(), clock.get_time(), world
-                )
-            return True, self._control
-            # world.player.apply_control(self._control)
-        self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
+        if isinstance(self._control, carla.VehicleControl):
+            self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
+            self._control.reverse = self._control.gear < 0
+            # Set automatic control-related vehicle lights
+            if self._control.brake:
+                current_lights |= carla.VehicleLightState.Brake
+            else:  # Remove the Brake flag
+                current_lights &= carla.VehicleLightState.All ^ carla.VehicleLightState.Brake
+            if self._control.reverse:
+                current_lights |= carla.VehicleLightState.Reverse
+            else:  # Remove the Reverse flag
+                current_lights &= carla.VehicleLightState.All ^ carla.VehicleLightState.Reverse
+            if current_lights != self._lights:  # Change the light state only if necessary
+                self._lights = current_lights
+                world.player.set_light_state(carla.VehicleLightState(self._lights))
+        elif isinstance(self._control, carla.WalkerControl):
+            self._parse_walker_keys(pygame.key.get_pressed(), clock.get_time(), world)
         return True, self._control
+            # world.player.apply_control(self._control)
+        # self._parse_vehicle_keys(pygame.key.get_pressed(), clock.get_time())
+        # return True, self._control
 
     def _parse_vehicle_keys(self, keys, milliseconds):
         if keys[K_UP] or keys[K_w]:

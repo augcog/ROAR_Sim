@@ -1,9 +1,8 @@
-data
+data/output
+data/*.zip
 */__pycache__/
 *__pycache__
 .idea
 .vscode
 site
-.DS_Store
-./.ipynb_checkpoints
-misc
+.ipynb_checkpoints
