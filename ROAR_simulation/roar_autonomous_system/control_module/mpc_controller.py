@@ -107,15 +107,18 @@ class VehicleMPCController(Controller):
     def run_step(self, vehicle: Vehicle, next_waypoint: Transform, **kwargs) -> VehicleControl:
         super(VehicleMPCController, self).run_step(vehicle, next_waypoint)
         # get vehicle location (x, y)
-        location = self.vehicle.transform.location
+        # location = self.vehicle.transform.location
+        location = vehicle.transform.location
         x, y = location.x, location.y
         # get vehicle rotation
-        rotation = self.vehicle.transform.rotation
+        # rotation = self.vehicle.transform.rotation
+        rotation = vehicle.transform.rotation
         ψ = rotation.yaw / 180 * np.pi # transform into radient
         cos_ψ = np.cos(ψ)
         sin_ψ = np.sin(ψ)
         # get vehicle speed
-        v = Vehicle.get_speed(self.vehicle)
+        # v = Vehicle.get_speed(self.vehicle)
+        v = Vehicle.get_speed(vehicle)
         # get next waypoint location
         wx, wy = next_waypoint.location.x, next_waypoint.location.y
         # debug logging
@@ -187,7 +190,7 @@ class VehicleMPCController(Controller):
         return control
 
     def sync_data(self, vehicle):
-        pass
+        super(VehicleMPCController, self).sync_data(vehicle=vehicle)
 
     def get_func_constraints_and_bounds(self):
         """
