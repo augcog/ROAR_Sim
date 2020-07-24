@@ -12,7 +12,7 @@
 3. Check your file directory, it should be:
     - `ROAR-Sim`
         - `data`
-            - `MY_WAYPOINT_FILE.txt`
+            - `easy_map_waypoints.txt`
         - `ROAR_simulation`
         - `runner.py`
         - ... other files and folders
