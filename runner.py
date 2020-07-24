@@ -43,7 +43,7 @@ def main():
         agent = PIDAgent(
             vehicle=my_vehicle,
             agent_settings=agent_settings,
-            target_speed=60
+            target_speed=200
         )
         # agent = MPCAgent(
         #     vehicle=my_vehicle,
