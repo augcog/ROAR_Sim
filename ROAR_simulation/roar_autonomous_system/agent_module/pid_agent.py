@@ -3,6 +3,9 @@ from pathlib import Path
 from ROAR_simulation.roar_autonomous_system.control_module.pid_controller \
     import \
     VehiclePIDController
+from ROAR_simulation.roar_autonomous_system.control_module.mpc_controller \
+    import \
+    VehicleMPCController
 from ROAR_simulation.roar_autonomous_system.planning_module.local_planner\
     .simple_waypoint_following_local_planner import \
     SimpleWaypointFollowingLocalPlanner
@@ -25,38 +28,29 @@ import logging
 from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
     import \
     Visualizer
-from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
-    import \
-    AgentConfig
 
 
-class WaypointFollowingAgent(Agent):
-    def __init__(self, vehicle, agent_settings: AgentConfig, target_speed=40,
-                 **kwargs):
-        super().__init__(vehicle=vehicle,
-                         agent_settings=agent_settings,
-                         **kwargs)
+class PIDAgent(Agent):
+    def __init__(self, target_speed=40, **kwargs):
+        super().__init__(**kwargs)
         self.logger = logging.getLogger("PathFollowingAgent")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
-        self.pid_controller = \
-            VehiclePIDController(vehicle=vehicle,
-                                 args_lateral=PIDParam.default_lateral_param(),
-                                 args_longitudinal=PIDParam.default_longitudinal_param(),
-                                 target_speed=target_speed)
-        self.mission_planner = \
-            WaypointFollowingMissionPlanner(file_path=self.route_file_path,
-                                            vehicle=vehicle)
+        self.pid_controller = VehiclePIDController(
+            vehicle=self.vehicle,
+            args_lateral=PIDParam.default_lateral_param(),
+            args_longitudinal=PIDParam.default_longitudinal_param(),
+            target_speed=target_speed)
+        self.mission_planner = WaypointFollowingMissionPlanner(
+            file_path=self.route_file_path, vehicle=self.vehicle)
         # initiated right after mission plan
 
-        self.behavior_planner = BehaviorPlanner(vehicle=vehicle)
-        self.local_planner = \
-            SimpleWaypointFollowingLocalPlanner(vehicle=vehicle,
-                                                controller=self.pid_controller,
-                                                mission_planner=
-                                                self.mission_planner,
-                                                behavior_planner=
-                                                self.behavior_planner,
-                                                closeness_threshold=1)
+        self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle)
+        self.local_planner = SimpleWaypointFollowingLocalPlanner(
+            vehicle=self.vehicle,
+            controller=self.pid_controller,
+            mission_planner=self.mission_planner,
+            behavior_planner=self.behavior_planner,
+            closeness_threshold=1)
         self.visualizer = Visualizer(agent=self)
         self.logger.debug(
             f"Waypoint Following Agent Initiated. Reading f"
@@ -67,8 +61,8 @@ class WaypointFollowingAgent(Agent):
 
     def run_step(self, vehicle: Vehicle,
                  sensors_data: SensorsData) -> VehicleControl:
-        super(WaypointFollowingAgent, self).run_step(vehicle=vehicle,
-                                                     sensors_data=sensors_data)
+        super(PIDAgent, self).run_step(vehicle=vehicle,
+                                       sensors_data=sensors_data)
         self.transform_history.append(self.vehicle.transform)
         if self.local_planner.is_done():
             control = VehicleControl()
