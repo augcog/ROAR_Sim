@@ -6,8 +6,6 @@ theme:
 
 nav:
   - Home: index.md
-  - Quick Start: quick_start.md
-  - Contribute: contribute.md
   - Project Overview:
       - Project Module TAD: project_overview/project_module_TADs.md
       - Code Layout: project_overview/code_layout.md
