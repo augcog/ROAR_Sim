@@ -6,11 +6,11 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Robot Autonomous Racing DeCal is a course dedicated to teaching students to gain a holistic view and hands-on(virtual) experiences about building a high-performance fully-autonomous 1/10 scale RC car from scratch." name="description"/>
-<link href="https://roar-decal.github.io/Carla/project_overview/project_module_TADs/" rel="canonical"/>
-<link href="../../assets/images/favicon.png" rel="shortcut icon"/>
+<link href="https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/planning/behavior_planners/" rel="canonical"/>
+<link href="../../../../assets/images/favicon.png" rel="shortcut icon"/>
 <meta content="mkdocs-1.1.2, mkdocs-material-5.4.0" name="generator"/>
-<title>Project Module TAD - ROAR</title>
-<link href="../../assets/stylesheets/main.fe0cca5b.min.css" rel="stylesheet"/>
+<title>Behavior Planner - ROAR</title>
+<link href="../../../../assets/stylesheets/main.fe0cca5b.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
 <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
@@ -20,7 +20,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#roar-carla-overall-architecture">
+<a class="md-skip" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner">
           Skip to content
         </a>
 </div>
@@ -41,7 +41,7 @@
           </span>
 <span class="md-header-nav__topic md-ellipsis">
             
-              Project Module TAD
+              Behavior Planner
             
           </span>
 </div>
@@ -91,22 +91,22 @@
   </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../.." title="Home">
+<a class="md-nav__link" href="../../../.." title="Home">
       Home
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../quick_start/" title="Quick Start">
+<a class="md-nav__link" href="../../../../quick_start/" title="Quick Start">
       Quick Start
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../contribute/" title="Contribute">
+<a class="md-nav__link" href="../../../../contribute/" title="Contribute">
       Contribute
     </a>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
 <label class="md-nav__link" for="nav-4">
       Project Overview
       <span class="md-nav__icon md-icon">
@@ -121,63 +121,21 @@
         Project Overview
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-        Project Module TAD
-        <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
-</span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="./" title="Project Module TAD">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../../project_overview/project_module_TADs/" title="Project Module TAD">
       Project Module TAD
     </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-      Table of contents
-    </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#roar-carla-overall-architecture">
-    ROAR Carla Overall Architecture
-  </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#environment-maps">
-    Environment Maps
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#environmental-perception">
-    Environmental Perception
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#motion-planning">
-    Motion Planning
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#vehicle-controller">
-    Vehicle Controller
-  </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../code_layout/" title="Code Layout">
+<a class="md-nav__link" href="../../../../project_overview/code_layout/" title="Code Layout">
       Code Layout
     </a>
 </li>
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" id="nav-5" type="checkbox"/>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-5" id="nav-5" type="checkbox"/>
 <label class="md-nav__link" for="nav-5">
       Code Documentations
       <span class="md-nav__icon md-icon">
@@ -193,12 +151,12 @@
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/bridges/" title="Bridges">
+<a class="md-nav__link" href="../../../bridges/" title="Bridges">
       Bridges
     </a>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2" id="nav-5-2" type="checkbox"/>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2" id="nav-5-2" type="checkbox"/>
 <label class="md-nav__link" for="nav-5-2">
       ROAR Autonomous System
       <span class="md-nav__icon md-icon">
@@ -214,27 +172,27 @@
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/agents/" title="Agents">
+<a class="md-nav__link" href="../../agents/" title="Agents">
       Agents
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/controls/" title="Control">
+<a class="md-nav__link" href="../../controls/" title="Control">
       Control
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/perceptions/" title="Perception">
+<a class="md-nav__link" href="../../perceptions/" title="Perception">
       Perception
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/visualizations/" title="Visualization">
+<a class="md-nav__link" href="../../visualizations/" title="Visualization">
       Visualization
     </a>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2-5" id="nav-5-2-5" type="checkbox"/>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2-5" id="nav-5-2-5" type="checkbox"/>
 <label class="md-nav__link" for="nav-5-2-5">
       Planning
       <span class="md-nav__icon md-icon">
@@ -250,17 +208,57 @@
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/planning/mission_planners/" title="Mission Planner">
+<a class="md-nav__link" href="../mission_planners/" title="Mission Planner">
       Mission Planner
     </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/planning/behavior_planners/" title="Behavior Planner">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        Behavior Planner
+        <span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
+</span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./" title="Behavior Planner">
       Behavior Planner
     </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner">
+    behavior_planner
+  </a>
+<nav aria-label="behavior_planner" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner">
+    BehaviorPlanner
+  </a>
+<nav aria-label="BehaviorPlanner" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner.run_step">
+    run_step()
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/planning/local_planners/" title="Local Planner">
+<a class="md-nav__link" href="../local_planners/" title="Local Planner">
       Local Planner
     </a>
 </li>
@@ -284,17 +282,17 @@
       </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/utilities/cameras/" title="Camera">
+<a class="md-nav__link" href="../../utilities/cameras/" title="Camera">
       Camera
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/utilities/data_structures/" title="Data Structures">
+<a class="md-nav__link" href="../../utilities/data_structures/" title="Data Structures">
       Data Structures
     </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../code_documentations/roar_autonomous_system/utilities/vehicles/" title="Vehicle">
+<a class="md-nav__link" href="../../utilities/vehicles/" title="Vehicle">
       Vehicle
     </a>
 </li>
@@ -324,29 +322,27 @@
     </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#roar-carla-overall-architecture">
-    ROAR Carla Overall Architecture
+<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner">
+    behavior_planner
+  </a>
+<nav aria-label="behavior_planner" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner">
+    BehaviorPlanner
+  </a>
+<nav aria-label="BehaviorPlanner" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner.run_step">
+    run_step()
   </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#environment-maps">
-    Environment Maps
-  </a>
+</ul>
+</nav>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#environmental-perception">
-    Environmental Perception
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#motion-planning">
-    Motion Planning
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#vehicle-controller">
-    Vehicle Controller
-  </a>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -355,17 +351,75 @@
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
-<h1>Project Module TAD</h1>
-<h2 id="roar-carla-overall-architecture">ROAR Carla Overall Architecture<a class="headerlink" href="#roar-carla-overall-architecture" title="Permanent link">¤</a></h2>
-<p><img alt="" src="../../images/roar_simulation_overall_architecture.png"/></p>
-<h2 id="environment-maps">Environment Maps<a class="headerlink" href="#environment-maps" title="Permanent link">¤</a></h2>
-<p><img alt="" src="../../images/EnvMaps.jpg"/></p>
-<h2 id="environmental-perception">Environmental Perception<a class="headerlink" href="#environmental-perception" title="Permanent link">¤</a></h2>
-<p><img alt="" src="../../images/EnvPerception.jpg"/></p>
-<h2 id="motion-planning">Motion Planning<a class="headerlink" href="#motion-planning" title="Permanent link">¤</a></h2>
-<p><img alt="" src="../../images/MotionPlanning.jpg"/></p>
-<h2 id="vehicle-controller">Vehicle Controller<a class="headerlink" href="#vehicle-controller" title="Permanent link">¤</a></h2>
-<p><img alt="" src="../../images/VehicleController.jpg"/></p>
+<h1>Behavior Planner</h1>
+<div class="doc doc-object doc-module">
+<div class="doc doc-contents first">
+<div class="doc doc-children">
+<div class="doc doc-object doc-module">
+<h2 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner">
+<code>behavior_planner</code>
+<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner" title="Permanent link">¤</a></h2>
+<div class="doc doc-contents">
+<div class="doc doc-children">
+<div class="doc doc-object doc-class">
+<h3 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner">
+<code>BehaviorPlanner</code>
+<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner" title="Permanent link">¤</a></h3>
+<div class="doc doc-contents">
+<div class="doc doc-children">
+<div class="doc doc-object doc-method">
+<h4 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner.run_step">
+<code class="highlight language-python">
+run_step<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vehicle</span><span class="p">)</span> </code>
+<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner.BehaviorPlanner.run_step" title="Permanent link">¤</a></h4>
+<div class="doc doc-contents">
+<p>On every step, produce an actionable plan</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Any</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>ROAR_simulation/roar_autonomous_system/planning_module/behavior_planner/behavior_planner.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>13
+14</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">run_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vehicle</span><span class="p">:</span> <span class="n">Vehicle</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">pass</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </article>
 </div>
 </div>
@@ -373,7 +427,7 @@
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../../contribute/" rel="prev" title="Contribute">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../mission_planners/" rel="prev" title="Mission Planner">
 <div class="md-footer-nav__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -382,17 +436,17 @@
 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Contribute
+                Mission Planner
               </div>
 </div>
 </a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../code_layout/" rel="next" title="Code Layout">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../local_planners/" rel="next" title="Local Planner">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Code Layout
+                Local Planner
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">
@@ -414,14 +468,14 @@
 </div>
 </footer>
 </div>
-<script src="../../assets/javascripts/vendor.d710d30a.min.js"></script>
-<script src="../../assets/javascripts/bundle.b39636ac.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+<script src="../../../../assets/javascripts/vendor.d710d30a.min.js"></script>
+<script src="../../../../assets/javascripts/bundle.b39636ac.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
 <script>
         app = initialize({
-          base: "../..",
+          base: "../../../..",
           features: [],
           search: Object.assign({
-            worker: "../../assets/javascripts/worker/search.a68abb33.min.js"
+            worker: "../../../../assets/javascripts/worker/search.a68abb33.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
