@@ -77,24 +77,4 @@ class PIDAgent(Agent):
             self.logger.debug("Path Following Agent is Done. Idling.")
         else:
             control = self.local_planner.run_step(vehicle=vehicle)
-            # self.visualizer.visualize_waypoint(self.local_planner.way_points_queue[0])
-            try:
-                veh_cam_matrix = \
-                    self.front_depth_camera.transform.get_matrix()  # 4 x 4
-                world_veh_matrix = self.vehicle.transform.get_matrix()
-                cam_world_matrix = world_veh_matrix @ veh_cam_matrix
-
-                depth_img = self.front_depth_camera.data.copy()
-                # print(np.shape(depth_img))
-                world_cords = img_to_world(
-                    depth_img=depth_img,
-                    intrinsics_matrix=self.front_depth_camera
-                        .intrinsics_matrix,
-                    extrinsics_matrix=cam_world_matrix)
-                self.occupancy_grid_map.update_grid_map(
-                    world_cords_xy=world_cords[:2, :].T)
-                self.occupancy_grid_map.visualize(
-                    vehicle_location=self.vehicle.transform.location)
-            except Exception as e:
-                print(f"Failed: {e}")
         return control
