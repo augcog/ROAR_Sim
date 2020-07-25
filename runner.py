@@ -2,7 +2,6 @@ from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
-from ROAR_simulation.carla_client.carla_runner import CarlaRunner
 import logging
 from ROAR_simulation.roar_autonomous_system.agent_module\
     .semantic_segmentation_agent import \

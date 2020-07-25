@@ -29,7 +29,7 @@ class SemanticSegmentationOnlyPlanner(LocalPlanner):
         self._max_turn_degree = max_turn_degree
         self._carla_distance_to_pixel_scaling = 10
 
-    def run_step(self, vehicle: Vehicle):
+    def run_step(self, vehicle: Vehicle) -> VehicleControl:
         """
         Get data from GPD_Detector
             if front is clear
@@ -43,6 +43,7 @@ class SemanticSegmentationOnlyPlanner(LocalPlanner):
             if front, right, and left are all blocked
                 stop (return a control that does nothing)
         Returns:
+            VehicleControl object
         """
         super(SemanticSegmentationOnlyPlanner, self).run_step(vehicle=vehicle)
         if self.gpd_detector.curr_ground is None:

@@ -24,7 +24,7 @@ class SemanticSegmentationDetector(Detector):
         self.logger = logging.getLogger(__name__)
         self._sky_line_level = sky_line_level
         self._max_detectable_distance_threshold = max_detectable_distance_threshold
-        self._min_caliberation_boundary = min_caliberation_boundary
+        self._min_calibration_boundary = min_caliberation_boundary
         self._test_depth_img: Optional[np.array] = None
         self._predict_matrix: Optional[np.array] = None  # preds
 
@@ -33,7 +33,7 @@ class SemanticSegmentationDetector(Detector):
 
         self.logger.debug("Ground Plane Detector Initialized")
 
-    def run_step(self, vehicle: Vehicle, new_data: np.array):
+    def run_step(self, vehicle: Vehicle, new_data: np.array) -> None:
         """
         This function assumes that the function calling it will set the
         variable self.curr_depth_img
@@ -69,7 +69,7 @@ class SemanticSegmentationDetector(Detector):
             for i in range(self._sky_line_level + 10, curr_depth_array.shape[0]):
                 j = np.argmax(curr_depth_array[i, :])
 
-                if curr_depth_array[i][j] > self._min_caliberation_boundary:
+                if curr_depth_array[i][j] > self._min_calibration_boundary:
                     xs.append(i)
                     data.append(curr_depth_array[i][j])
             a, b, c, p, q = self.fit(
@@ -101,19 +101,27 @@ class SemanticSegmentationDetector(Detector):
         self,
         sky_line_level: int = 310,
         max_detectable_distance_threshold: float = 0.089,
-        min_caliberation_boundary: float = 0.01,
-    ):
+        min_calibration_boundary: float = 0.01,
+    ) -> None:
         """
         Force a recalibration of the ground plane prediction matrix
+
+        Args:
+            sky_line_level: updated sky line level
+            max_detectable_distance_threshold: maximum detection threshold
+            min_calibration_boundary: minimum calibration boundary
+
         Returns:
             None
         """
+
         self._test_depth_img = None
         self._predict_matrix = None
 
         self._sky_line_level = sky_line_level
-        self._max_detectable_distance_threshold = max_detectable_distance_threshold
-        self._min_caliberation_boundary = min_caliberation_boundary
+        self._max_detectable_distance_threshold = \
+            max_detectable_distance_threshold
+        self._min_calibration_boundary = min_calibration_boundary
 
     def Sk(self, S_k_1, y_k, y_k_1, x_k, x_k_1):
         return S_k_1 + 0.5 * (y_k + y_k_1) * (x_k - x_k_1)

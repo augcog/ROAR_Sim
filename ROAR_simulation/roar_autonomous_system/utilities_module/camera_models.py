@@ -22,11 +22,18 @@ class Camera(BaseModel):
     data: Optional[np.ndarray] = Field(default=None)
     intrinsics_matrix: Optional[np.ndarray] = Field(default=None)
 
-    def calculate_intrinsic_matrix(self):
+    def calculate_intrinsic_matrix(self) -> np.ndarray:
         """
         Calculate intrinsics matrix
-        Will set the attribut intrinsic matrix so that re-calculation is not necessary.
+        Will set the attribute intrinsic matrix so that re-calculation is not
+        necessary.
         https://github.com/carla-simulator/carla/issues/56
+
+        [
+                ax, 0, cx,
+                0, ay, cy,
+                0 , 0, 1
+        ]
 
         Returns:
             Intrinsics_matrix
@@ -46,7 +53,7 @@ class Camera(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    def visualize(self, title="CameraData", duration=1):
+    def visualize(self, title="CameraData", duration=1) -> None:
         """
         Visualize camera data.
         Args:

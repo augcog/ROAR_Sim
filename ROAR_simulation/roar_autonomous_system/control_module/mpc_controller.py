@@ -2,8 +2,6 @@
 # https://github.com/asap-report/carla/blob/racetrack/PythonClient/racetrack
 # /model_predictive_control.py
 
-""" This module contains MPC controller. """
-
 import logging
 import numpy as np
 import pandas as pd
@@ -207,7 +205,7 @@ class VehicleMPCController(Controller):
 
         return control
 
-    def sync_data(self, vehicle):
+    def sync_data(self, vehicle) -> None:
         super(VehicleMPCController, self).sync_data(vehicle=vehicle)
 
     def get_func_constraints_and_bounds(self):

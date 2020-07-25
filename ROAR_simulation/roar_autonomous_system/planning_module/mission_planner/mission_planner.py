@@ -19,4 +19,14 @@ class MissionPlanner(AbstractPlanner):
         self.mission_plan: deque = deque()
 
     def run_step(self, vehicle: Vehicle) -> List[Transform]:
+        """
+        Abstract run step function for Mission Planner
+
+        Args:
+            vehicle: new vehicle state
+
+        Returns:
+            Plan for next steps
+
+        """
         return []
