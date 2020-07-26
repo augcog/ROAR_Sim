@@ -91,6 +91,11 @@ class World(object):
         self.front_depth_sensor_data = None
         self.rear_rgb_sensor_data = None
 
+        settings = self.carla_world.get_settings()
+        settings.synchronous_mode = self.carla_settings.synchronous_mode
+        settings.no_rendering_mode = self.carla_settings.no_rendering_mode
+        self.carla_world.apply_settings(settings)
+
         self.carla_world.on_tick(hud.on_world_tick)
         self.logger.debug("World Initialized")
 

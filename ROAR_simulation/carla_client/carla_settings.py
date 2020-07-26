@@ -64,3 +64,12 @@ class CarlaConfig(BaseModel):
                          description="Gamma Correction of the camera")
 
     print_keyboard_hint: bool = Field(default=False)
+    no_rendering_mode: bool = Field(
+        default=False,
+        title="No Rendering at all, however you can enable save data to do a play back",
+        description="https://carla.readthedocs.io/en/0.9.9/adv_rendering_options/")
+    synchronous_mode: bool = Field(
+        default=False,
+        title="Run Server and Client in Synchronos mode",
+        description="https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony"
+    )
