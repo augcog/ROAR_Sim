@@ -78,4 +78,16 @@ WARNING: sensor object went out of the scope but the sensor is still alive in th
 3. If you see error such as 
 `ERROR: name 'agent' is not defined. Need to restart Server` or `ERROR: Cannot spawn actor at ID [1]. Error: Spawn failed because of collision at spawn position. Need to restart Server`
     - Just restart the server
+
+4. My computer is getting very hot
+    - Yeah, this is normal. If it gets too hot, just turn off the server and let it cool down for a minute. 
+    - Our suggestion is that when you are writing code, just turn the server off
+5. The simulation is very laggy
+    - One way to mitigate this is to start the simulator with the `-quality-level=Low` flag
+        - For example:
+            - `./CarlaUE4.sh -quality-level=Low` on linux
+            - `./CarlaUE4.exe -quality-level=Low` on windows
+    - Another way is to turn off the display (this will just make it SLIGHTLY faster), but this is only available on Linux
+        - `DISPLAY= ./CarlaUE4.sh -opengl`
+    
     

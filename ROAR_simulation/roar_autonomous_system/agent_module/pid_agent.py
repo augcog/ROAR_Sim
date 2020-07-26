@@ -76,5 +76,6 @@ class PIDAgent(Agent):
             control = VehicleControl()
             self.logger.debug("Path Following Agent is Done. Idling.")
         else:
+            self.logger.debug(f"My Location {self.vehicle.transform.location}")
             control = self.local_planner.run_step(vehicle=vehicle)
         return control
