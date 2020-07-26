@@ -83,11 +83,16 @@ WARNING: sensor object went out of the scope but the sensor is still alive in th
     - Yeah, this is normal. If it gets too hot, just turn off the server and let it cool down for a minute. 
     - Our suggestion is that when you are writing code, just turn the server off
 5. The simulation is very laggy
-    - One way to mitigate this is to start the simulator with the `-quality-level=Low` flag
+    - One method to mitigate this is to start the simulator with the `-quality-level=Low` flag
         - For example:
             - `./CarlaUE4.sh -quality-level=Low` on linux
             - `./CarlaUE4.exe -quality-level=Low` on windows
-    - Another way is to turn off the display (this will just make it SLIGHTLY faster), but this is only available on Linux
+    - Another method is to turn off the display (this will just make it SLIGHTLY faster), but this is only available on Linux
         - `DISPLAY= ./CarlaUE4.sh -opengl`
-    
+    - Last method is to understand and tryout Carla's [Synchronized Mode](https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony)
+        - You may modify the default values at `ROAR_simulation/carla_client/carla_settings.py`
+            - `fixed_delta_seconds`
+            - `no_rendering_mode`
+            - `synchronoous_mode`
+            
     
