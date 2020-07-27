@@ -35,6 +35,7 @@ class CarlaConfig(BaseModel):
                       description="The IP Address of the Carla Server")
     port: int = Field(default=2000, title="Host Port",
                       description="The Port number of the Carla Server")
+    timeout: float = Field(default=5.0, title="Connection timeout")
 
     # PyGame display setting
     width: int = Field(default=1280, title="Width of Display")

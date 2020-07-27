@@ -46,7 +46,7 @@ class CarlaRunner:
                               f"{self.carla_settings.port}")
             self.client = carla.Client(self.carla_settings.host,
                                        self.carla_settings.port)
-            self.client.set_timeout(2.0)
+            self.client.set_timeout(self.carla_settings.timeout)
 
             self.display = pygame.display.set_mode(
                 (self.carla_settings.width, self.carla_settings.height),
