@@ -31,11 +31,13 @@ def main():
     np.set_printoptions(suppress=True)
 
     try:
-        carla_settings = CarlaConfig()
-        agent_settings = AgentConfig.parse_file(
-            Path(os.getcwd()) / "ROAR_simulation" / "agent_config.json")
-        carla_runner = CarlaRunner(carla_settings=carla_settings,
-                                   agent_settings=agent_settings)
+        from ROAR_simulation.roar_autonomous_system.configurations.configuration import Configuration
+        config = Configuration.parse_file(
+            Path(os.getcwd()) / "config.json"
+        )
+
+        carla_runner = CarlaRunner(carla_settings=config.carla_config,
+                                   agent_settings=config.agent_config)
         my_vehicle = carla_runner.set_carla_world()
 
         # agent = PurePursuitAgent(vehicle=my_vehicle,
@@ -47,14 +49,14 @@ def main():
         #
         agent = PIDAgent(
             vehicle=my_vehicle,
-            agent_settings=agent_settings,
+            agent_settings=config.agent_config,
             target_speed=200
         )
         # agent = MPCAgent(
         #     vehicle=my_vehicle,
-        #     agent_settings=agent_settings,
-        #     target_speed=60
-        # )
+        #     agent_settings=config.agent_config,
+        #     target_speed=60)
+
         carla_runner.start_game_loop(agent=agent, use_manual_control=False)
     except Exception as e:
         logging.error(f"{e}. Need to restart Server")
