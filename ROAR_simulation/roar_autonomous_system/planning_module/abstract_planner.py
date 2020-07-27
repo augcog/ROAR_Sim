@@ -22,4 +22,14 @@ class AbstractPlanner(ABC):
         return None
 
     def sync_data(self, vehicle: Vehicle):
+        """
+        Sync the incoming vehicle state
+
+        Args:
+            vehicle: new frame's vehicle state
+
+        Returns:
+            None
+
+        """
         self.vehicle = vehicle

@@ -5,6 +5,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models impo
 )
 from ROAR_simulation.roar_autonomous_system.utilities_module.camera_models import Camera
 import numpy as np
+from  typing import Any
 
 
 class Detector(ABC):
@@ -15,14 +16,31 @@ class Detector(ABC):
         self.camera: Camera = camera
 
     @abstractmethod
-    def run_step(self, vehicle: Vehicle, new_data: np.array):
+    def run_step(self, vehicle: Vehicle, new_data: np.array) -> Any:
         """
         On every step, detect something from the current frame
+
+        Args:
+            vehicle: Current Vehicle State
+            new_data: new data
+
         Returns:
+            Any
         """
         self.sync_data(vehicle=vehicle, new_data=new_data)
         return None
 
-    def sync_data(self, vehicle: Vehicle, new_data):
+    def sync_data(self, vehicle: Vehicle, new_data: np.ndarray) -> None:
+        """
+        Sync data
+
+        Args:
+            vehicle: new vehicle state
+            new_data: new data
+
+        Returns:
+            None
+
+        """
         self.vehicle = vehicle
         self.camera.data = new_data

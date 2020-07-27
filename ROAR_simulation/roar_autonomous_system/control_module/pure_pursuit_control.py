@@ -1,35 +1,40 @@
-from ROAR_simulation.roar_autonomous_system.control_module.controller import Controller
-from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import (
+from ROAR_simulation.roar_autonomous_system.control_module.controller import \
+    Controller
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models \
+    import (
     Vehicle,
     VehicleControl,
 )
-from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
+from ROAR_simulation.roar_autonomous_system.utilities_module\
+    .data_structures_models import (
     Transform,
 )
 import numpy as np
 import math
 
+"""
+Citation: https://github.com/AtsushiSakai/PythonRobotics/blob/master
+/PathTracking/pure_pursuit/pure_pursuit.py
+"""
+
 
 class PurePursuitController(Controller):
-    """
-    Citation: https://github.com/AtsushiSakai/PythonRobotics/blob/master/PathTracking/pure_pursuit/pure_pursuit.py
-    """
-
     def __init__(
-        self,
-        vehicle: Vehicle,
-        look_ahead_gain: float = 0.1,
-        look_ahead_distance: float = 2,
-        target_speed=60,
+            self,
+            vehicle: Vehicle,
+            look_ahead_gain: float = 0.1,
+            look_ahead_distance: float = 2,
+            target_speed=60,
     ):
         """
-        Pure Pursuit controller.
+
         Args:
-            vehicle: current vehicle state
-            look_ahead_gain: multiply with current velocity to achieve the effect of driving faster = looking further.
-            Normally ranges from 0 - 1
-            look_ahead_distance: base look forward distance
+            vehicle: Vehicle information
+            look_ahead_gain: Look ahead factor
+            look_ahead_distance: look ahead distance
+            target_speed: desired longitudinal speed to maintain
         """
+
         super(PurePursuitController, self).__init__(vehicle=vehicle)
         self.target_speed = target_speed
         self.look_ahead_gain = look_ahead_gain
@@ -44,8 +49,20 @@ class PurePursuitController(Controller):
         )
 
     def run_step(
-        self, vehicle: Vehicle, next_waypoint: Transform, **kwargs
+            self, vehicle: Vehicle, next_waypoint: Transform, **kwargs
     ) -> VehicleControl:
+        """
+        run one step of Pure Pursuit Control
+
+        Args:
+            vehicle: current vehicle state
+            next_waypoint: Next waypoint, Transform
+            **kwargs:
+
+        Returns:
+            Vehicle Control
+
+        """
         control = VehicleControl(
             throttle=self.longitunal_controller.run_step(vehicle=vehicle),
             steering=self.latitunal_controller.run_step(
@@ -65,7 +82,8 @@ class LongitunalPurePursuitController:
         self.sync(vehicle=vehicle)
         return float(
             VehicleControl.clamp(
-                self.kp * (self.target_speed - Vehicle.get_speed(vehicle)), 0, 1
+                self.kp * (self.target_speed - Vehicle.get_speed(vehicle)), 0,
+                1
             )
         )
 
@@ -75,7 +93,8 @@ class LongitunalPurePursuitController:
 
 class LatitunalPurePursuitController:
     def __init__(
-        self, vehicle: Vehicle, look_ahead_gain: float, look_ahead_distance: float
+            self, vehicle: Vehicle, look_ahead_gain: float,
+            look_ahead_distance: float
     ):
         self.vehicle = vehicle
         self.look_ahead_gain = look_ahead_gain
@@ -90,8 +109,8 @@ class LatitunalPurePursuitController:
             target_x - self.vehicle.transform.location.x,
         ) - np.radians(self.vehicle.transform.rotation.yaw)
         curr_look_forward = (
-            self.look_ahead_gain * Vehicle.get_speed(vehicle=vehicle)
-            + self.look_ahead_distance
+                self.look_ahead_gain * Vehicle.get_speed(vehicle=vehicle)
+                + self.look_ahead_distance
         )
         lateral_difference = math.atan2(
             2.0

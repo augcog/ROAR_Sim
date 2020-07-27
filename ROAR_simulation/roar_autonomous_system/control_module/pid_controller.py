@@ -61,18 +61,14 @@ class VehiclePIDController(Controller):
         max_steering=1,
     ):
         """
-        Constructor method.
-        :param vehicle: actor to apply to local planner logic onto
-        :param args_lateral: dictionary of arguments to set the lateral PID control
-        using the following semantics:
-            K_P -- Proportional term
-            K_D -- Differential term
-            K_I -- Integral term
-        :param args_longitudinal: dictionary of arguments to set the longitudinal
-        PID control using the following semantics:
-            K_P -- Proportional term
-            K_D -- Differential term
-            K_I -- Integral term
+
+        Args:
+            vehicle: actor to apply to local planner logic onto
+            args_lateral:  dictionary of arguments to set the lateral PID control
+            args_longitudinal: dictionary of arguments to set the longitudinal
+            target_speed: target speedd in km/h
+            max_throttle: maximum throttle from, will be capped at 1
+            max_steering: absolute maximum steering ranging from -1 - 1
         """
 
         super().__init__(vehicle)
@@ -104,11 +100,15 @@ class VehiclePIDController(Controller):
     ) -> VehicleControl:
         """
         Execute one step of control invoking both lateral and longitudinal
-        PID controllers to reach a target waypoint
-        at a given target_speed.
-            :param next_waypoint: target location encoded as a waypoint
-            :param target_speed: desired vehicle speed
-            :return: distance (in meters) to the waypoint
+        PID controllers to reach a target waypoint at a given target_speed.
+
+        Args:
+            vehicle: New vehicle state
+            next_waypoint:  target location encoded as a waypoint
+            **kwargs:
+
+        Returns:
+            Next Vehicle Control
         """
         super(VehiclePIDController, self).run_step(vehicle, next_waypoint)
         curr_speed = Vehicle.get_speed(self.vehicle)
@@ -158,7 +158,7 @@ class VehiclePIDController(Controller):
         self.past_steering = steering
         return control
 
-    def sync_data(self, vehicle):
+    def sync_data(self, vehicle) -> None:
         super(VehiclePIDController, self).sync_data(vehicle=vehicle)
         self._lon_controller.vehicle = self.vehicle
         self._lat_controller.vehicle = self.vehicle

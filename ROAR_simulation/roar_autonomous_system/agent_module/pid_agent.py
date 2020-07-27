@@ -29,11 +29,13 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
     import \
     Visualizer
 
+from ROAR_simulation.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import img_to_world
 
 class PIDAgent(Agent):
     def __init__(self, target_speed=40, **kwargs):
         super().__init__(**kwargs)
-        self.logger = logging.getLogger("PathFollowingAgent")
+        self.logger = logging.getLogger("PID Agent")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pid_controller = VehiclePIDController(
             vehicle=self.vehicle,
@@ -52,6 +54,12 @@ class PIDAgent(Agent):
             behavior_planner=self.behavior_planner,
             closeness_threshold=1)
         self.visualizer = Visualizer(agent=self)
+
+        self.occupancy_grid_map = OccupancyGridMap(min_x=-500,
+                                                   min_y=-500,
+                                                   max_x=500,
+                                                   max_y=500)
+
         self.logger.debug(
             f"Waypoint Following Agent Initiated. Reading f"
             f"rom {self.route_file_path.as_posix()}")

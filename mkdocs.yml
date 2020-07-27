@@ -6,7 +6,6 @@ theme:
 
 nav:
   - Home: index.md
-  - Setup: getting_started/quick_start.md
   - Project Overview:
       - Project Module TAD: project_overview/project_module_TADs.md
       - Code Layout: project_overview/code_layout.md
@@ -14,7 +13,28 @@ nav:
       - Bridges: code_documentations/bridges.md
       - ROAR Autonomous System:
           - Agents: code_documentations/roar_autonomous_system/agents.md
+          - Control: code_documentations/roar_autonomous_system/controls.md
+          - Perception: code_documentations/roar_autonomous_system/perceptions.md
+          - Visualization: code_documentations/roar_autonomous_system/visualizations.md
+          - Planning:
+              - Mission Planner: code_documentations/roar_autonomous_system/planning/mission_planners.md
+              - Behavior Planner: code_documentations/roar_autonomous_system/planning/behavior_planners.md
+              - Local Planner: code_documentations/roar_autonomous_system/planning/local_planners.md
+          - Utilities:
+              - Camera: code_documentations/roar_autonomous_system/utilities/cameras.md
+              - Data Structures: code_documentations/roar_autonomous_system/utilities/data_structures.md
+              - Vehicle: code_documentations/roar_autonomous_system/utilities/vehicles.md
 
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - pymdownx.superfences
+  - pymdownx.tasklist
+  - pymdownx.emoji
+  - pymdownx.tabbed
+  - toc:
+      permalink: "¤"
 
 plugins:
   - search
@@ -22,9 +42,9 @@ plugins:
       handlers:
         python:
           rendering:
-            show_root_heading: yes
-            show_category_heading: yes
+            show_root_heading: no
+            show_category_heading: false
             show_if_no_docstring: yes
             show_source: true
             show_root_toc_entry: false
-            show_object_full_path: false
+            show_object_full_path: no

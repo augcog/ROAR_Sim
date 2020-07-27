@@ -27,7 +27,8 @@ class Visualizer:
         cv2.imshow("Next Waypoint", img)
         cv2.waitKey(1)
 
-    def calculate_img_pos(self, waypoint_transform: Transform, camera: Camera):
+    def calculate_img_pos(self, waypoint_transform: Transform, camera: Camera)\
+            -> np.ndarray:
         """
         Calculate the 2D image coordinate from 3D world space
 
@@ -46,11 +47,13 @@ class Visualizer:
         veh_cam_matrix = camera.transform.get_matrix()  # 4 x 4
         world_veh_matrix = self.agent.vehicle.transform.get_matrix()  # 4 x 4
 
-        world_cam_matrix = np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
+        world_cam_matrix = \
+            np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
 
         cords_xyz = world_cam_matrix @ waypoint_location
 
-        cords_y_minus_z_x = np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
+        cords_y_minus_z_x = \
+            np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
         raw_p2d = camera.intrinsics_matrix @ cords_y_minus_z_x
         # print(raw_p2d)
         cam_cords = np.array(
@@ -58,19 +61,15 @@ class Visualizer:
         )
         return np.round(cam_cords, 0).astype(np.int64)
 
-    def visualize(self, next_waypoint_transform: Transform):
+    def visualize(self, next_waypoint_transform: Transform) -> None:
         """
         This function will allow multiple objects to be drawn on here.
 
-        Currently implemented are
-        1. Next Waypoint
-
-
         Args:
-            next_waypoint_transform: location & rotation of the next waypoint
+            next_waypoint_transform: Next Waypoint's Transform information
 
         Returns:
-
+            None
         """
         next_waypoint_cam_pos = self.calculate_img_pos(
             waypoint_transform=next_waypoint_transform,
@@ -91,7 +90,7 @@ class Visualizer:
         cv2.waitKey(1)
 
     @classmethod
-    def visualize_semantic_segmentation(cls, semantic_segmetation):
+    def visualize_semantic_segmentation(cls, semantic_segmetation) -> None:
         """
 
         Args:
@@ -100,7 +99,7 @@ class Visualizer:
                                   blue = sky
 
         Returns:
-
+            None
         """
 
         if semantic_segmetation is not None:

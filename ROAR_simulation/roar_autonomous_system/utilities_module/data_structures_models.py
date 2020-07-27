@@ -55,13 +55,13 @@ class Transform(BaseModel):
     location: Location = Field(default=Location(x=0, y=0, z=0))
     rotation: Rotation = Field(default=Rotation(pitch=0, yaw=0, roll=0))
 
-    def get_matrix(self):
+    def get_matrix(self) -> np.ndarray:
         """
         Calculate extrinsics matrix with respect to parent object
         http://planning.cs.uiuc.edu/node104.html
 
         Returns:
-
+            Extrinsics matrix
         """
         location = self.location
         rotation = self.rotation

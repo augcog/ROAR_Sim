@@ -31,6 +31,15 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         behavior_planner: BehaviorPlanner,
         closeness_threshold=0.5,
     ):
+        """
+        Initialize Simple Waypoint Following Planner
+        Args:
+            vehicle: Vehicle information
+            controller: Control module used
+            mission_planner: mission planner used
+            behavior_planner: behavior planner used
+            closeness_threshold: how close can a waypoint be with the vehicle
+        """
         super().__init__(
             vehicle=vehicle,
             controller=controller,
@@ -42,12 +51,14 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         self.logger.debug("Simple Path Following Local Planner Initiated")
         self.closeness_threshold = closeness_threshold
 
-    def set_mission_plan(self):
+    def set_mission_plan(self) -> None:
         """
         clears current waypoints, and reset mission plan from start
         I am simply transfering the mission plan into my waypoint queue.
         Assuming that this current run will run all the way to the end
-        :return: None
+
+        Returns:
+            None
         """
         self.way_points_queue.clear()
         while (
@@ -55,7 +66,14 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         ):  # this actually clears the mission plan!!
             self.way_points_queue.append(self.mission_planner.mission_plan.popleft())
 
-    def is_done(self):
+    def is_done(self) -> bool:
+        """
+        If there are nothing in self.way_points_queue,
+        that means you have finished a lap, you are done
+
+        Returns:
+            True if Done, False otherwise
+        """
         return len(self.way_points_queue) == 0
 
     def run_step(self, vehicle: Vehicle) -> VehicleControl:
@@ -67,9 +85,9 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
             3. get the correct next waypoint
             4. feed waypoint into controller
             5. return result from controller
+
         Args:
             vehicle: current vehicle state
-
 
         Returns:
             next control that the local think the agent should execute.
