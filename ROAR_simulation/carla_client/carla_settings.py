@@ -64,3 +64,7 @@ class CarlaConfig(BaseModel):
                          description="Gamma Correction of the camera")
 
     print_keyboard_hint: bool = Field(default=False)
+
+    synchronous_mode: bool = Field(default=False)
+    no_rendering_mode: bool = Field(default=False)
+    fixed_delta_seconds: float = Field(default=1/20.0)

@@ -84,6 +84,10 @@
       "a": 255
     },
     "gamma": 2.2,
-    "print_keyboard_hint": false
+    "print_keyboard_hint": false,
+    "no_rendering_mode": false,
+    "synchronous_mode": false,
+    "fixed_delta_seconds": 0.05
+
   }
 }
