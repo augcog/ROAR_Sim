@@ -93,8 +93,9 @@ class World(object):
 
         settings = self.carla_world.get_settings()
         settings.synchronous_mode = self.carla_settings.synchronous_mode
-        settings.fixed_delta_seconds = self.carla_settings.fixed_delta_seconds
         settings.no_rendering_mode = self.carla_settings.no_rendering_mode
+        if self.carla_settings.synchronous_mode:
+            settings.fixed_delta_seconds = self.carla_settings.fixed_delta_seconds
         self.carla_world.apply_settings(settings)
 
         self.carla_world.on_tick(hud.on_world_tick)
@@ -145,6 +146,8 @@ class World(object):
     def tick(self, clock):
         self.time_counter += 1
         self.hud.tick(self, clock)
+        if self.carla_settings.synchronous_mode:
+            self.carla_world.tick()
 
     def render(self, display):
         self.camera_manager.render(display)

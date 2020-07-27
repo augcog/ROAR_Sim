@@ -93,6 +93,7 @@ class CarlaRunner:
 
                 if not should_continue:
                     break
+
                 self.world.tick(clock)
                 self.world.render(display=self.display)
                 pygame.display.flip()

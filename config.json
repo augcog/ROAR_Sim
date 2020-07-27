@@ -1,0 +1,92 @@
+{
+  "agent_config": {
+    "front_depth_cam": {
+      "fov": 70,
+      "transform": {
+        "location": {
+          "x": 1.6,
+          "y": 0.0,
+          "z": 1.7
+        },
+        "rotation": {
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "roll": 0.0
+        }
+      },
+      "image_size_x": 800,
+      "image_size_y": 600
+    },
+    "front_rgb_cam": {
+      "fov": 70,
+      "transform": {
+        "location": {
+          "x": 1.6,
+          "y": 0.0,
+          "z": 1.7
+        },
+        "rotation": {
+          "pitch": 0.0,
+          "yaw": 0.0,
+          "roll": 0.0
+        }
+      },
+      "image_size_x": 800,
+      "image_size_y": 600
+    },
+    "rear_rgb_cam": {
+      "fov": 145,
+      "transform": {
+        "location": {
+          "x": -1.5,
+          "y": 0.0,
+          "z": 1.4
+        },
+        "rotation": {
+          "pitch": 0.0,
+          "yaw": 180.0,
+          "roll": 0.0
+        }
+      },
+      "image_size_x": 800,
+      "image_size_y": 600
+    },
+    "waypoint_file_path": "./data/easy_map_waypoints.txt",
+    "output_data_folder_path": "./data/output/",
+    "enable_autopilot": true,
+    "spawn_point_id": 1,
+    "show_sensors_data": false,
+    "save_sensor_data": false
+  },
+  "carla_config": {
+    "host": "127.0.0.1",
+    "port": 2000,
+    "width": 1280,
+    "height": 720,
+    "carla_weather": {
+      "cloudiness": 10,
+      "precipitation": 0,
+      "precipitation_deposits": 0,
+      "wind_intensity": 0,
+      "sun_azimuth_angle": 90,
+      "sun_altitude_angle": 90,
+      "fog_density": 0,
+      "fog_distance": 0,
+      "wetness": 0
+    },
+    "carla_vehicle_blueprint_filter": "vehicle.tesla.model3",
+    "role_name": "hero",
+    "car_color": {
+      "r": 255,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "gamma": 2.2,
+    "print_keyboard_hint": false,
+    "no_rendering_mode": false,
+    "synchronous_mode": false,
+    "fixed_delta_seconds": 0.05
+
+  }
+}

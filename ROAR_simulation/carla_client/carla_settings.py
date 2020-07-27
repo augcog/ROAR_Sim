@@ -64,17 +64,15 @@ class CarlaConfig(BaseModel):
                          description="Gamma Correction of the camera")
 
     print_keyboard_hint: bool = Field(default=False)
-    no_rendering_mode: bool = Field(
-        default=False,
-        title="No Rendering at all, however you can enable save data to do a play back",
-        description="https://carla.readthedocs.io/en/0.9.9/adv_rendering_options/")
+
+    synchronous_mode: bool = Field(default=False, title="Run Server and Client in Synchronos mode",
+        description="https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony")
+    no_rendering_mode: bool = Field(default=False,
+                                    title="No Rendering at all, however you can enable save data to do a play back",
+                                    description="https://carla.readthedocs.io/en/0.9.9/adv_rendering_options/")
     fixed_delta_seconds: float = Field(
-        default=0.05,
+        default=1/20.0,
         title="Fixed timestep with which server and client tick",
-        description="https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony"
-    )
-    synchronous_mode: bool = Field(
-        default=False,
-        title="Run Server and Client in Synchronos mode",
-        description="https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony"
-    )
+        description="Note that for us, this will ONLY take effect when you are on sync mode. "
+                    "https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony")
+
