@@ -35,7 +35,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import im
 class PIDAgent(Agent):
     def __init__(self, target_speed=40, **kwargs):
         super().__init__(**kwargs)
-        self.logger = logging.getLogger("PathFollowingAgent")
+        self.logger = logging.getLogger("PID Agent")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pid_controller = VehiclePIDController(
             vehicle=self.vehicle,
@@ -76,6 +76,5 @@ class PIDAgent(Agent):
             control = VehicleControl()
             self.logger.debug("Path Following Agent is Done. Idling.")
         else:
-            self.logger.debug(f"My Location {self.vehicle.transform.location}")
             control = self.local_planner.run_step(vehicle=vehicle)
         return control
