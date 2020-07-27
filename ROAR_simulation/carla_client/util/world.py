@@ -94,11 +94,9 @@ class World(object):
         settings = self.carla_world.get_settings()
         settings.synchronous_mode = self.carla_settings.synchronous_mode
         settings.no_rendering_mode = self.carla_settings.no_rendering_mode
-        settings.fixed_delta_seconds = self.carla_settings.fixed_delta_seconds
+        if self.carla_settings.synchronous_mode:
+            settings.fixed_delta_seconds = self.carla_settings.fixed_delta_seconds
         self.carla_world.apply_settings(settings)
-        print(self.carla_settings.synchronous_mode, self.carla_settings.no_rendering_mode,
-              self.carla_settings.fixed_delta_seconds)
-
 
         self.carla_world.on_tick(hud.on_world_tick)
         self.logger.debug("World Initialized")
