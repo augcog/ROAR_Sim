@@ -1,11 +1,4 @@
-from ROAR_simulation.carla_client.carla_settings import CarlaConfig
-from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
-    import \
-    AgentConfig
 import logging
-from ROAR_simulation.roar_autonomous_system.agent_module\
-    .semantic_segmentation_agent import \
-    SemanticSegmentationAgent
 from ROAR_simulation.roar_autonomous_system.agent_module.purpursuit_agent \
     import PurePursuitAgent
 from ROAR_simulation.roar_autonomous_system.agent_module.mpc_agent import MPCAgent
@@ -16,10 +9,9 @@ import numpy as np
 import os
 import warnings
 
-
 from ROAR_simulation.carla_client.carla_runner import CarlaRunner
-from ROAR_simulation.roar_autonomous_system.agent_module.\
-    semantic_segmentation_agent import SemanticSegmentationAgent
+from ROAR_simulation.roar_autonomous_system.agent_module.gpd_agent import GPDAgent
+
 
 def main():
     logging.basicConfig(format='%(asctime)s - %(name)s '
@@ -39,18 +31,18 @@ def main():
                                    agent_settings=config.agent_config)
         my_vehicle = carla_runner.set_carla_world()
 
-        # agent = PurePursuitAgent(vehicle=my_vehicle,
-        #                          agent_settings=agent_settings)
-        # agent = SemanticSegmentationAgent(
+        agent = PurePursuitAgent(vehicle=my_vehicle,
+                                 agent_settings=config.agent_config)
+        # agent = GPDAgent(
         #     vehicle=my_vehicle,
-        #     agent_settings=agent_settings
+        #     agent_settings=config.agent_config
         # )
         #
-        agent = PIDAgent(
-            vehicle=my_vehicle,
-            agent_settings=config.agent_config,
-            target_speed=200
-        )
+        # agent = PIDAgent(
+        #     vehicle=my_vehicle,
+        #     agent_settings=config.agent_config,
+        #     target_speed=200
+        # )
         # agent = MPCAgent(
         #     vehicle=my_vehicle,
         #     agent_settings=config.agent_config,
