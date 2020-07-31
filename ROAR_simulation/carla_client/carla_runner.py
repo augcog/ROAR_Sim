@@ -114,17 +114,20 @@ class CarlaRunner:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
 
         finally:
-            self.logger.debug("Ending Game")
-            if self.world is not None:
-                self.world.destroy()
-                self.logger.debug("All actors are destroyed")
-            try:
-                pygame.quit()
-            except Exception as e:
-                self.logger.debug(
-                    f"Cannot quit pygame normally, force quitting. Error: {e}")
-            self.logger.debug("Game ended")
-            exit(0)
+            self.on_finish()
+
+    def on_finish(self):
+        self.logger.debug("Ending Game")
+        if self.world is not None:
+            self.world.destroy()
+            self.logger.debug("All actors are destroyed")
+        try:
+            pygame.quit()
+        except Exception as e:
+            self.logger.debug(
+                f"Cannot quit pygame normally, force quitting. Error: {e}")
+        self.logger.debug("Game ended")
+        exit(0)
 
     def convert_data(self) -> Tuple[SensorsData, Vehicle]:
         """

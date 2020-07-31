@@ -35,6 +35,7 @@ class OccupancyGridMap:
         8 Failure tolerant, if I pass in a wrong world coordinate,
           it will prompt it, but do not fail. Similar with other functions
           in this class
+        9. Fixed map size for enhanced performance
     """
 
     def __init__(self, absolute_maximum_map_size,

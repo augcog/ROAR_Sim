@@ -55,10 +55,7 @@ class PIDAgent(Agent):
             closeness_threshold=1)
         self.visualizer = Visualizer(agent=self)
 
-        self.occupancy_grid_map = OccupancyGridMap(min_x=-500,
-                                                   min_y=-500,
-                                                   max_x=500,
-                                                   max_y=500)
+        self.occupancy_grid_map = OccupancyGridMap(absolute_maximum_map_size=800)
 
         self.logger.debug(
             f"Waypoint Following Agent Initiated. Reading f"

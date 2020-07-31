@@ -26,6 +26,7 @@ from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     AgentConfig
 from ROAR_simulation.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
 from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import img_to_world
+from ROAR_simulation.roar_autonomous_system.perception_module.point_cloud_detector import PointCloudDetector
 
 class PurePursuitAgent(Agent):
     def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig):
@@ -52,10 +53,11 @@ class PurePursuitAgent(Agent):
         self.occupancy_grid_map = OccupancyGridMap(
             absolute_maximum_map_size=self.agent_settings.absolute_maximum_map_size
         )
+        self.point_cloud_detector = PointCloudDetector(agent=self)
 
     def run_step(self, sensors_data: SensorsData,
                  vehicle: Vehicle) -> VehicleControl:
         super(PurePursuitAgent, self).run_step(sensors_data=sensors_data,
                                                vehicle=vehicle)
-
+        self.point_cloud_detector.run_step()
         return self.local_planner.run_step(vehicle=vehicle)

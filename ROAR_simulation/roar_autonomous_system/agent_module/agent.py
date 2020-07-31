@@ -69,6 +69,7 @@ class Agent(ABC):
 
         self.init_cam()
 
+
     def init_cam(self) -> None:
         """
         Initialize the cameras by calculating the camera intrinsics and

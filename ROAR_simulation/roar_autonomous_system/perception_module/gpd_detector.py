@@ -5,12 +5,19 @@ from scipy.optimize.minpack import leastsq
 import numpy as np
 import cv2
 import logging
+from scipy.signal import convolve2d
+from typing import Optional
 
 
 class GroundPlaneDetector(Detector):
-    def __init__(self, t=0.089, del_ang=0.1, fit_type='exp', **kwargs):
+    SKY = [255, 0, 0]
+    GROUND = [255, 255, 255]
+    OBSTACLE = [0,0,0]
+
+    def __init__(self, sky_level=0.9, t=0.05, del_ang=0.2, fit_type='exp', **kwargs):
         super().__init__(**kwargs)
         self.logger = logging.getLogger("Ground Plane Detector")
+        self.sky_level = sky_level
         self.thresh = t
         self.fit_type = fit_type
         self.del_ang = del_ang
@@ -20,15 +27,21 @@ class GroundPlaneDetector(Detector):
         self.orig_preds = None
         self.preds = None
 
+        self.curr_segmentation: Optional[np.ndarray] = None
+
         self.logger.info("Ground Plane Detector Initiated")
+    @staticmethod
+    def convert_to_log(x):
+        return np.clip(1 + np.log(x + 1e-10) / 5.70378, 0.005, 1.0)
 
     def run_step(self) -> Any:
+        logged_depth = self.convert_to_log(self.agent.front_depth_camera.data.copy())
         if self.orig_preds is None or self.preds is None:
-            self.orig_preds = self.gpd_mesh(self.agent.front_depth_camera.data)
+            self.orig_preds = self.gpd_mesh(logged_depth)
             self.preds = np.copy(self.orig_preds)
             self.logger.debug("Ground Plane Preds Computed")
         else:
-            self.output_gpd(self.agent.front_depth_camera.data)
+            self.curr_segmentation = self.output_gpd(logged_depth)
 
     def gpd_mesh(self, depth_image):
         xs = []
@@ -138,10 +151,15 @@ class GroundPlaneDetector(Detector):
         return rot_xyz[:, 2].reshape(depth_image.shape) / 1000
 
     def output_gpd(self, d_frame):
-        diff = np.abs(d_frame - self.preds)
-        dets = diff > self.thresh
-        orig_d_frame = np.copy(d_frame)
-        d_frame[dets > 0] = 0
+        # first im going to find out where is the sky
+        sky = np.where(d_frame > self.sky_level)
+
+        # then im going to find out where is the ground
+        ground = np.where(np.abs(d_frame - self.preds) < self.thresh)
+
+        result = np.zeros(shape=(d_frame.shape[0], d_frame.shape[1], 3))
+        result[ground] = self.GROUND
+        result[sky] = self.SKY
 
         try:
             new_roll_ang, self.rot_axis = self.get_roll_stats(d_frame)
@@ -150,9 +168,7 @@ class GroundPlaneDetector(Detector):
                 self.preds = self.roll_frame(self.orig_preds, self.roll_ang, -1 * self.rot_axis)
         except Exception as e:
             self.logger.error(f"Failed to compute output: {e}")
-        cv2.imshow("result", d_frame)
-        cv2.waitKey(1)
-        return orig_d_frame, d_frame, dets
+        return result
 
 
 class _Exponential_Model:
