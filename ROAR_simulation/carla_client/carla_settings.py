@@ -64,6 +64,8 @@ class CarlaConfig(BaseModel):
     gamma: float = Field(default=2.2, title="Gamma Correction",
                          description="Gamma Correction of the camera")
 
+    save_semantic_segmentation: bool = Field(default=False)
+
     print_keyboard_hint: bool = Field(default=False)
 
     synchronous_mode: bool = Field(default=False, title="Run Server and Client in Synchronos mode",

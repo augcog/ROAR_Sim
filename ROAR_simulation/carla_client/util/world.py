@@ -61,6 +61,7 @@ class World(object):
         self.front_rgb_sensor = None
         self.front_depth_sensor = None
         self.rear_rgb_sensor = None
+        self.semantic_segmentation_sensor = None
 
         self.recording_start = 0
         # set weather
@@ -90,6 +91,7 @@ class World(object):
         self.front_rgb_sensor_data = None
         self.front_depth_sensor_data = None
         self.rear_rgb_sensor_data = None
+        self.semantic_segmentation_sensor_data = None
 
         settings = self.carla_world.get_settings()
         settings.synchronous_mode = self.carla_settings.synchronous_mode
@@ -211,6 +213,16 @@ class World(object):
                         self.agent_settings.rear_rgb_cam.fov,
                 })
 
+        if self.carla_settings.save_semantic_segmentation:
+            self.semantic_segmentation_sensor = self._spawn_custom_sensor(
+                blueprint_filter="sensor.camera.semantic_segmentation",
+                transform=self.carla_bridge.convert_transform_from_agent_to_source(
+                    self.agent_settings.front_depth_cam.transform
+                ),
+                attachment=Attachment.Rigid,
+                attributes={"fov": self.agent_settings.front_depth_cam.fov},
+            )
+
         weak_self = weakref.ref(self)
         self.front_rgb_sensor.listen(
             lambda image: World._parse_front_rgb_sensor_image(
@@ -221,6 +233,10 @@ class World(object):
         self.rear_rgb_sensor.listen(lambda image:
                                     World._parse_rear_rgb_sensor_image(
                                         weak_self=weak_self, image=image))
+        if self.carla_settings.save_semantic_segmentation:
+            self.semantic_segmentation_sensor.listen(lambda image: World._parse_semantic_segmentation_image(
+                weak_self=weak_self, image=image
+            ))
 
     def _spawn_custom_sensor(self, blueprint_filter: str,
                              transform: carla.Transform,
@@ -248,6 +264,9 @@ class World(object):
         if self.rear_rgb_sensor is not None:
             self.rear_rgb_sensor.destroy()
 
+        if self.semantic_segmentation_sensor is not None:
+            self.semantic_segmentation_sensor.destroy()
+
     @staticmethod
     def _parse_front_rgb_sensor_image(weak_self, image):
         self = weak_self()
@@ -269,3 +288,11 @@ class World(object):
             return
         image.convert(cc.Raw)
         self.rear_rgb_sensor_data = image
+
+    @staticmethod
+    def _parse_semantic_segmentation_image(weak_self, image):
+        self = weak_self()
+        if not self:
+            return
+        # image.convert(cc.CityScapesPalette)
+        self.semantic_segmentation_sensor_data = image

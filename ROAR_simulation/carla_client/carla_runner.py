@@ -1,7 +1,7 @@
 from ROAR_simulation.carla_client.carla_settings import CarlaConfig
 import logging
 import pygame
-from ROAR_simulation.roar_autonomous_system.utilities_module\
+from ROAR_simulation.roar_autonomous_system.utilities_module \
     .data_structures_models import \
     SensorsData
 from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models \
@@ -17,6 +17,8 @@ from ROAR_simulation.carla_client.util.keyboard_control import KeyboardControl
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
+from carla import ColorConverter as cc
+from pathlib import Path
 
 
 class CarlaRunner:
@@ -99,6 +101,11 @@ class CarlaRunner:
                 pygame.display.flip()
                 sensor_data, new_vehicle = self.convert_data()
 
+                if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
+                    self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
+                        "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
+                                                                              cc.CityScapesPalette)
+
                 if self.agent_settings.enable_autopilot:
                     if self.agent is None:
                         raise Exception(
@@ -140,17 +147,17 @@ class CarlaRunner:
         """
         sensor_data: SensorsData = \
             self.carla_bridge.convert_sensor_data_from_source_to_agent(
-            {
-                "front_rgb": None if self.world.front_rgb_sensor_data is None
-                else self.world.front_rgb_sensor_data,
-                "rear_rgb": None if self.world.rear_rgb_sensor_data is None
-                else self.world.rear_rgb_sensor_data,
-                "front_depth":
-                    None if self.world.front_depth_sensor_data is None else
-                self.world.front_depth_sensor_data,
-                "imu": self.world.imu_sensor
-            }
-        )
+                {
+                    "front_rgb": None if self.world.front_rgb_sensor_data is None
+                    else self.world.front_rgb_sensor_data,
+                    "rear_rgb": None if self.world.rear_rgb_sensor_data is None
+                    else self.world.rear_rgb_sensor_data,
+                    "front_depth":
+                        None if self.world.front_depth_sensor_data is None else
+                        self.world.front_depth_sensor_data,
+                    "imu": self.world.imu_sensor
+                }
+            )
         new_vehicle = self.carla_bridge.convert_vehicle_from_source_to_agent(
             self.world.player)
         return sensor_data, new_vehicle
