@@ -30,6 +30,7 @@ class GroundPlaneDetector(Detector):
         self.curr_segmentation: Optional[np.ndarray] = None
 
         self.logger.info("Ground Plane Detector Initiated")
+
     @staticmethod
     def convert_to_log(x):
         return np.clip(1 + np.log(x + 1e-10) / 5.70378, 0.005, 1.0)

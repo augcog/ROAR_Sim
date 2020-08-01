@@ -57,7 +57,7 @@
     "enable_autopilot": true,
     "spawn_point_id": 1,
     "show_sensors_data": false,
-    "save_sensor_data": false
+    "save_sensor_data": true
   },
   "carla_config": {
     "host": "127.0.0.1",

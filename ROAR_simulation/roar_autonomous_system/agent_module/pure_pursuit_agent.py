@@ -59,5 +59,5 @@ class PurePursuitAgent(Agent):
                  vehicle: Vehicle) -> VehicleControl:
         super(PurePursuitAgent, self).run_step(sensors_data=sensors_data,
                                                vehicle=vehicle)
-        self.point_cloud_detector.run_step()
+        # self.point_cloud_detector.run_step()
         return self.local_planner.run_step(vehicle=vehicle)
