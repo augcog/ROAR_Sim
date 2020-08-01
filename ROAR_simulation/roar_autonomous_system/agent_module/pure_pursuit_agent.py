@@ -30,12 +30,12 @@ from ROAR_simulation.roar_autonomous_system.perception_module.point_cloud_detect
 
 
 class PurePursuitAgent(Agent):
-    def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig):
+    def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig, target_speed=50):
         super().__init__(vehicle=vehicle, agent_settings=agent_settings)
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pure_pursuit_controller = \
             PurePursuitController(vehicle=vehicle,
-                                  target_speed=100,
+                                  target_speed=target_speed,
                                   look_ahead_gain=0.1,
                                   look_ahead_distance=1)
         self.mission_planner = WaypointFollowingMissionPlanner(

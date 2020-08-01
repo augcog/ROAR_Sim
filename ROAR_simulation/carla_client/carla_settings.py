@@ -79,3 +79,5 @@ class CarlaConfig(BaseModel):
         description="Note that for us, this will ONLY take effect when you are on sync mode. "
                     "https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony")
 
+    should_spawn_npcs: bool = Field(default=True)
+    npc_config_file_path: str = Field(default="./data/npc_config.json")

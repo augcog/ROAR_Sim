@@ -11,6 +11,8 @@ import os
 
 class AgentConfig(BaseModel):
     # ROAR sensors settings
+    name: str = Field(default="hero", title="Name of the agent", description="Duplicate from Carla Setting. "
+                                                                             "But good to have")
     front_depth_cam: Camera = Field(default=Camera(fov=70,
                                                    transform=Transform(
                                                        location=Location(x=1.6,

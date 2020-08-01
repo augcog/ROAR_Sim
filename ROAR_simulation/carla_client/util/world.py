@@ -11,12 +11,14 @@ from ROAR_simulation.carla_client.util.utilities import CarlaCarColor, \
     CarlaCarColors, get_actor_display_name
 from ROAR_simulation.carla_client.util.sensors import CollisionSensor, \
     GnssSensor, LaneInvasionSensor, IMUSensor, RadarSensor
-
 from ROAR_simulation.carla_client.util.camera_manager import CameraManager
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
 import weakref
+from ROAR_simulation.roar_autonomous_system.agent_module.pure_pursuit_agent import PurePursuitAgent, Agent
+from typing import List, Dict, Tuple, Any
+from pathlib import Path
 
 
 class World(object):
@@ -71,7 +73,7 @@ class World(object):
 
         # set player
         self.logger.debug("Setting Player")
-        self.set_player(
+        self.player = self.spawn_actor(
             actor_filter=self._actor_filter,
             player_role_name=self.actor_role_name,
             color=self._car_color,
@@ -93,6 +95,9 @@ class World(object):
         self.rear_rgb_sensor_data = None
         self.semantic_segmentation_sensor_data = None
 
+        # spawn npc
+        self.npcs_mapping: Dict[str, Tuple[Any, AgentConfig]] = {}
+
         settings = self.carla_world.get_settings()
         settings.synchronous_mode = self.carla_settings.synchronous_mode
         settings.no_rendering_mode = self.carla_settings.no_rendering_mode
@@ -103,10 +108,10 @@ class World(object):
         self.carla_world.on_tick(hud.on_world_tick)
         self.logger.debug("World Initialized")
 
-    def set_player(self, actor_filter: str = "vehicle.tesla.model3",
-                   player_role_name: str = "hero",
-                   color: CarlaCarColor = CarlaCarColors.GREY,
-                   spawn_point_id: int = random.choice(list(range(8)))):
+    def spawn_actor(self, actor_filter: str = "vehicle.tesla.model3",
+                    player_role_name: str = "npc",
+                    color: CarlaCarColor = CarlaCarColors.GREY,
+                    spawn_point_id: int = random.choice(list(range(8)))):
         """Set up a hero-named player with Grey Tesla Model3 Vehicle """
 
         blueprint = self.carla_world.get_blueprint_library().find(actor_filter)
@@ -117,10 +122,11 @@ class World(object):
             self.logger.debug("TESLA IS INVINCIBLE")
             blueprint.set_attribute("is_invincible", "true")
         try:
-            self.player = \
+            actor = \
                 self.carla_world.spawn_actor(blueprint,
                                              self.map.get_spawn_points()[
                                                  spawn_point_id])
+            return actor
         except Exception as e:
             raise ValueError(f"Cannot spawn actor at ID [{spawn_point_id}]. "
                              f"Error: {e}")
@@ -176,7 +182,10 @@ class World(object):
         for actor in actors:
             if actor is not None:
                 actor.destroy()
+
         self._destroy_custom_sensors()
+        for npc, _ in self.npcs_mapping.values():
+            npc.destroy()
 
     def set_weather(self, new_weather: carla.WeatherParameters):
         self.carla_world.weather = new_weather
@@ -296,3 +305,13 @@ class World(object):
             return
         # image.convert(cc.CityScapesPalette)
         self.semantic_segmentation_sensor_data = image
+
+    def spawn_npcs(self, npc_configs: List[AgentConfig]):
+        for npc_config in npc_configs:
+            self.logger.debug(f"Spawning NPC [{npc_config.name}]")
+            try:
+                npc = self.spawn_actor(spawn_point_id=npc_config.spawn_point_id)
+                self.npcs_mapping[npc_config.name] = (npc, npc_config)
+            except Exception as e:
+                self.logger.error(f"Failed to Spawn NPC {'default'}."
+                                  f"Error: {e}")

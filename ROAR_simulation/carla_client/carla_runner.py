@@ -19,13 +19,16 @@ from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     AgentConfig
 from carla import ColorConverter as cc
 from pathlib import Path
+from ROAR_simulation.roar_autonomous_system.agent_module.pure_pursuit_agent import PurePursuitAgent
+from typing import List, Dict, Any
+from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
+import json
 
 
 class CarlaRunner:
 
     def __init__(self, carla_settings: CarlaConfig,
                  agent_settings: AgentConfig):
-
         self.carla_settings = carla_settings
         self.agent_settings = agent_settings
         self.carla_bridge = CarlaBridge()
@@ -33,15 +36,15 @@ class CarlaRunner:
         self.client = None
         self.controller = None
         self.display = None
-
         self.agent = None
+
+        self.npc_agents: Dict[Agent, Any] = {}
         self.logger = logging.getLogger(__name__)
 
     def set_carla_world(self) -> Vehicle:
         """Initiating the vehicle with loading messages"""
 
         try:
-
             pygame.init()
             pygame.font.init()
             self.logger.debug(f"Connecting to {self.carla_settings.host}: "
@@ -61,6 +64,9 @@ class CarlaRunner:
             self.world = World(carla_world=self.client.get_world(), hud=hud,
                                carla_settings=self.carla_settings,
                                agent_settings=self.agent_settings)
+
+            if self.carla_settings.should_spawn_npcs:
+                self.spawn_npcs()
 
             self.logger.debug(f"Connecting to Keyboard controls")
             self.controller = KeyboardControl(world=self.world,
@@ -106,6 +112,9 @@ class CarlaRunner:
                         "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
                                                                               cc.CityScapesPalette)
 
+                if self.carla_settings.should_spawn_npcs:
+                    self.execute_npcs_step()
+
                 if self.agent_settings.enable_autopilot:
                     if self.agent is None:
                         raise Exception(
@@ -116,6 +125,7 @@ class CarlaRunner:
                     if not use_manual_control:
                         carla_control = self.carla_bridge. \
                             convert_control_from_agent_to_source(agent_control)
+
                 self.world.player.apply_control(carla_control)
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
@@ -161,3 +171,29 @@ class CarlaRunner:
         new_vehicle = self.carla_bridge.convert_vehicle_from_source_to_agent(
             self.world.player)
         return sensor_data, new_vehicle
+
+    def execute_npcs_step(self):
+        # TODO this can be parallelized
+        try:
+            for agent, actor in self.npc_agents.items():
+                new_vehicle = self.carla_bridge.convert_vehicle_from_source_to_agent(actor)
+                curr_control: VehicleControl = agent.run_step(sensors_data=SensorsData(), vehicle=new_vehicle)
+                carla_control = self.carla_bridge.convert_control_from_agent_to_source(curr_control)
+                actor.apply_control(carla_control)
+        except Exception as e:
+            self.logger.error(f"Failed to execute step for NPC. "
+                              f"Error: {e}")
+
+    def spawn_npcs(self):
+        # parse npc file
+        npc_config_file_path = Path(self.carla_settings.npc_config_file_path)
+        assert npc_config_file_path.exists(), f"NPC file path {npc_config_file_path.as_posix()} does not exist"
+        npc_configs = json.load(npc_config_file_path.open('r'))
+
+        npc_configs: List[AgentConfig] = [AgentConfig.parse_obj(config) for config in npc_configs]
+
+        self.world.spawn_npcs(npc_configs)
+        self.npc_agents = {
+            PurePursuitAgent(vehicle=actor, agent_settings=npc_config) : actor for actor, npc_config in
+                           self.world.npcs_mapping.values()
+        }
