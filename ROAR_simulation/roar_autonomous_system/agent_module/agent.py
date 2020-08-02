@@ -134,7 +134,7 @@ class Agent(ABC):
         """
 
         self.vehicle = vehicle
-
+        self.transform_history.append(self.vehicle.transform)
         if self.front_rgb_camera is not None:
             self.front_rgb_camera.data = (
                 sensors_data.front_rgb.data

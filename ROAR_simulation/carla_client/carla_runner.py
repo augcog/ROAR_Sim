@@ -135,6 +135,7 @@ class CarlaRunner:
 
     def on_finish(self):
         self.logger.debug("Ending Game")
+
         if self.world is not None:
             self.world.destroy()
             self.logger.debug("All actors are destroyed")
