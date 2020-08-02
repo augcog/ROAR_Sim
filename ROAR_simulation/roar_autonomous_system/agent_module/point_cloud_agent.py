@@ -11,5 +11,6 @@ class PointCloudAgent(Agent):
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super(PointCloudAgent, self).run_step(sensors_data, vehicle)
         points = self.point_cloud_detector.run_step()
+        return VehicleControl()
 
 

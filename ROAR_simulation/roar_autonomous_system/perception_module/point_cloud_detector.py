@@ -8,48 +8,58 @@ from typing import Optional
 
 
 class PointCloudDetector(Detector):
-    def __init__(self, sky_level=0.1, depth_scaling_factor=1000, **kwargs):
+    def __init__(self, max_detectable_distance=0.1, depth_scaling_factor=1000, **kwargs):
+        """
+
+        Args:
+            max_detectable_distance: maximum detectable distance in km
+            depth_scaling_factor: scaling depth back to world scale. 1000 m = 1 km
+            **kwargs:
+        """
         super().__init__(**kwargs)
-        self.sky_level = sky_level
+        self.max_detectable_distance = max_detectable_distance
         self.depth_scaling_factor = depth_scaling_factor
         self.logger = logging.getLogger("Point Cloud Detector")
         self.pcd: o3d.geometry.PointCloud = o3d.geometry.PointCloud()
-
+        self.vis = o3d.visualization.Visualizer()
+        self.vis.create_window()
         self.counter = 0
 
     def run_step(self) -> Optional[np.ndarray]:
-        if self.counter % 10 == 0:
-            points_3d = self.calculate_world_cords()
-            # mean = np.mean(points_3d, axis=0)
-            self.pcd.points = o3d.utility.Vector3dVector(points_3d)
-            self.pcd.points = self.pcd.voxel_down_sample(0.05).points
-            print(f"Curr Vehicle Location = {self.agent.vehicle.transform.location}")
-            self.pcd.paint_uniform_color(color=[0, 0, 0])
-            new_pcd: o3d.geometry.PointCloud = self.pcd.voxel_down_sample(1)
-            new_pcd.estimate_normals(fast_normal_computation=True)
-            pcd_tree = o3d.geometry.KDTreeFlann(new_pcd)
-            print("old_pcd_size:", self.pcd)
-            print("sampled_pcd_size", new_pcd)
+        points_3d = self.calculate_world_cords(max_points_to_convert=10000)
+        ground_indicies = np.where(points_3d[:, 0] > self.agent.vehicle.transform.location.to_array()[0])
+        ground_points = points_3d[ground_indicies]
+        self.pcd.points = o3d.utility.Vector3dVector(ground_points)
 
-            [k, idx, _] = pcd_tree.search_knn_vector_3d(self.agent.vehicle.transform.location.to_array(),
-                                                        knn=1000)
-            np.asarray(new_pcd.colors)[idx[1:], :] = [0, 0, 1]
-            o3d.visualization.draw_geometries([new_pcd])
-            print("found_neighbor", len(idx))
-            print()
+        if self.counter == 0:
+            self.vis.add_geometry(self.pcd)
+        else:
+            self.vis.update_geometry(self.pcd)
+            self.vis.poll_events()
+            ctrl: o3d.visualization.ViewControl = self.vis.get_view_control()
+            ctrl.set_lookat(self.pcd.get_center())
+            ctrl.set_front(self.pcd.get_center())
+            # ctrl.set_up(self.agent.vehicle.transform.location.to_array())
+            self.vis.update_renderer()
+
 
         self.counter += 1
         return None
 
-    def calculate_world_cords(self):
+    def calculate_world_cords(self, max_points_to_convert=5000):
         depth_img = self.agent.front_depth_camera.data
         # get a 2 x N array for their indices
-        ground_loc = np.where(depth_img < self.sky_level)
-        depth_val = depth_img[depth_img < self.sky_level] * self.depth_scaling_factor
+        ground_loc = np.where(depth_img < self.max_detectable_distance)
+        depth_val = depth_img[depth_img < self.max_detectable_distance] * self.depth_scaling_factor
         ground_loc = ground_loc * depth_val
+        # print(np.shape(ground_loc), np.amin(depth_val), np.amax(depth_val))
 
         # compute raw_points
         raw_points = np.vstack([ground_loc, depth_val])
+
+        # for efficiency, only convert max_points_to_convert points by taking random samples
+        indices = np.random.choice(raw_points.shape[1], max_points_to_convert, replace=False)
+        raw_points = raw_points[:, indices]
 
         # convert to cords_y_minus_z_x
         cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_points

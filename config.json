@@ -88,7 +88,9 @@
     "print_keyboard_hint": false,
     "no_rendering_mode": false,
     "synchronous_mode": false,
-    "fixed_delta_seconds": 0.05
+    "fixed_delta_seconds": 0.05,
+    "npc_config_file_path": "./data/npc_config.json",
+    "should_spawn_npcs": false
 
   }
 }

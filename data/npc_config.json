@@ -3,19 +3,22 @@
       "name": "npc_0",
       "waypoint_file_path": "./data/easy_map_waypoints.txt",
       "enable_autopilot": true,
-      "spawn_point_id": 0
+      "spawn_point_id": 0,
+      "target_speed": 50
 
   },
     {
       "name": "npc_2",
       "waypoint_file_path": "./data/easy_map_waypoints.txt",
       "enable_autopilot": true,
-      "spawn_point_id": 2
+      "spawn_point_id": 2,
+      "target_speed": 50
   },
     {
       "name": "npc_3",
       "waypoint_file_path": "./data/easy_map_waypoints.txt",
       "enable_autopilot": true,
-      "spawn_point_id": 3
+      "spawn_point_id": 3,
+      "target_speed": 50
   }
 ]
