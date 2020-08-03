@@ -26,25 +26,42 @@ class PointCloudDetector(Detector):
         self.counter = 0
 
     def run_step(self) -> Optional[np.ndarray]:
+        # first project points to world cords
         points_3d = self.calculate_world_cords(max_points_to_convert=10000)
+        # filter out anything that is "above" my vehicle (so ground is definitely below my vehicle)
+        # this part is shady, idk why it works
         ground_indicies = np.where(points_3d[:, 0] > self.agent.vehicle.transform.location.to_array()[0])
         ground_points = points_3d[ground_indicies]
-        self.pcd.points = o3d.utility.Vector3dVector(ground_points)
+
+        # find the normals using Open3D
+        self.pcd.points = o3d.utility.Vector3dVector(ground_points - np.mean(ground_points, axis=0))
+        self.pcd.estimate_normals(fast_normal_computation=True)
+
+        # find normals that are less than the mean normal,
+        # since I know that most of the things in front of me are going to be ground
+        normals = np.asarray(self.pcd.normals)
+        abs_diff = np.linalg.norm(normals - np.mean(normals, axis=0), axis=1)
+        ground_loc = np.where(abs_diff < np.mean(abs_diff))
+        ground = ground_points[ground_loc[0]]
+
+        # turn it into Open3D PointCloud object again to utilize its remove outlier method
+        # this is when I drive to the side, the opposing road will be recognized, but we don't want that
+        self.pcd.points = o3d.utility.Vector3dVector(ground)
+        new_pcd, indices = self.pcd.remove_radius_outlier(100, 2)
+
+        # project it back to Open3D PointCloud object for visualizations
+        # minus the mean for stationary visualization
+        self.pcd.points = o3d.utility.Vector3dVector(ground[indices] - np.mean(ground[indices], axis=0))
 
         if self.counter == 0:
+            self.vis.create_window()
             self.vis.add_geometry(self.pcd)
         else:
             self.vis.update_geometry(self.pcd)
             self.vis.poll_events()
-            ctrl: o3d.visualization.ViewControl = self.vis.get_view_control()
-            ctrl.set_lookat(self.pcd.get_center())
-            ctrl.set_front(self.pcd.get_center())
-            # ctrl.set_up(self.agent.vehicle.transform.location.to_array())
             self.vis.update_renderer()
-
-
         self.counter += 1
-        return None
+        return ground[indices]
 
     def calculate_world_cords(self, max_points_to_convert=5000):
         depth_img = self.agent.front_depth_camera.data
