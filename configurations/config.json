@@ -53,6 +53,12 @@
     },
     "absolute_maximum_map_size": 1000,
     "waypoint_file_path": "./data/easy_map_waypoints.txt",
+
+    "pid_config_path":  "./configurations/pid_config.json",
+    "mpc_config_path": "./configurations/mpc_config.json",
+
+    "simple_waypoint_following_local_planner_path": "./configurations/simple_waypoint_following_local_planner.json",
+
     "output_data_folder_path": "./data/output/",
     "enable_autopilot": true,
     "spawn_point_id": 1,
