@@ -20,7 +20,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_mod
 
 from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
 import numpy as np
-
+import cv2
 
 class CarlaBridge(Bridge):
     def convert_location_from_source_to_agent(self, source: carla.Location) -> Location:
@@ -79,6 +79,7 @@ class CarlaBridge(Bridge):
             array = np.reshape(array, (source.height, source.width, 4))  # BGRA
             array = array[:, :, :3]  # BGR
             array = array[:, :, ::-1]  # RGB
+            # array = array.swapaxes(0, 1)
             array = png_to_depth(array)
             return DepthData(data=array)
         except:

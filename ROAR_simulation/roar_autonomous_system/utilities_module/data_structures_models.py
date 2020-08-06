@@ -66,7 +66,6 @@ class Transform(BaseModel):
         location = self.location
         rotation = self.rotation
         yaw, pitch, roll = rotation.yaw, rotation.pitch, rotation.roll
-        tx, ty, tz = location.x, location.y, location.z
         c_y = np.cos(np.radians(yaw))
         s_y = np.sin(np.radians(yaw))
         c_r = np.cos(np.radians(roll))
@@ -75,9 +74,9 @@ class Transform(BaseModel):
         s_p = np.sin(np.radians(pitch))
 
         matrix = np.identity(4)
-        matrix[0, 3] = tx
-        matrix[1, 3] = ty
-        matrix[2, 3] = tz
+        matrix[0, 3] = location.x
+        matrix[1, 3] = location.y
+        matrix[2, 3] = location.z
         matrix[0, 0] = c_p * c_y
         matrix[0, 1] = c_y * s_p * s_r - s_y * c_r
         matrix[0, 2] = -c_y * s_p * c_r - s_y * s_r

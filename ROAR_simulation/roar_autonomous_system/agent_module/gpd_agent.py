@@ -28,6 +28,5 @@ class GPDAgent(Agent):
                                         intrinsics_matrix=self.front_depth_camera.intrinsics_matrix,
                                         extrinsics_matrix=
                                         self.front_depth_camera.transform.get_matrix() @ self.vehicle.transform.get_matrix())[:2]
-            self.occupancy_grid.update_grid_map_from_world_cord(world_cords.T)
-            self.occupancy_grid.visualize(vehicle_location=self.vehicle.transform.location)
+            print(np.shape(world_cords))
         return VehicleControl()

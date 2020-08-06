@@ -161,14 +161,27 @@ class GroundPlaneDetector(Detector):
         result = np.zeros(shape=(d_frame.shape[0], d_frame.shape[1], 3))
         result[ground] = self.GROUND
         result[sky] = self.SKY
-
-        try:
-            new_roll_ang, self.rot_axis = self.get_roll_stats(d_frame)
-            if np.abs(self.roll_ang - new_roll_ang) > self.del_ang:
-                self.roll_ang = new_roll_ang
-                self.preds = self.roll_frame(self.orig_preds, self.roll_ang, -1 * self.rot_axis)
-        except Exception as e:
-            self.logger.error(f"Failed to compute output: {e}")
+        # result = result.astype('uint8')
+        # # try:
+        # #     new_roll_ang, self.rot_axis = self.get_roll_stats(d_frame)  # this method is pretty slow
+        # #     if np.abs(self.roll_ang - new_roll_ang) > self.del_ang:
+        # #         print(f"Recalibrating {self.agent.time_counter}")
+        # #         self.roll_ang = new_roll_ang
+        # #         self.preds = self.roll_frame(self.orig_preds, self.roll_ang, -1 * self.rot_axis)
+        # # except Exception as e:
+        # #     self.logger.error(f"Failed to compute output: {e}")
+        #
+        # result = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+        # # img = cv2.threshold(result, 127, 255, cv2.THRESH_BINARY)[1]
+        # ret, thresh = cv2.threshold(result, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        # # print(np.shape(img))
+        # # num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(image=thresh, connectivity=8,ltype=cv2.CV_16U) # img= (600 x 800)
+        # _, labels = cv2.connectedComponents(image=thresh)
+        # indicies = np.where(labels == 2)
+        # print(np.shape(indicies))
+        # #
+        cv2.imshow("segmented", result)
+        cv2.waitKey(1)
         return result
 
 

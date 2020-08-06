@@ -25,9 +25,9 @@ def main():
     try:
         my_vehicle = carla_runner.set_carla_world()
         # agent = GPDAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        # agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = MapGeneratingAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        # agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         carla_runner.start_game_loop(agent=agent, use_manual_control=True)
     except Exception as e:
         carla_runner.on_finish()
@@ -43,7 +43,6 @@ if __name__ == "__main__":
     np.set_printoptions(suppress=True)
 
     main()
-    # import profile
-    # profile.run('main()')
+
 
 

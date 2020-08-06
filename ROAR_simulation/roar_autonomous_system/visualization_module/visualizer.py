@@ -27,8 +27,7 @@ class Visualizer:
         cv2.imshow("Next Waypoint", img)
         cv2.waitKey(1)
 
-    def calculate_img_pos(self, waypoint_transform: Transform, camera: Camera)\
-            -> np.ndarray:
+    def calculate_img_pos(self, waypoint_transform: Transform, camera: Camera) -> np.ndarray:
         """
         Calculate the 2D image coordinate from 3D world space
 
@@ -40,22 +39,19 @@ class Visualizer:
             Array if integers [X, Y, depth]
 
         """
-        waypoint_location = waypoint_transform.location.to_array()
+        waypoint_location = waypoint_transform.location.to_array()  # [x, y, z]
         waypoint_location = np.concatenate(
             [waypoint_location, [1]]
         )  # 4 x 1 array [X, Y, Z, 1]
         veh_cam_matrix = camera.transform.get_matrix()  # 4 x 4
         world_veh_matrix = self.agent.vehicle.transform.get_matrix()  # 4 x 4
 
-        world_cam_matrix = \
-            np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
+        world_cam_matrix = np.linalg.inv(np.dot(world_veh_matrix, veh_cam_matrix))
 
         cords_xyz = world_cam_matrix @ waypoint_location
-
-        cords_y_minus_z_x = \
-            np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
+        cords_y_minus_z_x = np.array([cords_xyz[1], -cords_xyz[2], cords_xyz[0]])
         raw_p2d = camera.intrinsics_matrix @ cords_y_minus_z_x
-        # print(raw_p2d)
+
         cam_cords = np.array(
             [raw_p2d[0] / raw_p2d[2], raw_p2d[1] / raw_p2d[2], raw_p2d[2]]
         )

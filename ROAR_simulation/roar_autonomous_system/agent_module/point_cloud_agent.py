@@ -11,7 +11,7 @@ class PointCloudAgent(Agent):
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super(PointCloudAgent, self).run_step(sensors_data, vehicle)
         points = self.point_cloud_detector.run_step()
-        print(np.amin(points, axis=0), np.amax(points, axis=0))
+        # print(np.amin(points, axis=0), np.amax(points, axis=0))
         return VehicleControl()
 
 
