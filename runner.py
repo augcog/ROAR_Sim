@@ -17,7 +17,7 @@ from ROAR_simulation.roar_autonomous_system.agent_module.point_cloud_agent impor
 
 def main():
     config = Configuration.parse_file(
-        Path(os.getcwd()) / "config.json"
+        Path(os.getcwd()) / "configurations" / "config.json"
     )
 
     carla_runner = CarlaRunner(carla_settings=config.carla_config,
