@@ -78,47 +78,36 @@ class PointCloudDetector(Detector):
         depth_img[depth_img > 0.05] = 0
         depth_img = depth_img * 1000
         # create a n x 2 array
-        img_pos = np.indices((depth_img.shape[0], depth_img.shape[1])).transpose(1,2,0)
+        image_size_x, image_size_y = np.shape(self.agent.front_depth_camera.data)
+
+        tx = image_size_x / 2
+        ty = image_size_y / 2
+        fx = fy = image_size_x / (2 * np.tan(self.agent.front_depth_camera.fov * np.pi / 360))
+
+        K = np.array([
+            [fx, 0, tx],
+            [0,fy, ty],
+            [0,0,1]
+        ])
+
+
+        img_pos = np.indices((depth_img.shape[0], depth_img.shape[1])).transpose(1, 2, 0)
         img_pos = np.reshape(a=img_pos, newshape=(img_pos.shape[0] * img_pos.shape[1], 2))
         depth_array = np.reshape(a=depth_img, newshape=(depth_img.shape[0] * depth_img.shape[1], 1))
 
-        # print(self.agent.front_depth_camera.data[0][0], self.agent.front_depth_camera.data[0][2])
+        p2d = np.append(img_pos, depth_array, axis=1)
 
-        """
-        [[x,y, depth]]
-        """
-        # indicies = np.random.choice(a=len(img_pos), size=max_points_to_convert, replace=False)
+        # convert to raw_p2d
+        raw_p2d = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ p2d.T
 
-        # selected_depth_array = depth_array[indicies, :]
-        # selected_img_pos = img_pos[indicies, :] * selected_depth_array
-        selected_depth_array = depth_array
-        selected_img_pos = img_pos * selected_depth_array
-        #
-        raw_p2d = np.append(selected_img_pos, selected_depth_array, axis=1)
+        # convert to cords_xyz_1 -y,x-z
+        # cords_xyz_1 = np.vstack([
+        #     raw_p2d[2, :],
+        #     raw_p2d[0, :],
+        #     -raw_p2d[1, :],
+        #     np.ones((1, np.shape(raw_p2d)[1]))
+        # ])
 
-        #
-        # raw_p2d = raw_p2d[raw_p2d[:, 2] > 0]
-        # raw_p2d = raw_p2d[raw_p2d[:, 2] < 20]
-        #
-        # # convert to cords_y_minus_z_x
-        cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_p2d.T
-        # #
-        # # convert to cords_xyz_1 -y,x-z
-        cords_xyz_1 = np.vstack([
-            -cords_y_minus_z_x[0, :],
-            cords_y_minus_z_x[2, :],
-            -cords_y_minus_z_x[1, :],
-            np.ones((1, np.shape(cords_y_minus_z_x)[1]))
-        ])
-        print(self.agent.vehicle.transform)
-        self.agent.vehicle.transform.rotation.roll = 90  #-self.agent.vehicle.transform.rotation.roll
-        # self.agent.vehicle.transform.rotation.pitch = 90
-        self.agent.vehicle.transform.rotation.yaw = -self.agent.vehicle.transform.rotation.yaw
-        # # print(self.agent.front_depth_camera.transform)
-        # # self.agent.front_depth_camera.transform.rotation.roll = -self.agent.front_depth_camera.transform.rotation.roll
-        # # self.agent.front_depth_camera.transform.rotation.pitch = -self.agent.front_depth_camera.transform.rotation.pitch
-        # self.agent.front_depth_camera.transform.rotation.yaw = -self.agent.front_depth_camera.transform.rotation.yaw
-        #
         points = self.agent.vehicle.transform.get_matrix() @ \
-                 self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
+                 self.agent.front_depth_camera.transform.get_matrix() @ raw_p2d
         return points[:3, :]
