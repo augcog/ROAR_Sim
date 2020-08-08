@@ -28,8 +28,8 @@ class PointCloudDetector(Detector):
     def run_step(self) -> Optional[np.ndarray]:
         points_3d = self.calculate_world_cords(max_points_to_convert=10000)
 
-        # print(np.amin(points_3d, axis=1), np.amax(points_3d, axis=1), self.agent.vehicle.transform.location)
-        # self.pcd.points = o3d.utility.Vector3dVector(points_3d.T - np.mean(points_3d.T, axis=0))
+        print(np.amin(points_3d, axis=1), np.amax(points_3d, axis=1), self.agent.vehicle.transform.location)
+        self.pcd.points = o3d.utility.Vector3dVector(points_3d.T - np.mean(points_3d.T, axis=0))
         # self.pcd.paint_uniform_color([0,0,0])
         # points_3d = points_3d.T
         # # filter out anything that is "above" my vehicle (so ground is definitely below my vehicle)
@@ -59,18 +59,18 @@ class PointCloudDetector(Detector):
         # project it back to Open3D PointCloud object for visualizations
         # minus the mean for stationary visualization
         # # self.pcd.points = o3d.utility.Vector3dVector(ground[indices])
-        # if self.counter == 0:
-        #     self.vis.create_window(window_name="Open3d", width=400, height=400)
-        #     self.vis.add_geometry(self.pcd)
-        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-        #     render_option.show_coordinate_frame = True
-        # else:
-        #     self.vis.update_geometry(self.pcd)
-        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-        #     render_option.show_coordinate_frame = True
-        #     self.vis.poll_events()
-        #     self.vis.update_renderer()
-        # self.counter += 1
+        if self.counter == 0:
+            self.vis.create_window(window_name="Open3d", width=400, height=400)
+            self.vis.add_geometry(self.pcd)
+            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+            render_option.show_coordinate_frame = True
+        else:
+            self.vis.update_geometry(self.pcd)
+            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+            render_option.show_coordinate_frame = True
+            self.vis.poll_events()
+            self.vis.update_renderer()
+        self.counter += 1
         return points_3d
 
     def calculate_world_cords(self, max_points_to_convert=5000):
@@ -78,36 +78,34 @@ class PointCloudDetector(Detector):
         depth_img[depth_img > 0.05] = 0
         depth_img = depth_img * 1000
         # create a n x 2 array
-        image_size_x, image_size_y = np.shape(self.agent.front_depth_camera.data)
-
+        image_size_y, image_size_x = np.shape(self.agent.front_depth_camera.data)
         tx = image_size_x / 2
         ty = image_size_y / 2
         fx = fy = image_size_x / (2 * np.tan(self.agent.front_depth_camera.fov * np.pi / 360))
 
         K = np.array([
             [fx, 0, tx],
-            [0,fy, ty],
-            [0,0,1]
+            [0, fy, ty],
+            [0, 0, 1]
         ])
-
 
         img_pos = np.indices((depth_img.shape[0], depth_img.shape[1])).transpose(1, 2, 0)
         img_pos = np.reshape(a=img_pos, newshape=(img_pos.shape[0] * img_pos.shape[1], 2))
         depth_array = np.reshape(a=depth_img, newshape=(depth_img.shape[0] * depth_img.shape[1], 1))
 
-        p2d = np.append(img_pos, depth_array, axis=1)
-
+        p2d = np.append(img_pos, np.ones(shape=(image_size_x * image_size_y, 1)), axis=1)
+        # print(np.shape(p2d))
         # convert to raw_p2d
-        raw_p2d = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ p2d.T
+        raw_p2d = np.linalg.inv(K) @ p2d.T
 
         # convert to cords_xyz_1 -y,x-z
-        # cords_xyz_1 = np.vstack([
-        #     raw_p2d[2, :],
-        #     raw_p2d[0, :],
-        #     -raw_p2d[1, :],
-        #     np.ones((1, np.shape(raw_p2d)[1]))
-        # ])
+        cords_xyz_1 = np.vstack([
+            raw_p2d[0, :] * depth_array.T,
+            raw_p2d[1, :] * depth_array.T,
+            raw_p2d[2, :] * depth_array.T,
+            np.ones((1, np.shape(raw_p2d)[1]))
+        ])
 
         points = self.agent.vehicle.transform.get_matrix() @ \
-                 self.agent.front_depth_camera.transform.get_matrix() @ raw_p2d
+                 self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
         return points[:3, :]
