@@ -26,11 +26,11 @@ from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     AgentConfig
 from ROAR_simulation.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
 from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import img_to_world
-from ROAR_simulation.roar_autonomous_system.perception_module.point_cloud_detector import PointCloudDetector
+from ROAR_simulation.roar_autonomous_system.perception_module.point_cloud_detector import GroundPlanePointCloudDetector
 import numpy as np
 import cv2
 from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
-
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
 
 class PurePursuitAgent(Agent):
     def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig, target_speed=50):
@@ -68,13 +68,19 @@ class PurePursuitAgent(Agent):
             waypoint0 = self.local_planner.way_points_queue[0]
             waypoint1 = self.local_planner.way_points_queue[1]
             waypoint2 = self.local_planner.way_points_queue[2]
+            custom_point = Transform(
+                location=Location(x=2, y=39.23454284667969, z=-0.005509738810360432)
+            )
             img_pos_0 = self.visualizer.calculate_img_pos(waypoint_transform=waypoint0, camera=self.front_depth_camera)
             img_pos_1 = self.visualizer.calculate_img_pos(waypoint_transform=waypoint1, camera=self.front_depth_camera)
             img_pos_2 = self.visualizer.calculate_img_pos(waypoint_transform=waypoint2, camera=self.front_depth_camera)
+            img_pos_custom = self.visualizer.calculate_img_pos(waypoint_transform=custom_point, camera=self.front_depth_camera)
+
             depth = self.front_depth_camera.data
             depth_0 = depth[img_pos_0[1]][img_pos_0[0]] * 1000
             depth_1 = depth[img_pos_1[1]][img_pos_1[0]] * 1000
             depth_2 = depth[img_pos_2[1]][img_pos_2[0]] * 1000
+            depth_custom = depth[img_pos_custom[1]][img_pos_custom[0]] * 1000
 
             # print(img_pos_0, depth_0,
             #       (np.linalg.norm(waypoint0.location.to_array() - self.vehicle.transform.location.to_array()) - 1.5))
@@ -83,12 +89,13 @@ class PurePursuitAgent(Agent):
             # print(img_pos_2, depth_2,
             #       (np.linalg.norm(waypoint2.location.to_array() - self.vehicle.transform.location.to_array()) - 1.5))
 
-            # rgb = self.front_rgb_camera.data.copy()
-            # rgb[img_pos_0[1]:img_pos_0[1] + 5, img_pos_0[0]:img_pos_0[0] + 5] = [0, 255, 0]
-            # rgb[img_pos_1[1]:img_pos_1[1] + 5, img_pos_1[0]:img_pos_1[0] + 5] = [0, 255, 0]
-            # rgb[img_pos_2[1]:img_pos_2[1] + 5, img_pos_2[0]:img_pos_2[0] + 5] = [0, 255, 0]
-            # cv2.imshow("image", rgb)
-            # cv2.waitKey(1)
+            rgb = self.front_rgb_camera.data.copy()
+            rgb[img_pos_0[1]:img_pos_0[1] + 5, img_pos_0[0]:img_pos_0[0] + 5] = [0, 255, 0]
+            rgb[img_pos_1[1]:img_pos_1[1] + 5, img_pos_1[0]:img_pos_1[0] + 5] = [0, 255, 0]
+            rgb[img_pos_2[1]:img_pos_2[1] + 5, img_pos_2[0]:img_pos_2[0] + 5] = [0, 255, 0]
+            rgb[img_pos_custom[1]:img_pos_custom[1] + 5, img_pos_custom[0]:img_pos_custom[0] + 5] = [0, 255, 0]
+            cv2.imshow("image", rgb)
+            cv2.waitKey(1)
             # #
             # depth_array = self.front_depth_camera.data.copy()
             # depth_array[depth_array > 0.089] = 0
@@ -100,6 +107,7 @@ class PurePursuitAgent(Agent):
                 [img_pos_0[0] * depth_0, img_pos_0[1] * depth_0, depth_0],
                 [img_pos_1[0] * depth_1, img_pos_1[1] * depth_1, depth_1],
                 [img_pos_2[0] * depth_2, img_pos_2[1] * depth_2, depth_2],
+                [img_pos_custom[0] * depth_custom, img_pos_custom[1] * depth_custom, depth_custom]
             ])
             # print(raw_p2d)
             cords_y_minus_z_x = np.linalg.inv(self.front_depth_camera.intrinsics_matrix) @ raw_p2d.T
@@ -109,11 +117,12 @@ class PurePursuitAgent(Agent):
                 -cords_y_minus_z_x[1, :],
                 np.ones((1, np.shape(cords_y_minus_z_x)[1]))
             ])
+            # print(cords_xyz_1)
             points = self.vehicle.transform.get_matrix() @ self.front_depth_camera.transform.get_matrix() @ cords_xyz_1
             calculated = points.T[:, :3]
-            truth = np.array([waypoint0.location.to_array(), waypoint1.location.to_array(), waypoint2.location.to_array()])
+            truth = np.array([waypoint0.location.to_array(), waypoint1.location.to_array(), waypoint2.location.to_array(), custom_point.location.to_array()])
             print(np.linalg.norm(calculated - truth, axis=1))
-            print(img_pos_0, img_pos_1, img_pos_2)
+            print(img_pos_0, img_pos_1, img_pos_2, img_pos_custom)
 
         except Exception as e:
             print(f"ERROR: {e}")

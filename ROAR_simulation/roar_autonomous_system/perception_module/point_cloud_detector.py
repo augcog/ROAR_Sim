@@ -8,7 +8,7 @@ from typing import Optional
 from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
 
 
-class PointCloudDetector(Detector):
+class GroundPlanePointCloudDetector(Detector):
     def __init__(self, max_detectable_distance=0.1, depth_scaling_factor=1000, **kwargs):
         """
 
@@ -27,8 +27,6 @@ class PointCloudDetector(Detector):
         self.counter = 0
 
     def run_step(self) -> Optional[np.ndarray]:
-        cv2.imshow("rgb", self.agent.front_rgb_camera.data)
-        cv2.waitKey(1)
         points_3d = self.calculate_world_cords(max_points_to_convert=10000)  # (Nx3)
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points_3d)# - np.mean(points_3d, axis=0))
@@ -44,12 +42,15 @@ class PointCloudDetector(Detector):
         avg_points_near_me_normal = vh[2, :]
         abs_diff = np.linalg.norm(normals - avg_points_near_me_normal, axis=1)  # anything below avg is plane
         planes = points_3d[abs_diff < np.mean(abs_diff)]
+
         ground = planes[planes[:, 2] < self.agent.vehicle.transform.location.z + 3]
+        # print(np.amin(ground, axis=0), np.amax(ground, axis=0), self.agent.vehicle.transform.location, np.shape(ground))
         pcd.points = o3d.utility.Vector3dVector(ground) #- np.mean(planes, axis=0))
 
         pcd, ids = pcd.remove_statistical_outlier(10, 2)
+        # print(pcd.get_min_bound(), pcd.get_max_bound(), self.agent.vehicle.transform.location)
         # print(pcd.get_min_bound(), pcd.get_max_bound(), self.agent.vehicle.transform.location, pcd)
-        pcd.points = o3d.utility.Vector3dVector(np.asarray(pcd.points) - pcd.get_center())
+        # pcd.points = o3d.utility.Vector3dVector(np.asarray(pcd.points) - pcd.get_center())
 
         self.pcd.points = pcd.points
         # if self.counter == 0:
@@ -89,10 +90,8 @@ class PointCloudDetector(Detector):
 
         # convert to cords_xyz_1
         cords_xyz_1 = np.vstack([
-
             raw_p2d[2, :] * depth_array.T,
             raw_p2d[1, :] * depth_array.T,
-
             -raw_p2d[0, :] * depth_array.T,
             np.ones((1, np.shape(raw_p2d)[1]))
         ])

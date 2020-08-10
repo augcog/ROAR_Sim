@@ -180,8 +180,8 @@ class GroundPlaneDetector(Detector):
         # indicies = np.where(labels == 2)
         # print(np.shape(indicies))
         # #
-        cv2.imshow("segmented", result)
-        cv2.waitKey(1)
+        # cv2.imshow("segmented", result)
+        # cv2.waitKey(1)
         return result
 
 
