@@ -27,13 +27,15 @@ class PointCloudDetector(Detector):
         self.counter = 0
 
     def run_step(self) -> Optional[np.ndarray]:
-        points_3d = self.calculate_world_cords(max_points_to_convert=20000)  # (Nx3)
+        cv2.imshow("rgb", self.agent.front_rgb_camera.data)
+        cv2.waitKey(1)
+        points_3d = self.calculate_world_cords(max_points_to_convert=10000)  # (Nx3)
         pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(points_3d) #- np.mean(points_3d, axis=0))
+        pcd.points = o3d.utility.Vector3dVector(points_3d)# - np.mean(points_3d, axis=0))
         pcd.estimate_normals()
-
-        # since i know that the closest 200 points are always ground, I will use them as a reference for the
-        # normal vectors of the ground
+        # print(np.amin(points_3d, axis=0), np.amax(points_3d, axis=0), self.agent.vehicle.transform.location, np.shape(points_3d))
+        # # since i know that the closest 200 points are always ground, I will use them as a reference for the
+        # # normal vectors of the ground
         pcd_tree = o3d.geometry.KDTreeFlann(pcd) # build KD tree for fast computation
         [k, idx, _] = pcd_tree.search_knn_vector_3d(self.agent.vehicle.transform.location.to_array(), 200) # find points around me
         points_near_me = np.asarray(pcd.points)[idx, :]  # 200 x 3
@@ -42,27 +44,27 @@ class PointCloudDetector(Detector):
         avg_points_near_me_normal = vh[2, :]
         abs_diff = np.linalg.norm(normals - avg_points_near_me_normal, axis=1)  # anything below avg is plane
         planes = points_3d[abs_diff < np.mean(abs_diff)]
+        ground = planes[planes[:, 2] < self.agent.vehicle.transform.location.z + 3]
+        pcd.points = o3d.utility.Vector3dVector(ground) #- np.mean(planes, axis=0))
 
-        # ground is anything below 1 m
-        ground = planes[planes[:, 2] < self.agent.vehicle.transform.location.z + 1]
-        pcd.points = o3d.utility.Vector3dVector(ground - np.mean(ground, axis=0))
-
-        print(np.amin(ground, axis=0), np.amax(ground, axis=0), self.agent.vehicle.transform.location, np.shape(ground))
+        pcd, ids = pcd.remove_statistical_outlier(10, 2)
+        # print(pcd.get_min_bound(), pcd.get_max_bound(), self.agent.vehicle.transform.location, pcd)
+        pcd.points = o3d.utility.Vector3dVector(np.asarray(pcd.points) - pcd.get_center())
 
         self.pcd.points = pcd.points
-        if self.counter == 0:
-            self.vis.create_window(window_name="Open3d", width=400, height=400)
-            self.vis.add_geometry(self.pcd)
-            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-            render_option.show_coordinate_frame = True
-        else:
-            self.vis.update_geometry(self.pcd)
-            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-            render_option.show_coordinate_frame = True
-            self.vis.poll_events()
-            self.vis.update_renderer()
-        self.counter += 1
-        return points_3d
+        # if self.counter == 0:
+        #     self.vis.create_window(window_name="Open3d", width=400, height=400)
+        #     self.vis.add_geometry(self.pcd)
+        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+        #     render_option.show_coordinate_frame = True
+        # else:
+        #     self.vis.update_geometry(self.pcd)
+        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+        #     render_option.show_coordinate_frame = True
+        #     self.vis.poll_events()
+        #     self.vis.update_renderer()
+        # self.counter += 1
+        return np.asarray(self.pcd.points)
 
     def calculate_world_cords(self, max_points_to_convert=5000, max_detectable_distance=0.05):
         depth_img = self.agent.front_depth_camera.data.copy()
@@ -87,8 +89,10 @@ class PointCloudDetector(Detector):
 
         # convert to cords_xyz_1
         cords_xyz_1 = np.vstack([
+
             raw_p2d[2, :] * depth_array.T,
             raw_p2d[1, :] * depth_array.T,
+
             -raw_p2d[0, :] * depth_array.T,
             np.ones((1, np.shape(raw_p2d)[1]))
         ])

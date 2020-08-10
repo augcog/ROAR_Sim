@@ -125,9 +125,6 @@ class CarlaRunner:
                     if not use_manual_control:
                         carla_control = self.carla_bridge. \
                             convert_control_from_agent_to_source(agent_control)
-                # print(self.world.front_rgb_sensor_data.transform)
-                # print(self.world.player.get_transform())
-                # print()
                 self.world.player.apply_control(carla_control)
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
