@@ -31,11 +31,9 @@ class GroundPlanePointCloudDetector(Detector):
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points_3d)# - np.mean(points_3d, axis=0))
         pcd.estimate_normals()
-        # print(np.amin(points_3d, axis=0), np.amax(points_3d, axis=0), self.agent.vehicle.transform.location, np.shape(points_3d))
-        # # since i know that the closest 200 points are always ground, I will use them as a reference for the
-        # # normal vectors of the ground
-        pcd_tree = o3d.geometry.KDTreeFlann(pcd) # build KD tree for fast computation
-        [k, idx, _] = pcd_tree.search_knn_vector_3d(self.agent.vehicle.transform.location.to_array(), 200) # find points around me
+        pcd_tree = o3d.geometry.KDTreeFlann(pcd)  # build KD tree for fast computation
+        [k, idx, _] = pcd_tree.search_knn_vector_3d(self.agent.vehicle.transform.location.to_array(),
+                                                    200)  # find points around me
         points_near_me = np.asarray(pcd.points)[idx, :]  # 200 x 3
         normals = np.asarray(pcd.normals)
         u, s, vh = np.linalg.svd(points_near_me, full_matrices=False)  # use svd to find normals of points
@@ -45,57 +43,54 @@ class GroundPlanePointCloudDetector(Detector):
 
         ground = planes[planes[:, 2] < self.agent.vehicle.transform.location.z + 3]
         # print(np.amin(ground, axis=0), np.amax(ground, axis=0), self.agent.vehicle.transform.location, np.shape(ground))
-        pcd.points = o3d.utility.Vector3dVector(ground) #- np.mean(planes, axis=0))
+        pcd.points = o3d.utility.Vector3dVector(ground)  # - np.mean(planes, axis=0))
 
         pcd, ids = pcd.remove_statistical_outlier(10, 2)
-        # print(pcd.get_min_bound(), pcd.get_max_bound(), self.agent.vehicle.transform.location)
-        # print(pcd.get_min_bound(), pcd.get_max_bound(), self.agent.vehicle.transform.location, pcd)
-        # pcd.points = o3d.utility.Vector3dVector(np.asarray(pcd.points) - pcd.get_center())
 
         self.pcd.points = pcd.points
-        # if self.counter == 0:
-        #     self.vis.create_window(window_name="Open3d", width=400, height=400)
-        #     self.vis.add_geometry(self.pcd)
-        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-        #     render_option.show_coordinate_frame = True
-        # else:
-        #     self.vis.update_geometry(self.pcd)
-        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-        #     render_option.show_coordinate_frame = True
-        #     self.vis.poll_events()
-        #     self.vis.update_renderer()
-        # self.counter += 1
+        if self.counter == 0:
+            self.vis.create_window(window_name="Open3d", width=400, height=400)
+            self.vis.add_geometry(self.pcd)
+            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+            render_option.show_coordinate_frame = True
+        else:
+            self.vis.update_geometry(self.pcd)
+            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+            render_option.show_coordinate_frame = True
+            self.vis.poll_events()
+            self.vis.update_renderer()
+        self.counter += 1
         return np.asarray(self.pcd.points)
 
     def calculate_world_cords(self, max_points_to_convert=5000, max_detectable_distance=0.05):
         depth_img = self.agent.front_depth_camera.data.copy()
-        img_pos = np.indices((depth_img.shape[0], depth_img.shape[1])).transpose(1, 2, 0)
-        img_pos = np.reshape(a=img_pos, newshape=(img_pos.shape[0] * img_pos.shape[1], 2))
-        depth_array = np.reshape(a=depth_img, newshape=(depth_img.shape[0] * depth_img.shape[1], 1))
+        coords = np.where(depth_img < max_detectable_distance)
 
-        indicies_to_delete = np.where(depth_array > max_detectable_distance)[0]
-        depth_array = np.delete(depth_array, indicies_to_delete)
-        img_pos = np.delete(img_pos, indicies_to_delete, axis=0)
-        depth_array = depth_array * 1000
+        indices_to_select = np.random.choice(np.shape(coords)[1], size=max_points_to_convert, replace=False)
 
-        indices_to_select = np.random.choice(np.shape(img_pos)[0],
-                                             replace=False, size=min(np.shape(img_pos)[0], max_points_to_convert))
+        coords = (
+            coords[0][indices_to_select],
+            coords[1][indices_to_select]
+        )
 
-        p2d = np.append(img_pos, np.ones(shape=(np.shape(img_pos)[0], 1)), axis=1)
+        raw_p2d = []
+        for i in range(np.shape(coords)[1]):
+            x, y = coords[0][i], coords[1][i]
+            depth = depth_img[x][y] * 1000
+            raw_p2d.append(
+                [y * depth, x * depth, depth]
+            )
+        raw_p2d = np.array(raw_p2d)
 
-        p2d = np.take(p2d, indices_to_select, axis=0)
-        depth_array = np.take(depth_array, indices_to_select, axis=0)
-        # convert to raw_p2d
-        raw_p2d = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ p2d.T
-
-        # convert to cords_xyz_1
+        cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_p2d.T
         cords_xyz_1 = np.vstack([
-            raw_p2d[2, :] * depth_array.T,
-            raw_p2d[1, :] * depth_array.T,
-            -raw_p2d[0, :] * depth_array.T,
-            np.ones((1, np.shape(raw_p2d)[1]))
+            cords_y_minus_z_x[2, :],
+            cords_y_minus_z_x[0, :],
+            -cords_y_minus_z_x[1, :],
+            np.ones((1, np.shape(cords_y_minus_z_x)[1]))
         ])
+        points: np.ndarray = self.agent.vehicle.transform.get_matrix() @ self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
+        points = points.T[:, :3]
 
-        points = self.agent.vehicle.transform.get_matrix() @ self.agent.front_depth_camera.transform.get_matrix() \
-                 @ cords_xyz_1
-        return points[:3, :].T
+        # print(np.shape(points), np.amin(points, axis=0), np.amax(points, axis=0))
+        return points

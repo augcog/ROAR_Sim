@@ -76,18 +76,18 @@ class MapGeneratingAgentV3(Agent):
                         right_obstacle_pos[0] = x
                         break
                 # make visualization
-                seg_visual[img_pos_center[1], :, :] = [0, 0, 255]
-                seg_visual[left_obstacle_pos[1]:left_obstacle_pos[1] + 5,
-                left_obstacle_pos[0]:left_obstacle_pos[0] + 5] = [0, 255, 0]
-
-                seg_visual[img_pos_center[1] - 5:img_pos_center[1],
-                img_pos_center[0] - 5:img_pos_center[0]] = [0, 255, 0]
-
-                seg_visual[right_obstacle_pos[1] - 5:right_obstacle_pos[1],
-                right_obstacle_pos[0] - 5:right_obstacle_pos[0]] = [0, 255, 0]
-
-                cv2.imshow("seg_vis", seg_visual)
-                cv2.waitKey(1)
+                # seg_visual[img_pos_center[1], :, :] = [0, 0, 255]
+                # seg_visual[left_obstacle_pos[1]:left_obstacle_pos[1] + 5,
+                # left_obstacle_pos[0]:left_obstacle_pos[0] + 5] = [0, 255, 0]
+                #
+                # seg_visual[img_pos_center[1] - 5:img_pos_center[1],
+                # img_pos_center[0] - 5:img_pos_center[0]] = [0, 255, 0]
+                #
+                # seg_visual[right_obstacle_pos[1] - 5:right_obstacle_pos[1],
+                # right_obstacle_pos[0] - 5:right_obstacle_pos[0]] = [0, 255, 0]
+                #
+                # cv2.imshow("seg_vis", seg_visual)
+                # cv2.waitKey(1)
 
                 # find depth
                 depth = self.front_depth_camera.data

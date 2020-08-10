@@ -48,7 +48,7 @@ class PointCloudAgent(Agent):
             # min_x = np.amin(points_on_the_same_y, axis=0)[0]
             # max_x = np.amax(points_on_the_same_y, axis=0)[0]
             # print(min_x, max_x)
-            print()
+            # print()
         except Exception as e:
             self.logger.error(f"Point cloud RunStep Error: {e}")
         finally:

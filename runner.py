@@ -29,7 +29,7 @@ def main():
         # agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = MapGeneratingAgentV3(vehicle=my_vehicle, agent_settings=config.agent_config)
         agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        carla_runner.start_game_loop(agent=agent, use_manual_control=False)
+        carla_runner.start_game_loop(agent=agent, use_manual_control=True)
     except Exception as e:
         carla_runner.on_finish()
         logging.error(f"{e}. Might be a good idea to restart Server")
