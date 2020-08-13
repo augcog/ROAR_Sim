@@ -14,6 +14,7 @@ from ROAR_simulation.roar_autonomous_system.agent_module.gpd_agent import GPDAge
 # from ROAR_simulation.roar_autonomous_system.agent_module.map_generating_agent_v2 import MapGeneratingAgentV2
 from ROAR_simulation.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
 from ROAR_simulation.roar_autonomous_system.agent_module.point_cloud_agent import PointCloudAgent
+from ROAR_simulation.roar_autonomous_system.agent_module.visualizer_demo_agent import VisualizerDemoAgent
 
 
 def main():
@@ -28,7 +29,8 @@ def main():
         # agent = GPDAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = MapGeneratingAgentV3(vehicle=my_vehicle, agent_settings=config.agent_config)
-        agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        # agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        agent = VisualizerDemoAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         carla_runner.start_game_loop(agent=agent, use_manual_control=True)
     except Exception as e:
         carla_runner.on_finish()

@@ -28,7 +28,6 @@ class GroundPlaneDetector(Detector):
         self.preds = None
 
         self.curr_segmentation: Optional[np.ndarray] = None
-
         self.logger.info("Ground Plane Detector Initiated")
 
     @staticmethod
