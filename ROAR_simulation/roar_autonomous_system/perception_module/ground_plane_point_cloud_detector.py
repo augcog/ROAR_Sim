@@ -11,7 +11,7 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_mod
 
 class GroundPlanePointCloudDetector(PointCloudDetector):
     def __init__(self,
-                 max_ground_height_relative_to_vehcile=1,
+                 max_ground_height_relative_to_vehcile=5,
                  knn=200,
                  std_ratio=2,
                  nb_neighbors=10,
@@ -32,7 +32,7 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
         self.nb_neighbors = nb_neighbors
         self.counter = 0
 
-    def run_step(self) -> o3d.geometry.PointCloud:
+    def run_step(self) -> np.ndarray:
         points_3d = self.calculate_world_cords()  # (Nx3)
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points_3d)  # - np.mean(points_3d, axis=0))
@@ -47,23 +47,24 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
         abs_diff = np.linalg.norm(normals - avg_points_near_me_normal, axis=1)  # anything below avg is plane
         planes = points_3d[abs_diff < np.mean(abs_diff)]
 
-        ground = planes[planes[:, 2] < self.agent.vehicle.transform.location.z + 1]
+        ground = planes[planes[:, 2] < self.agent.vehicle.transform.location.z +
+                        self.max_ground_height_relative_to_vehcile]
 
         pcd.points = o3d.utility.Vector3dVector(ground)  # - np.mean(planes, axis=0))
 
         pcd, ids = pcd.remove_statistical_outlier(nb_neighbors=self.nb_neighbors, std_ratio=self.std_ratio)
 
-        # self.pcd.points = pcd.points
-        # if self.counter == 0:
-        #     self.vis.create_window(window_name="Open3d", width=400, height=400)
-        #     self.vis.add_geometry(self.pcd)
-        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-        #     render_option.show_coordinate_frame = True
-        # else:
-        #     self.vis.update_geometry(self.pcd)
-        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-        #     render_option.show_coordinate_frame = True
-        #     self.vis.poll_events()
-        #     self.vis.update_renderer()
-        # self.counter += 1
-        return pcd
+        self.pcd.points = o3d.utility.Vector3dVector(np.asarray(pcd.points) - pcd.get_center())
+        if self.counter == 0:
+            self.vis.create_window(window_name="Open3d", width=400, height=400)
+            self.vis.add_geometry(self.pcd)
+            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+            render_option.show_coordinate_frame = True
+        else:
+            self.vis.update_geometry(self.pcd)
+            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+            render_option.show_coordinate_frame = True
+            self.vis.poll_events()
+            self.vis.update_renderer()
+        self.counter += 1
+        return np.asarray(pcd.points)

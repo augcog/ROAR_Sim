@@ -48,8 +48,7 @@ class PointCloudAgent(Agent):
         super(PointCloudAgent, self).run_step(sensors_data, vehicle)
         try:
             self.local_planner.run_step(vehicle=self.vehicle)
-            pcd: o3d.geometry.PointCloud = self.gp_pointcloud_detector.run_step()  # (N x 3)
-            points = np.asarray(pcd.points)
+            points = self.gp_pointcloud_detector.run_step()  # (N x 3)
             self.occupancy_grid_map.update_grid_map_from_world_cord(points[:, :2])
             self.occupancy_grid_map.visualize(vehicle_location=self.vehicle.transform.location)
 

@@ -22,14 +22,13 @@ from typing import Tuple, List
 
 
 class MapEntry(BaseModel):
-    center_point: List[float]
-    min_point: List[float]
-    max_point: List[float]
+    point_a: List[float]
+    point_b: List[float]
+
 
 class MapGeneratingAgentV3(Agent):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.output_map_file_path = self.output_folder_path / "generated_map.txt"
         self.ground_plane_detector = GroundPlaneDetector(agent=self)
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pid_controller = PurePursuitController(
@@ -76,18 +75,18 @@ class MapGeneratingAgentV3(Agent):
                         right_obstacle_pos[0] = x
                         break
                 # make visualization
-                # seg_visual[img_pos_center[1], :, :] = [0, 0, 255]
-                # seg_visual[left_obstacle_pos[1]:left_obstacle_pos[1] + 5,
-                # left_obstacle_pos[0]:left_obstacle_pos[0] + 5] = [0, 255, 0]
-                #
-                # seg_visual[img_pos_center[1] - 5:img_pos_center[1],
-                # img_pos_center[0] - 5:img_pos_center[0]] = [0, 255, 0]
-                #
-                # seg_visual[right_obstacle_pos[1] - 5:right_obstacle_pos[1],
-                # right_obstacle_pos[0] - 5:right_obstacle_pos[0]] = [0, 255, 0]
-                #
-                # cv2.imshow("seg_vis", seg_visual)
-                # cv2.waitKey(1)
+                seg_visual[img_pos_center[1], :, :] = [0, 0, 255]
+                seg_visual[left_obstacle_pos[1]:left_obstacle_pos[1] + 5,
+                left_obstacle_pos[0]:left_obstacle_pos[0] + 5] = [0, 255, 0]
+
+                seg_visual[img_pos_center[1] - 5:img_pos_center[1],
+                img_pos_center[0] - 5:img_pos_center[0]] = [0, 255, 0]
+
+                seg_visual[right_obstacle_pos[1] - 5:right_obstacle_pos[1],
+                right_obstacle_pos[0] - 5:right_obstacle_pos[0]] = [0, 255, 0]
+
+                cv2.imshow("seg_vis", seg_visual)
+                cv2.waitKey(1)
 
                 # find depth
                 depth = self.front_depth_camera.data
@@ -113,9 +112,8 @@ class MapGeneratingAgentV3(Agent):
 
                 # put it into the log
                 map_entry = MapEntry(
-                    center_point=points[1].tolist(),
-                    min_point=points[0].tolist(),
-                    max_point=points[2].tolist()
+                    point_a=points[0].tolist(),
+                    point_b=points[2].tolist()
                 )
                 self.map_history.append(map_entry)
         except Exception as e:

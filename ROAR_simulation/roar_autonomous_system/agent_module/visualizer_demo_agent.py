@@ -51,7 +51,7 @@ class VisualizerDemoAgent(Agent):
         try:
             self.local_planner.run_step(vehicle=self.vehicle)
 
-            pcd: o3d.geometry.PointCloud = self.gp_pointcloud_detector.run_step()  # (N x 3)
+            # pcd: o3d.geometry.PointCloud = self.gp_pointcloud_detector.run_step()  # (N x 3)
             # self.occupancy_grid_map.update_grid_map_from_world_cord(np.asarray(pcd.points)[:, :2])
             # self.semantic_segmentation_detector.run_step()
 

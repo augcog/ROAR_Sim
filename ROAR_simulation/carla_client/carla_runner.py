@@ -91,6 +91,7 @@ class CarlaRunner:
             self.logger.debug("Initiating game")
             clock = pygame.time.Clock()
             while True:
+
                 # make sure the program does not run above 40 frames per second
                 # this allow proper synchrony between server and client
                 clock.tick_busy_loop(60)

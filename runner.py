@@ -29,8 +29,8 @@ def main():
         # agent = GPDAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = MapGeneratingAgentV3(vehicle=my_vehicle, agent_settings=config.agent_config)
-        # agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        agent = VisualizerDemoAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        # agent = VisualizerDemoAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         carla_runner.start_game_loop(agent=agent, use_manual_control=True)
     except Exception as e:
         carla_runner.on_finish()
