@@ -19,10 +19,12 @@ from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     AgentConfig
 from carla import ColorConverter as cc
 from pathlib import Path
-from ROAR_simulation.roar_autonomous_system.agent_module.pure_pursuit_agent import PurePursuitAgent
+from ROAR_simulation.roar_autonomous_system.agent_module.npc_agent import NPCAgent
 from typing import List, Dict, Any
 from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
 import json
+import cv2
+import numpy as np
 
 
 class CarlaRunner:
@@ -108,10 +110,19 @@ class CarlaRunner:
                 pygame.display.flip()
                 sensor_data, new_vehicle = self.convert_data()
 
-                if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
-                    self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
-                        "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
-                                                                              cc.CityScapesPalette)
+                if self.world.semantic_segmentation_sensor_data is not None:
+                    array = np.frombuffer(self.world.semantic_segmentation_sensor_data.raw_data, dtype=np.dtype("uint8"))
+                    array = np.reshape(array, (self.world.semantic_segmentation_sensor_data.height, self.world.semantic_segmentation_sensor_data.width, 4))
+                    array = array[:, :, :3]
+                    array = array[:, :, ::-1]
+                    cv2.imshow("Semantic Segmentation", array)
+                    # cv2.imshow("rgb", sensor_data.front_rgb)
+                    cv2.waitKey(1)
+
+                # if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
+                #     self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
+                #         "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
+                #                                                               cc.CityScapesPalette)
 
                 if self.carla_settings.should_spawn_npcs:
                     self.execute_npcs_step()
@@ -195,6 +206,6 @@ class CarlaRunner:
 
         self.world.spawn_npcs(npc_configs)
         self.npc_agents = {
-            PurePursuitAgent(vehicle=actor, agent_settings=npc_config) : actor for actor, npc_config in
+            NPCAgent(vehicle=actor, agent_settings=npc_config) : actor for actor, npc_config in
                            self.world.npcs_mapping.values()
         }
