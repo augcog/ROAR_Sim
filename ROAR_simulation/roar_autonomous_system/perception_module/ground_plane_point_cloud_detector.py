@@ -54,7 +54,7 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
 
         pcd, ids = pcd.remove_statistical_outlier(nb_neighbors=self.nb_neighbors, std_ratio=self.std_ratio)
 
-        self.pcd.points = o3d.utility.Vector3dVector(np.asarray(pcd.points) - pcd.get_center())
+        self.pcd.points = o3d.utility.Vector3dVector(np.asarray(points_3d) - np.mean(points_3d, axis=0))
         if self.counter == 0:
             self.vis.create_window(window_name="Open3d", width=400, height=400)
             self.vis.add_geometry(self.pcd)

@@ -49,6 +49,7 @@ class PointCloudAgent(Agent):
         try:
             self.local_planner.run_step(vehicle=self.vehicle)
             points = self.gp_pointcloud_detector.run_step()  # (N x 3)
+            # print(np.amin(points, axis=0), np.amax(points, axis=0), self.vehicle.transform.location.to_array())
             self.occupancy_grid_map.update_grid_map_from_world_cord(points[:, :2])
             self.occupancy_grid_map.visualize(vehicle_location=self.vehicle.transform.location)
 
