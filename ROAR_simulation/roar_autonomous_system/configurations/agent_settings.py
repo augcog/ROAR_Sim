@@ -11,6 +11,8 @@ import os
 
 class AgentConfig(BaseModel):
     # ROAR sensors settings
+    name: str = Field(default="hero", title="Name of the agent", description="Duplicate from Carla Setting. "
+                                                                             "But good to have")
     front_depth_cam: Camera = Field(default=Camera(fov=70,
                                                    transform=Transform(
                                                        location=Location(x=1.6,
@@ -63,4 +65,8 @@ class AgentConfig(BaseModel):
     show_sensors_data: bool = Field(default=False)
     graph_post_modem_data: bool = Field(default=False)
     save_sensor_data: bool = Field(default=False)
-
+    absolute_maximum_map_size: int = Field(
+        default=1000, title="Absolute Maximum size of the map",
+        description="This variable is used to intialize the Occupancy grid map."
+                    "The bigger it is, the more impact it is going to have on the runtime computation"
+                    "However, if it is smaller than the actual map, some weird things can happen")

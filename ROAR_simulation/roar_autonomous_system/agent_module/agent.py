@@ -22,6 +22,9 @@ import numpy as np
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
+from ROAR_simulation.roar_autonomous_system.planning_module.local_planner.local_planner import LocalPlanner
+from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner.behavior_planner import BehaviorPlanner
+from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner.mission_planner import MissionPlanner
 
 
 class Agent(ABC):
@@ -62,6 +65,10 @@ class Agent(ABC):
         self.rear_rgb_camera_output_folder_path = \
             self.output_folder_path / "rear_rgb"
         self.should_save_sensor_data = self.agent_settings.save_sensor_data
+
+        self.local_planner: Optional[LocalPlanner] = None
+        self.behavior_planner: Optional[BehaviorPlanner] = None
+        self.mission_planner: Optional[MissionPlanner] = None
 
         self.time_counter = 0
 
@@ -133,7 +140,7 @@ class Agent(ABC):
         """
 
         self.vehicle = vehicle
-
+        self.transform_history.append(self.vehicle.transform)
         if self.front_rgb_camera is not None:
             self.front_rgb_camera.data = (
                 sensors_data.front_rgb.data

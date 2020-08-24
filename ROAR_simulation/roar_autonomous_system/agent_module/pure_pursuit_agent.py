@@ -1,21 +1,21 @@
 from ROAR_simulation.roar_autonomous_system.agent_module.agent import Agent
-from ROAR_simulation.roar_autonomous_system.utilities_module\
+from ROAR_simulation.roar_autonomous_system.utilities_module \
     .data_structures_models import \
     SensorsData
 from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models \
     import \
     Vehicle, VehicleControl
 from pathlib import Path
-from ROAR_simulation.roar_autonomous_system.control_module\
+from ROAR_simulation.roar_autonomous_system.control_module \
     .pure_pursuit_control import \
     PurePursuitController
-from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner\
+from ROAR_simulation.roar_autonomous_system.planning_module.mission_planner \
     .waypoint_following_mission_planner import \
     WaypointFollowingMissionPlanner
-from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner\
+from ROAR_simulation.roar_autonomous_system.planning_module.behavior_planner \
     .behavior_planner import \
     BehaviorPlanner
-from ROAR_simulation.roar_autonomous_system.planning_module.local_planner\
+from ROAR_simulation.roar_autonomous_system.planning_module.local_planner \
     .simple_waypoint_following_local_planner import \
     SimpleWaypointFollowingLocalPlanner
 from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
@@ -24,15 +24,20 @@ from ROAR_simulation.roar_autonomous_system.visualization_module.visualizer \
 from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
-
+from ROAR_simulation.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import img_to_world
+import numpy as np
+import cv2
+from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
+from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
 
 class PurePursuitAgent(Agent):
-    def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig):
+    def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig, target_speed=50):
         super().__init__(vehicle=vehicle, agent_settings=agent_settings)
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pure_pursuit_controller = \
             PurePursuitController(vehicle=vehicle,
-                                  target_speed=150,
+                                  target_speed=target_speed,
                                   look_ahead_gain=0.1,
                                   look_ahead_distance=1)
         self.mission_planner = WaypointFollowingMissionPlanner(
@@ -48,6 +53,9 @@ class PurePursuitAgent(Agent):
             behavior_planner=self.behavior_planner,
             closeness_threshold=1)
         self.visualizer = Visualizer(agent=self)
+        self.occupancy_grid_map = OccupancyGridMap(
+            absolute_maximum_map_size=self.agent_settings.absolute_maximum_map_size
+        )
 
     def run_step(self, sensors_data: SensorsData,
                  vehicle: Vehicle) -> VehicleControl:

@@ -64,6 +64,8 @@ class CarlaConfig(BaseModel):
     gamma: float = Field(default=2.2, title="Gamma Correction",
                          description="Gamma Correction of the camera")
 
+    save_semantic_segmentation: bool = Field(default=False)
+
     print_keyboard_hint: bool = Field(default=False)
 
     synchronous_mode: bool = Field(default=False, title="Run Server and Client in Synchronos mode",
@@ -77,3 +79,5 @@ class CarlaConfig(BaseModel):
         description="Note that for us, this will ONLY take effect when you are on sync mode. "
                     "https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony")
 
+    should_spawn_npcs: bool = Field(default=False)
+    npc_config_file_path: str = Field(default="./data/npc_config.json")

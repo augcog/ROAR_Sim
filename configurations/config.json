@@ -5,7 +5,7 @@
       "transform": {
         "location": {
           "x": 1.6,
-          "y": 0.0,
+          "y": 0,
           "z": 1.7
         },
         "rotation": {
@@ -51,7 +51,14 @@
       "image_size_x": 800,
       "image_size_y": 600
     },
+    "absolute_maximum_map_size": 1000,
     "waypoint_file_path": "./data/easy_map_waypoints.txt",
+
+    "pid_config_path":  "./configurations/pid_config.json",
+    "mpc_config_path": "./configurations/mpc_config.json",
+
+    "simple_waypoint_following_local_planner_path": "./configurations/simple_waypoint_following_local_planner.json",
+
     "output_data_folder_path": "./data/output/",
     "enable_autopilot": true,
     "spawn_point_id": 1,
@@ -87,7 +94,8 @@
     "print_keyboard_hint": false,
     "no_rendering_mode": false,
     "synchronous_mode": false,
-    "fixed_delta_seconds": 0.05
-
+    "fixed_delta_seconds": 0.05,
+    "npc_config_file_path": "./configurations/npc_config.json",
+    "should_spawn_npcs": false
   }
 }
