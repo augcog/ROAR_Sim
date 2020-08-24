@@ -6,3 +6,4 @@ data/*.zip
 .vscode
 site
 .ipynb_checkpoints
+data/weights
