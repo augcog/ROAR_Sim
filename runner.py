@@ -27,12 +27,12 @@ def main():
     try:
         my_vehicle = carla_runner.set_carla_world()
         # agent = GPDAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        # agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = MapGeneratingAgentV3(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = VisualizerDemoAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        agent = OpenCVTensorflowObjectDetectionAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        carla_runner.start_game_loop(agent=agent, use_manual_control=True)
+        # agent = OpenCVTensorflowObjectDetectionAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        carla_runner.start_game_loop(agent=agent, use_manual_control=False)
     except Exception as e:
         print(f"something bad happened during initialization: {e}")
         carla_runner.on_finish()

@@ -135,7 +135,10 @@ class CarlaRunner:
 
     def on_finish(self):
         self.logger.debug("Ending Game")
-
+        # output_file = Path("./data/easy_default_waypoints.txt")
+        # f = output_file.open('w')
+        # for t in self.agent.transform_history[::50]:
+        #     f.write(str(t) + "\n")
         if self.world is not None:
             self.world.destroy()
             self.logger.debug("All actors are destroyed")
@@ -195,6 +198,7 @@ class CarlaRunner:
 
         self.world.spawn_npcs(npc_configs)
         self.npc_agents = {
-            PurePursuitAgent(vehicle=actor, agent_settings=npc_config) : actor for actor, npc_config in
+            PurePursuitAgent(vehicle=actor, agent_settings=npc_config,
+                             target_speed=npc_config.target_speed) : actor for actor, npc_config in
                            self.world.npcs_mapping.values()
         }

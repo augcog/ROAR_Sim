@@ -7,3 +7,4 @@ data/*.zip
 site
 .ipynb_checkpoints
 data/weights
+data/easy_default_waypoints.txt

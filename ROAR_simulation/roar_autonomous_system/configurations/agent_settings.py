@@ -70,3 +70,4 @@ class AgentConfig(BaseModel):
         description="This variable is used to intialize the Occupancy grid map."
                     "The bigger it is, the more impact it is going to have on the runtime computation"
                     "However, if it is smaller than the actual map, some weird things can happen")
+    target_speed: int = 80
