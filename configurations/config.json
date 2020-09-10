@@ -63,7 +63,7 @@
     "enable_autopilot": true,
     "spawn_point_id": 1,
     "show_sensors_data": false,
-    "save_sensor_data": true
+    "save_sensor_data": false
   },
   "carla_config": {
     "host": "127.0.0.1",
@@ -93,10 +93,10 @@
     "gamma": 2.2,
     "print_keyboard_hint": false,
     "no_rendering_mode": false,
-    "synchronous_mode": true,
+    "synchronous_mode": false,
     "fixed_delta_seconds": 0.05,
     "npc_config_file_path": "./configurations/npc_config.json",
     "should_spawn_npcs": true,
-    "save_semantic_segmentation": true
+    "save_semantic_segmentation": false
   }
 }

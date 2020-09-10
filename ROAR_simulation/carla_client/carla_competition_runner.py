@@ -18,6 +18,7 @@ from ROAR_simulation.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
 from carla import ColorConverter as cc
+from ROAR_simulation.carla_client.util.sensors import CollisionSensor
 from pathlib import Path
 from ROAR_simulation.roar_autonomous_system.agent_module.pure_pursuit_agent import PurePursuitAgent
 from typing import List, Dict, Any
@@ -28,7 +29,7 @@ import json
 class CarlaRunner:
 
     def __init__(self, carla_settings: CarlaConfig,
-                 agent_settings: AgentConfig):
+                 agent_settings: AgentConfig, max_collision=1000):
         self.carla_settings = carla_settings
         self.agent_settings = agent_settings
         self.carla_bridge = CarlaBridge()
@@ -37,12 +38,13 @@ class CarlaRunner:
         self.controller = None
         self.display = None
         self.agent = None
-
+        self.max_collision = max_collision
         self.npc_agents: Dict[Agent, Any] = {}
         self.agent_collision_counter = 0
 
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
+
     def set_carla_world(self) -> Vehicle:
         """Initiating the vehicle with loading messages"""
 
@@ -84,16 +86,17 @@ class CarlaRunner:
                 f"Unable to initiate the world due to error: {e}")
             raise e
 
-    def start_game_loop(self, agent: Agent, use_manual_control=False, max_timestep=1e20):
+    def start_game_loop(self, agent: Agent, use_manual_control=False, max_timestep=1e20) -> float:
         """Start running the vehicle and stop when finished running
-        the track"""
+        the track
+        and return a score
+        """
 
         self.agent = agent
         try:
             self.logger.debug("Initiating game")
             clock = pygame.time.Clock()
             while True and self.timestep_counter < max_timestep:
-
                 # make sure the program does not run above 40 frames per second
                 # this allow proper synchrony between server and client
                 clock.tick_busy_loop(60)
@@ -101,6 +104,11 @@ class CarlaRunner:
                     parse_events(client=self.client,
                                  world=self.world,
                                  clock=clock)
+
+                collision_sensor: CollisionSensor = self.world.collision_sensor
+                if len(collision_sensor.history) > self.max_collision:
+                    # you have collided for > 1000 frames
+                    should_continue = False
 
                 if not should_continue:
                     break
@@ -136,6 +144,12 @@ class CarlaRunner:
 
         finally:
             self.on_finish()
+
+            print(len(self.world.collision_sensor.history))
+            if len(self.world.collision_sensor.history) > self.max_collision:
+                return 0
+            else:
+                return 1
 
     def on_finish(self):
         self.logger.debug("Ending Game")
