@@ -39,8 +39,6 @@ class PointCloudAgent(Agent):
                                                                     max_points_to_convert=10000,
                                                                     nb_neighbors=100,
                                                                     std_ratio=1)
-        self.pcd: o3d.geometry.PointCloud = o3d.geometry.PointCloud()
-        self.vis = o3d.visualization.Visualizer()
         self.occupancy_grid_map = OccupancyGridMap(absolute_maximum_map_size=800)
         self.visualizer = Visualizer(agent=self)
 
@@ -49,9 +47,9 @@ class PointCloudAgent(Agent):
         try:
             self.local_planner.run_step(vehicle=self.vehicle)
             points = self.gp_pointcloud_detector.run_step()  # (N x 3)
-            # print(np.amin(points, axis=0), np.amax(points, axis=0), self.vehicle.transform.location.to_array())
-            self.occupancy_grid_map.update_grid_map_from_world_cord(points[:, :2])
-            self.occupancy_grid_map.visualize(vehicle_location=self.vehicle.transform.location)
+            print(np.amin(points, axis=0), np.amax(points, axis=0), self.vehicle.transform.location.to_array())
+            # self.occupancy_grid_map.update_grid_map_from_world_cord(points[:, :2])
+            # self.occupancy_grid_map.visualize(vehicle_location=self.vehicle.transform.location)
 
         except Exception as e:
             self.logger.error(f"Point cloud RunStep Error: {e}")

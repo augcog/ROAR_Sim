@@ -88,6 +88,10 @@ class Transform(BaseModel):
         matrix[2, 2] = c_p * c_r
         return matrix
 
+    def __str__(self):
+        return f"{self.location.x},{self.location.y},{self.location.z}," \
+               f"{self.rotation.pitch},{self.rotation.yaw},{self.rotation.roll}"
+
 
 class Vector3D(BaseModel):
     x: float = Field(default=0)

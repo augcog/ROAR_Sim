@@ -31,6 +31,7 @@ import cv2
 from ROAR_simulation.roar_autonomous_system.utilities_module.utilities import png_to_depth
 from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
 
+
 class PurePursuitAgent(Agent):
     def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig, target_speed=50):
         super().__init__(vehicle=vehicle, agent_settings=agent_settings)
@@ -39,23 +40,18 @@ class PurePursuitAgent(Agent):
             PurePursuitController(vehicle=vehicle,
                                   target_speed=target_speed,
                                   look_ahead_gain=0.1,
-                                  look_ahead_distance=1)
+                                  look_ahead_distance=3)
         self.mission_planner = WaypointFollowingMissionPlanner(
             file_path=self.route_file_path, vehicle=vehicle)
 
         # initiated right after mission plan
-
         self.behavior_planner = BehaviorPlanner(vehicle=vehicle)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
             vehicle=vehicle,
             controller=self.pure_pursuit_controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
-            closeness_threshold=1)
-        self.visualizer = Visualizer(agent=self)
-        self.occupancy_grid_map = OccupancyGridMap(
-            absolute_maximum_map_size=self.agent_settings.absolute_maximum_map_size
-        )
+            closeness_threshold=3)
 
     def run_step(self, sensors_data: SensorsData,
                  vehicle: Vehicle) -> VehicleControl:

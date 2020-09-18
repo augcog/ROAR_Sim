@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Union
+from typing import Optional
 import math
 from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_models import (
     Transform,
@@ -31,9 +31,9 @@ class Vehicle(BaseModel):
     Encodes the Vehicle's state at the last tick
     """
 
-    velocity: Vector3D
-    transform: Union[Transform, None] = Field(default=None)
-    control: VehicleControl  # ?
+    velocity: Optional[Vector3D] = Field(default=Vector3D(x=0,y=0,z=0))
+    transform: Optional[Transform] = Field(default=Transform())
+    control: VehicleControl = Field(default=VehicleControl())  # ?
     wheel_base: float = Field(
         default=2.875,
         title="Wheel Base length of the vehilce in meters",

@@ -39,8 +39,10 @@ class CarlaRunner:
         self.agent = None
 
         self.npc_agents: Dict[Agent, Any] = {}
-        self.logger = logging.getLogger(__name__)
+        self.agent_collision_counter = 0
 
+        self.logger = logging.getLogger(__name__)
+        self.timestep_counter = 0
     def set_carla_world(self) -> Vehicle:
         """Initiating the vehicle with loading messages"""
 
@@ -82,7 +84,7 @@ class CarlaRunner:
                 f"Unable to initiate the world due to error: {e}")
             raise e
 
-    def start_game_loop(self, agent: Agent, use_manual_control=False):
+    def start_game_loop(self, agent: Agent, use_manual_control=False, max_timestep=1e20):
         """Start running the vehicle and stop when finished running
         the track"""
 
@@ -90,9 +92,9 @@ class CarlaRunner:
         try:
             self.logger.debug("Initiating game")
             clock = pygame.time.Clock()
-            while True:
+            while True and self.timestep_counter < max_timestep:
 
-                # make sure the program does not run above 40 frames per second
+                # make sure the program does not run above 60 frames per second
                 # this allow proper synchrony between server and client
                 clock.tick_busy_loop(60)
                 should_continue, carla_control = self.controller. \
@@ -127,6 +129,8 @@ class CarlaRunner:
                         carla_control = self.carla_bridge. \
                             convert_control_from_agent_to_source(agent_control)
                 self.world.player.apply_control(carla_control)
+
+                self.timestep_counter += 1
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
 
@@ -135,7 +139,10 @@ class CarlaRunner:
 
     def on_finish(self):
         self.logger.debug("Ending Game")
-
+        # output_file = Path("./data/easy_default_waypoints.txt")
+        # f = output_file.open('w')
+        # for t in self.agent.transform_history[::50]:
+        #     f.write(str(t) + "\n")
         if self.world is not None:
             self.world.destroy()
             self.logger.debug("All actors are destroyed")
@@ -145,7 +152,6 @@ class CarlaRunner:
             self.logger.debug(
                 f"Cannot quit pygame normally, force quitting. Error: {e}")
         self.logger.debug("Game ended")
-        exit(0)
 
     def convert_data(self) -> Tuple[SensorsData, Vehicle]:
         """
@@ -195,6 +201,7 @@ class CarlaRunner:
 
         self.world.spawn_npcs(npc_configs)
         self.npc_agents = {
-            PurePursuitAgent(vehicle=actor, agent_settings=npc_config) : actor for actor, npc_config in
-                           self.world.npcs_mapping.values()
+            PurePursuitAgent(vehicle=actor, agent_settings=npc_config,
+                             target_speed=npc_config.target_speed): actor for actor, npc_config in
+            self.world.npcs_mapping.values()
         }

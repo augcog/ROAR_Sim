@@ -6,3 +6,5 @@ data/*.zip
 .vscode
 site
 .ipynb_checkpoints
+data/weights
+data/easy_default_waypoints.txt
