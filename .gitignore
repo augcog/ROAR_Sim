@@ -9,5 +9,5 @@ site
 .ipynb_checkpoints
 
 data/easy_default_waypoints.txt
-./configurations/jetson_sudo_setup.json
 *__pycache__*
+/configurations/jetson_sudo_setup.json
