@@ -7,12 +7,13 @@ Created on Sun Jun 25 10:44:24 2017
 """
 
 import time
-from statistics import median
 from threading import Thread
-from prettytable import PrettyTable
-from ROAR_Jetson.memory import Memory
 from ROAR_Jetson.jetson_cmd_sender import JetsonCommandSender
 import logging
+from ROAR_Jetson.camera import RS_D435i
+from typing import Optional
+import numpy as np
+
 
 class Vehicle:
     def __init__(self):
@@ -20,6 +21,8 @@ class Vehicle:
         self.on = True
         self.threads = []
         self.logger = logging.getLogger("Jetson Vehicle")
+        self.front_rgb_img: Optional[np.ndarray] = None
+        self.front_depth_img: Optional[np.ndarray] = None
 
     def add(self, part, inputs=[], outputs=[],
             threaded=False, run_condition=None):
@@ -41,7 +44,7 @@ class Vehicle:
 
         p = part
         self.logger.info('Adding part {}.'.format(p.__class__.__name__))
-        entry = {}
+        entry = dict()
         entry['part'] = p
         entry['inputs'] = inputs
         entry['outputs'] = outputs
@@ -60,26 +63,22 @@ class Vehicle:
         """
         self.parts.remove(part)
 
-    def start(self, rate_hz=10, max_loop_count=None, verbose=False):
+    def start(self, rate_hz=10):
         """
         Start vehicle's main drive loop.
 
         This is the main thread of the vehicle. It starts all the new
         threads for the threaded parts then starts an infinite loop
-        that runs each part and updates the memory.
+        that runs each part.
+
+        Notes: This function is NOT used during integration with ROAR_Sim
 
         Args:
-            verbose:
-
             rate_hz : int, The max frequency that the drive loop should run. The actual
             frequency may be less than this if there are many blocking parts.
-
-            max_loop_count : int, Maximum number of loops the drive loop should execute. This is
-            used for testing that all the parts of the vehicle work.
         """
 
         try:
-            self.on = True
             for entry in self.parts:
                 if entry.get('thread'):
                     # start the update thread
@@ -88,42 +87,58 @@ class Vehicle:
             # wait until the parts warm up.
             self.logger.info('Starting vehicle...')
 
-            loop_count = 0
-            while self.on:
+            while True:
                 start_time = time.time()
-                loop_count += 1
 
                 self.update_parts()
-                # stop drive loop if loop_count exceeds max_loopcount
-                if max_loop_count and loop_count > max_loop_count:
-                    self.on = False
 
                 sleep_time = 1.0 / rate_hz - (time.time() - start_time)
                 if sleep_time > 0.0:
                     time.sleep(sleep_time)
                 else:
-                    # print a message when could not maintain loop rate.
-                    if verbose:
-                        print('WARN::Vehicle: jitter violation in vehicle loop with value:', abs(sleep_time))
+                    pass
         except KeyboardInterrupt:
-            pass
+            self.stop()
+        except Exception as e:
+            self.logger.error(f"Something bad happened: [{e}]")
         finally:
             self.stop()
 
     def update_parts(self, new_throttle: float = 0, new_steering: float = 0):
         """
-        loop over all parts
+        Fail-safe method for loop over all parts and call update on each one
+        Notes: This function IS USED during integration with ROAR Sim
+
+        Args:
+            new_throttle:  new throttle value, gaurenteed between -1 and 1
+            new_steering:  new steering value, gaurenteed between -1 and 1
+
+        Returns:
+            None
         """
         for entry in self.parts:
-            p = entry["part"]
-            if entry.get('thread') and isinstance(p, JetsonCommandSender):
-                # send the throttle and steering to Arduino
-                p.run_threaded(throttle=new_throttle, steering=new_steering)
-            else:
-                self.logger.error(f"Unknown part [{p}]")
+            try:
+                p = entry["part"]
+                if entry.get('thread') and isinstance(p, JetsonCommandSender):
+                    # send the throttle and steering to Arduino
+                    p.run_threaded(throttle=new_throttle, steering=new_steering)
+                elif entry.get('thread') and isinstance(p, RS_D435i):
+                    self.front_rgb_img, self.front_depth_img = p.run_threaded()
+                else:
+                    self.logger.error(f"Unknown part [{p}]")
+            except KeyboardInterrupt as e:
+                exit(0) # this is a hack for existing the program. DON"T CHANGE!
+            except Exception as e:
+                self.logger.error(f"Something bad happened during update for part [{entry}]: {e}")
 
     def stop(self):
-        self.logger.debug('\n\nShutting down vehicle and its parts...')
+        """
+        Stop all parts attached to the Jetson vehicle
+
+        Returns:
+            None
+        """
+        self.logger.info('Shutting down vehicle and its parts...')
         for entry in self.parts:
             try:
                 entry['part'].shutdown()
@@ -131,4 +146,4 @@ class Vehicle:
                 # usually from missing shutdown method, which should be optional
                 pass
             except Exception as e:
-                print(e)
+                self.logger.error(e)

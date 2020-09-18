@@ -5,6 +5,8 @@ from ROAR_simulation.roar_autonomous_system.utilities_module.data_structures_mod
     IMUData, DepthData, RGBData, Transform, Rotation, Location
 from ROAR_simulation.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl, Vehicle
 import numpy as np
+import cv2
+from typing import Optional
 
 
 class JetsonBridge(Bridge):
@@ -26,11 +28,15 @@ class JetsonBridge(Bridge):
             steering=source.steer,
         )
 
-    def convert_rgb_from_source_to_agent(self, source) -> RGBData:
-        return RGBData(data=np.ndarray((800, 600, 3)))
+    def convert_rgb_from_source_to_agent(self, source) -> Optional[RGBData]:
+        if source is not None:
+            return RGBData(data=source)
+        return None
 
-    def convert_depth_from_source_to_agent(self, source) -> DepthData:
-        return DepthData(data=np.ndarray((800, 600)))
+    def convert_depth_from_source_to_agent(self, source) -> Optional[DepthData]:
+        if source is not None:
+            return DepthData(data=source)
+        return None
 
     def convert_vector3d_from_source_to_agent(self, source) -> Vector3D:
         return Vector3D(x=source.x, y=source.y, z=source.z)

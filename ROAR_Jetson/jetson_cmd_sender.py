@@ -27,12 +27,13 @@ class JetsonCommandSender:
         # only send new msg when throttle or steering changes
         # if self.prev_throttle != throttle_send or self.prev_steering != steering_send:
         serial_msg ='& {} {}'.format(throttle_send, steering_send)
-        self.logger.debug(f"Sending [{serial_msg}]")
+        # self.logger.debug(f"Sending [{serial_msg}]")
         self.ser.write(serial_msg.encode('ascii'))
         self.prev_throttle = throttle_send
         self.prev_steering = steering_send
         try:
-            self.ser.read(100)
+            pass
+            # self.ser.read(5)
         except KeyboardInterrupt as e:
             self.logger.debug("Interrupted Using Keyboard")
             exit(0)
@@ -40,7 +41,7 @@ class JetsonCommandSender:
             self.logger.error(f"Something bad happened {e}")
 
     def shutdown(self):
-        print('sender shutdown...')
+        self.logger.debug('Shutting down')
         for i in range(5):
             self.ser.write('& 1500 1500\n'.encode('ascii'))
             self.ser.read(100)

@@ -94,7 +94,7 @@ class CarlaRunner:
             clock = pygame.time.Clock()
             while True and self.timestep_counter < max_timestep:
 
-                # make sure the program does not run above 40 frames per second
+                # make sure the program does not run above 60 frames per second
                 # this allow proper synchrony between server and client
                 clock.tick_busy_loop(60)
                 should_continue, carla_control = self.controller. \

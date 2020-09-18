@@ -17,8 +17,8 @@ def drive(cfg, client_ip=None, to_control=False):
     V = vehicle.Vehicle()
     client_ip = client_ip or cfg.CLIENT_IP
 
-    #camA = CSICamera(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH, framerate=cfg.CAMERA_FRAMERATE, gstreamer_flip=cfg.CSIC_CAM_GSTREAMER_FLIP_PARM,client_ip=client_ip)
-    #camB = RS_D435i(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH, framerate=cfg.CAMERA_FRAMERATE,client_ip=client_ip)
+    # camA = CSICamera(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH, framerate=cfg.CAMERA_FRAMERATE, gstreamer_flip=cfg.CSIC_CAM_GSTREAMER_FLIP_PARM,client_ip=client_ip)
+    # camB = RS_D435i(image_w=cfg.IMAGE_W, image_h=cfg.IMAGE_H, image_d=cfg.IMAGE_DEPTH, framerate=cfg.CAMERA_FRAMERATE,client_ip=client_ip)
 
     #V.add(camA, outputs=['cam/image_array_a'], threaded=True)
     #V.add(camB, outputs=['cam/image_array_b', 'cam/image_array_c'], threaded=True)
