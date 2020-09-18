@@ -43,6 +43,8 @@ class CarlaRunner:
 
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
+
+
     def set_carla_world(self) -> Vehicle:
         """Initiating the vehicle with loading messages"""
 

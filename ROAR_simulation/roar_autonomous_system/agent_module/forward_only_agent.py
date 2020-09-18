@@ -11,9 +11,7 @@ class ForwardOnlyAgent(Agent):
         super().__init__(vehicle, agent_settings)
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
-        if sensors_data.front_rgb is not None and sensors_data.front_rgb.data is not None:
-            cv2.imshow("data", sensors_data.front_rgb.data)
-            cv2.waitKey(1)
+        super().run_step(sensors_data=sensors_data, vehicle=vehicle)
         control = VehicleControl(throttle=0.4, steering=0)
         # self.logger.debug(f"Outputting {control}")
         return control

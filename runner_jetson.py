@@ -18,7 +18,7 @@ def main():
         )
         agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=config.agent_config)
         jetson_runner = JetsonRunner(agent=agent)
-        jetson_runner.start_game_loop(rate_hz=100)
+        jetson_runner.start_game_loop(use_manual_control=True)
     except Exception as e:
         print(f"Something bad happened {e}")
 
