@@ -1,21 +1,21 @@
 import logging
-from ROAR_simulation.roar_autonomous_system.agent_module.pure_pursuit_agent \
+from ROAR.roar_autonomous_system.agent_module.pure_pursuit_agent \
     import PurePursuitAgent
-from ROAR_simulation.roar_autonomous_system.agent_module.mpc_agent import MPCAgent
-from ROAR_simulation.roar_autonomous_system.agent_module.pid_agent import PIDAgent
+from ROAR.roar_autonomous_system.agent_module.mpc_agent import MPCAgent
+from ROAR.roar_autonomous_system.agent_module.pid_agent import PIDAgent
 from pathlib import Path
 
 import numpy as np
 import os
 import warnings
-from ROAR_simulation.roar_autonomous_system.configurations.configuration import Configuration
-from ROAR_simulation.carla_client.carla_runner import CarlaRunner
-from ROAR_simulation.roar_autonomous_system.agent_module.gpd_agent import GPDAgent
-# from ROAR_simulation.roar_autonomous_system.agent_module.map_generating_agent_v2 import MapGeneratingAgentV2
-from ROAR_simulation.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
-from ROAR_simulation.roar_autonomous_system.agent_module.point_cloud_agent import PointCloudAgent
-from ROAR_simulation.roar_autonomous_system.agent_module.visualizer_demo_agent import VisualizerDemoAgent
-from ROAR_simulation.roar_autonomous_system.agent_module.opencv_tensorflow_object_detection_agent import OpenCVTensorflowObjectDetectionAgent
+from ROAR.roar_autonomous_system.configurations.configuration import Configuration
+from ROAR.carla_client.carla_runner import CarlaRunner
+from ROAR.roar_autonomous_system.agent_module.gpd_agent import GPDAgent
+# from ROAR.roar_autonomous_system.agent_module.map_generating_agent_v2 import MapGeneratingAgentV2
+from ROAR.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
+from ROAR.roar_autonomous_system.agent_module.point_cloud_agent import PointCloudAgent
+from ROAR.roar_autonomous_system.agent_module.visualizer_demo_agent import VisualizerDemoAgent
+from ROAR.roar_autonomous_system.agent_module.opencv_tensorflow_object_detection_agent import OpenCVTensorflowObjectDetectionAgent
 
 def main():
     config = Configuration.parse_file(
