@@ -9,3 +9,4 @@ site
 data/weights
 data/easy_default_waypoints.txt
 configurations/jetson_sudo_setup.json
+*__pycache__*
