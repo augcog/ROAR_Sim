@@ -1,12 +1,12 @@
-from ROAR_simulation.roar_autonomous_system.agent_module.agent import Agent
+from ROAR.roar_autonomous_system.agent_module.agent import Agent
 import logging, warnings
 import numpy as np
-from ROAR_simulation.roar_autonomous_system.configurations.configuration import Configuration
+from ROAR.roar_autonomous_system.configurations.configuration import Configuration
 from pathlib import Path
 import os
-from ROAR_simulation.roar_autonomous_system.agent_module.pure_pursuit_agent \
+from ROAR.roar_autonomous_system.agent_module.pure_pursuit_agent \
     import PurePursuitAgent
-from ROAR_simulation.carla_client.carla_competition_runner import CarlaRunner
+from ROAR.carla_client.carla_competition_runner import CarlaRunner
 
 
 def run(agent_class, config_fpath) -> float:

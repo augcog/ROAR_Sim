@@ -3,11 +3,11 @@ from pathlib import Path
 import numpy as np
 import os
 import warnings
-from ROAR_simulation.roar_autonomous_system.configurations.configuration import Configuration
-from ROAR_simulation.carla_client.carla_runner import CarlaRunner
-from ROAR_simulation.roar_autonomous_system.agent_module.point_cloud_map_generating_agent import \
+from ROAR.roar_autonomous_system.configurations.configuration import Configuration
+from ROAR.carla_client.carla_runner import CarlaRunner
+from ROAR.roar_autonomous_system.agent_module.point_cloud_map_generating_agent import \
     PointCloudMapGeneratingAgent
-from ROAR_simulation.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
+from ROAR.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
 
 
 def main():
