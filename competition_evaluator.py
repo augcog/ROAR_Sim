@@ -40,6 +40,7 @@ def run(agent_class, config_fpath) -> float:
         logging.error(f"{e}. Might be a good idea to restart Server")
         return 0
 
+
 def main():
     agent_class = PurePursuitAgent
     num_trials = 2
@@ -49,6 +50,7 @@ def main():
         print(f"This run's score is {score}")
         total_score += score
     print(f"Your Average is {total_score / num_trials}")
+
 
 if __name__ == "__main__":
     main()
