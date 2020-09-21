@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://roar-decal.github.io/Carla/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/project_overview/project_module_TADs/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/project_overview/code_layout/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/bridges/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/agents/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/controls/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/perceptions/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/visualizations/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/planning/mission_planners/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/planning/behavior_planners/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/planning/local_planners/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/utilities/cameras/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/utilities/data_structures/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/utilities/vehicles/</loc>
-     <lastmod>2020-07-26</lastmod>
+     <lastmod>2020-09-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>

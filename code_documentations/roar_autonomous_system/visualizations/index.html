@@ -8,9 +8,9 @@
 <meta content="Robot Autonomous Racing DeCal is a course dedicated to teaching students to gain a holistic view and hands-on(virtual) experiences about building a high-performance fully-autonomous 1/10 scale RC car from scratch." name="description"/>
 <link href="https://roar-decal.github.io/Carla/code_documentations/roar_autonomous_system/visualizations/" rel="canonical"/>
 <link href="../../../assets/images/favicon.png" rel="shortcut icon"/>
-<meta content="mkdocs-1.1.2, mkdocs-material-5.4.0" name="generator"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-5.5.3" name="generator"/>
 <title>Visualization - ROAR</title>
-<link href="../../../assets/stylesheets/main.fe0cca5b.min.css" rel="stylesheet"/>
+<link href="../../../assets/stylesheets/main.947af8d5.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
 <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
@@ -20,7 +20,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer">
+<a class="md-skip" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer">
           Skip to content
         </a>
 </div>
@@ -196,34 +196,59 @@
     </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer">
     Visualizer
   </a>
 <nav aria-label="Visualizer" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GREEN">
+    GREEN
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GROUND">
+    GROUND
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__">
     __init__()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos">
     calculate_img_pos()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_birds_eye_visualization">
+    show_birds_eye_visualization()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_first_person_visualization">
+    show_first_person_visualization()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize">
     visualize()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation">
     visualize_semantic_segmentation()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint">
     visualize_waypoint()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.world_to_img_transform">
+    world_to_img_transform()
   </a>
 </li>
 </ul>
@@ -323,34 +348,59 @@
     </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer">
     Visualizer
   </a>
 <nav aria-label="Visualizer" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GREEN">
+    GREEN
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GROUND">
+    GROUND
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__">
     __init__()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos">
     calculate_img_pos()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_birds_eye_visualization">
+    show_birds_eye_visualization()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_first_person_visualization">
+    show_first_person_visualization()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize">
     visualize()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation">
     visualize_semantic_segmentation()
   </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint">
     visualize_waypoint()
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.world_to_img_transform">
+    world_to_img_transform()
   </a>
 </li>
 </ul>
@@ -368,36 +418,66 @@
 <div class="doc doc-contents first">
 <div class="doc doc-children">
 <div class="doc doc-object doc-class">
-<h2 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer">
+<h2 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer">
 <code>Visualizer</code>
-<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer" title="Permanent link">¤</a></h2>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer" title="Permanent link">¤</a></h2>
 <div class="doc doc-contents">
 <div class="doc doc-children">
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GREEN">
+<code class="highlight">
+GREEN        </code>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GREEN" title="Permanent link">¤</a></h3>
+<div class="doc doc-contents">
+</div>
+</div>
+<div class="doc doc-object doc-attribute">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GROUND">
+<code class="highlight">
+GROUND        </code>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.GROUND" title="Permanent link">¤</a></h3>
+<div class="doc doc-contents">
+</div>
+</div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__">
 <code class="highlight language-python">
-__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span> </code>
+__init__<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">occupancy_grid_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">semantic_segmentation_detector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">point_cloud_detector</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> </code>
 <span class="doc doc-properties">
 <small class="doc doc-property doc-property-special"><code>special</code></small>
 </span>
-<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__" title="Permanent link">¤</a></h3>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.__init__" title="Permanent link">¤</a></h3>
 <div class="doc doc-contents">
 <details class="quote">
-<summary>Source code in <code>ROAR_simulation/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
 <table class="highlighttable">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>12
-13
-14</pre>
+<pre><span></span>20
+21
+22
+23
+24
+25
+26
+27
+28
+29</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">):</span>
+<pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">,</span>
+             <span class="n">occupancy_grid_map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OccupancyGridMap</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">semantic_segmentation_detector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SemanticSegmentationDetector</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">point_cloud_detector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PointCloudDetector</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">agent</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span> <span class="o">=</span> <span class="n">occupancy_grid_map</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span> <span class="o">=</span> <span class="n">semantic_segmentation_detector</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">point_cloud_detector</span> <span class="o">=</span> <span class="n">point_cloud_detector</span>
 </code></pre>
 </div>
 </td>
@@ -407,10 +487,10 @@ __init__<span class="p">(</span><span class="bp">self</span><span class="p">,</s
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos">
 <code class="highlight language-python">
 calculate_img_pos<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waypoint_transform</span><span class="p">,</span> <span class="n">camera</span><span class="p">)</span> </code>
-<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos" title="Permanent link">¤</a></h3>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.calculate_img_pos" title="Permanent link">¤</a></h3>
 <div class="doc doc-contents">
 <p>Calculate the 2D image coordinate from 3D world space</p>
 <p><strong>Parameters:</strong></p>
@@ -458,28 +538,12 @@ calculate_img_pos<span class="p">(</span><span class="bp">self</span><span class
 </tbody>
 </table>
 <details class="quote">
-<summary>Source code in <code>ROAR_simulation/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
 <table class="highlighttable">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
+<pre><span></span>46
 47
 48
 49
@@ -495,13 +559,26 @@ calculate_img_pos<span class="p">(</span><span class="bp">self</span><span class
 59
 60
 61
-62</pre>
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">calculate_img_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waypoint_transform</span><span class="p">:</span> <span class="n">Transform</span><span class="p">,</span> <span class="n">camera</span><span class="p">:</span> <span class="n">Camera</span><span class="p">)</span>\
-        <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<pre><span></span><code><span class="nd">@deprecated</span><span class="p">(</span><span class="n">reason</span><span class="o">=</span><span class="s2">"Will no longer support single image to world calculation."</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">calculate_img_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waypoint_transform</span><span class="p">:</span> <span class="n">Transform</span><span class="p">,</span> <span class="n">camera</span><span class="p">:</span> <span class="n">Camera</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    Calculate the 2D image coordinate from 3D world space</span>
 
@@ -513,22 +590,19 @@ calculate_img_pos<span class="p">(</span><span class="bp">self</span><span class
 <span class="sd">        Array if integers [X, Y, depth]</span>
 
 <span class="sd">    """</span>
-    <span class="n">waypoint_location</span> <span class="o">=</span> <span class="n">waypoint_transform</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">to_array</span><span class="p">()</span>
+    <span class="n">waypoint_location</span> <span class="o">=</span> <span class="n">waypoint_transform</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">to_array</span><span class="p">()</span>  <span class="c1"># [x, y, z]</span>
     <span class="n">waypoint_location</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
         <span class="p">[</span><span class="n">waypoint_location</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
     <span class="p">)</span>  <span class="c1"># 4 x 1 array [X, Y, Z, 1]</span>
     <span class="n">veh_cam_matrix</span> <span class="o">=</span> <span class="n">camera</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">()</span>  <span class="c1"># 4 x 4</span>
     <span class="n">world_veh_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">vehicle</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">()</span>  <span class="c1"># 4 x 4</span>
 
-    <span class="n">world_cam_matrix</span> <span class="o">=</span> \
-        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">world_veh_matrix</span><span class="p">,</span> <span class="n">veh_cam_matrix</span><span class="p">))</span>
+    <span class="n">world_cam_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">world_veh_matrix</span><span class="p">,</span> <span class="n">veh_cam_matrix</span><span class="p">))</span>
 
     <span class="n">cords_xyz</span> <span class="o">=</span> <span class="n">world_cam_matrix</span> <span class="o">@</span> <span class="n">waypoint_location</span>
-
-    <span class="n">cords_y_minus_z_x</span> <span class="o">=</span> \
-        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cords_xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">cords_xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cords_xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="n">cords_y_minus_z_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cords_xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">cords_xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cords_xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
     <span class="n">raw_p2d</span> <span class="o">=</span> <span class="n">camera</span><span class="o">.</span><span class="n">intrinsics_matrix</span> <span class="o">@</span> <span class="n">cords_y_minus_z_x</span>
-    <span class="c1"># print(raw_p2d)</span>
+
     <span class="n">cam_cords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
         <span class="p">[</span><span class="n">raw_p2d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
     <span class="p">)</span>
@@ -542,10 +616,180 @@ calculate_img_pos<span class="p">(</span><span class="bp">self</span><span class
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_birds_eye_visualization">
+<code class="highlight language-python">
+show_birds_eye_visualization<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_on_vehicle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">view_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span> </code>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_birds_eye_visualization" title="Permanent link">¤</a></h3>
+<div class="doc doc-contents">
+<details class="quote">
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">show_birds_eye_visualization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_on_vehicle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">view_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No Occupancy Grid Map is connected"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">focus_on_vehicle</span><span class="p">:</span>
+            <span class="n">occu_cord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">location_to_occu_cord</span><span class="p">(</span>
+                <span class="n">location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">vehicle</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">location</span><span class="p">)</span>
+            <span class="n">map_copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">map</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">occu_cord</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">map_copy</span><span class="p">[</span>
+            <span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">vehicle_height</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">vehicle_height</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">vehicle_width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">vehicle_width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">"Occupancy Grid Map"</span><span class="p">,</span> <span class="n">map_copy</span><span class="p">[</span>
+                                             <span class="n">y</span> <span class="o">-</span> <span class="n">view_size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">view_size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:,</span>
+                                             <span class="n">x</span> <span class="o">-</span> <span class="n">view_size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">view_size</span> <span class="o">//</span> <span class="mi">2</span>
+                                             <span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">"Occupancy Grid Map"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_grid_map</span><span class="o">.</span><span class="n">map</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_first_person_visualization">
+<code class="highlight language-python">
+show_first_person_visualization<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show_num_waypoints</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">show_semantic_segmentation_obstacle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_semantic_segmentation_sky</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_semantic_segmentation_ground</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_point_cloud_ground</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ground_points</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> </code>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.show_first_person_visualization" title="Permanent link">¤</a></h3>
+<div class="doc doc-contents">
+<details class="quote">
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">show_first_person_visualization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                    <span class="n">show_num_waypoints</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                    <span class="n">show_semantic_segmentation_obstacle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">show_semantic_segmentation_sky</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">show_semantic_segmentation_ground</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">show_point_cloud_ground</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                    <span class="n">ground_points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">rgb_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">front_rgb_camera</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">show_semantic_segmentation_sky</span> <span class="ow">or</span> <span class="n">show_semantic_segmentation_obstacle</span> <span class="ow">or</span> <span class="n">show_semantic_segmentation_ground</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">curr_segmentation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">show_semantic_segmentation_sky</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">curr_segmentation</span>
+                              <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">SKY</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">rgb_img</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">SKY</span>
+            <span class="k">if</span> <span class="n">show_semantic_segmentation_obstacle</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">curr_segmentation</span>
+                              <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">OBSTACLE</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">rgb_img</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">OBSTACLE</span>
+            <span class="k">if</span> <span class="n">show_semantic_segmentation_ground</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">curr_segmentation</span>
+                              <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">GROUND</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">rgb_img</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">semantic_segmentation_detector</span><span class="o">.</span><span class="n">GROUND</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Semantic Segmentation Detector is not configured"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">show_point_cloud_ground</span> <span class="ow">and</span> <span class="n">ground_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">img_cords</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_to_img_transform</span><span class="p">(</span><span class="n">ground_points</span><span class="p">)[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># ys = [342, 278, 271, 413 ,327 ,169 ,415, 747 ,507 ,311,311,311,311,311,311]</span>
+        <span class="c1"># xs = [577, 513 ,531, 522 ,372 ,581, 470 ,484, 587, 523,524,525,526,527,528]</span>
+        <span class="c1"># rgb_img[xs, ys] = [0, 0, 0]</span>
+        <span class="n">rgb_img</span><span class="p">[</span><span class="n">img_cords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">img_cords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># TODO this aint working lol</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">local_planner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> \
+            <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">show_num_waypoints</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">local_planner</span><span class="o">.</span><span class="n">way_points_queue</span><span class="p">):</span>
+        <span class="n">img_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_to_img_transform</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">local_planner</span><span class="o">.</span><span class="n">way_points_queue</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">to_array</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">show_num_waypoints</span><span class="p">)]))</span>
+        <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">img_positions</span><span class="p">:</span>
+            <span class="n">rgb_img</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GREEN</span>
+
+    <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">"First Person View"</span><span class="p">,</span> <span class="n">rgb_img</span><span class="p">)</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize">
 <code class="highlight language-python">
 visualize<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_waypoint_transform</span><span class="p">)</span> </code>
-<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize" title="Permanent link">¤</a></h3>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize" title="Permanent link">¤</a></h3>
 <div class="doc doc-contents">
 <p>This function will allow multiple objects to be drawn on here.</p>
 <p><strong>Parameters:</strong></p>
@@ -587,43 +831,45 @@ visualize<span class="p">(</span><span class="bp">self</span><span class="p">,</
 </tbody>
 </table>
 <details class="quote">
-<summary>Source code in <code>ROAR_simulation/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
 <table class="highlighttable">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>64
-65
-66
-67
-68
-69
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87
-88
-89
-90</pre>
+<pre><span></span> 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_waypoint_transform</span><span class="p">:</span> <span class="n">Transform</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<pre><span></span><code><span class="nd">@deprecated</span><span class="p">(</span><span class="n">reason</span><span class="o">=</span><span class="s2">"Will no longer support next waypoint visualization on a single display"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">next_waypoint_transform</span><span class="p">:</span> <span class="n">Transform</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    This function will allow multiple objects to be drawn on here.</span>
 
@@ -659,13 +905,13 @@ visualize<span class="p">(</span><span class="bp">self</span><span class="p">,</
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation">
 <code class="highlight language-python">
-visualize_semantic_segmentation<span class="p">(</span><span class="n">semantic_segmetation</span><span class="p">)</span> </code>
+visualize_semantic_segmentation<span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">semantic_segmetation</span><span class="p">)</span> </code>
 <span class="doc doc-properties">
 <small class="doc doc-property doc-property-classmethod"><code>classmethod</code></small>
 </span>
-<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation" title="Permanent link">¤</a></h3>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_semantic_segmentation" title="Permanent link">¤</a></h3>
 <div class="doc doc-contents">
 <p><strong>Parameters:</strong></p>
 <table>
@@ -708,32 +954,34 @@ visualize_semantic_segmentation<span class="p">(</span><span class="n">semantic_
 </tbody>
 </table>
 <details class="quote">
-<summary>Source code in <code>ROAR_simulation/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
 <table class="highlighttable">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span> 92
- 93
- 94
- 95
- 96
- 97
- 98
- 99
-100
-101
-102
-103
-104
-105
-106
-107</pre>
+<pre><span></span>106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
 <pre><span></span><code><span class="nd">@classmethod</span>
+<span class="nd">@deprecated</span><span class="p">(</span><span class="n">reason</span><span class="o">=</span><span class="s2">"will no longer support single semantic segmentation visualization"</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">visualize_semantic_segmentation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">semantic_segmetation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">"""</span>
 
@@ -758,35 +1006,37 @@ visualize_semantic_segmentation<span class="p">(</span><span class="n">semantic_
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint">
 <code class="highlight language-python">
 visualize_waypoint<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waypoint_transform</span><span class="p">)</span> </code>
-<a class="headerlink" href="#ROAR_simulation.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint" title="Permanent link">¤</a></h3>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.visualize_waypoint" title="Permanent link">¤</a></h3>
 <div class="doc doc-contents">
 <details class="quote">
-<summary>Source code in <code>ROAR_simulation/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
 <table class="highlighttable">
 <tr>
 <td class="linenos">
 <div class="linenodiv">
-<pre><span></span>16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28</pre>
+<pre><span></span>31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre>
 </div>
 </td>
 <td class="code">
 <div class="highlight">
-<pre><span></span><code><span class="k">def</span> <span class="nf">visualize_waypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waypoint_transform</span><span class="p">:</span> <span class="n">Transform</span><span class="p">):</span>
+<pre><span></span><code><span class="nd">@deprecated</span><span class="p">(</span><span class="n">reason</span><span class="o">=</span><span class="s2">"Will no longer support seperate graph visualization"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">visualize_waypoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waypoint_transform</span><span class="p">:</span> <span class="n">Transform</span><span class="p">):</span>
     <span class="n">coord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_img_pos</span><span class="p">(</span>
         <span class="n">waypoint_transform</span><span class="o">=</span><span class="n">waypoint_transform</span><span class="p">,</span>
         <span class="n">camera</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">front_depth_camera</span>
@@ -799,6 +1049,115 @@ visualize_waypoint<span class="p">(</span><span class="bp">self</span><span clas
                           <span class="mi">2</span><span class="p">)</span>
     <span class="n">cv2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">"Next Waypoint"</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
     <span class="n">cv2</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+</td>
+</tr>
+</table>
+</details>
+</div>
+</div>
+<div class="doc doc-object doc-method">
+<h3 class="doc doc-heading" id="ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.world_to_img_transform">
+<code class="highlight language-python">
+world_to_img_transform<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyz</span><span class="p">)</span> </code>
+<a class="headerlink" href="#ROAR.roar_autonomous_system.visualization_module.visualizer.Visualizer.world_to_img_transform" title="Permanent link">¤</a></h3>
+<div class="doc doc-contents">
+<p>Calculate the 2D image coordinate from 3D world space</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xyz</code></td>
+<td><code>ndarray</code></td>
+<td>
+<p>(Nx3) array representing X, Y, Z in world coord</p>
+</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ndarray</code></td>
+<td>
+<p>Array if integers [u, v, f]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<details class="quote">
+<summary>Source code in <code>ROAR/roar_autonomous_system/visualization_module/visualizer.py</code></summary>
+<table class="highlighttable">
+<tr>
+<td class="linenos">
+<div class="linenodiv">
+<pre><span></span>124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146</pre>
+</div>
+</td>
+<td class="code">
+<div class="highlight">
+<pre><span></span><code><span class="k">def</span> <span class="nf">world_to_img_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    Calculate the 2D image coordinate from 3D world space</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        xyz: (Nx3) array representing X, Y, Z in world coord</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Array if integers [u, v, f]</span>
+
+<span class="sd">    """</span>
+    <span class="n">xyz1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xyz</span><span class="p">),</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">veh_cam_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">front_depth_camera</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">()</span>  <span class="c1"># 4 x 4</span>
+    <span class="n">world_veh_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">vehicle</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">get_matrix</span><span class="p">()</span>  <span class="c1"># 4 x 4</span>
+
+    <span class="n">world_cam_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">world_veh_matrix</span><span class="p">,</span> <span class="n">veh_cam_matrix</span><span class="p">))</span>
+    <span class="n">cords_xyz1</span> <span class="o">=</span> <span class="n">world_cam_matrix</span> <span class="o">@</span> <span class="n">xyz1</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">cords_y_minus_z_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cords_xyz1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="o">-</span><span class="n">cords_xyz1</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cords_xyz1</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]])</span>
+    <span class="n">raw_p2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">front_depth_camera</span><span class="o">.</span><span class="n">intrinsics_matrix</span> <span class="o">@</span> <span class="n">cords_y_minus_z_x</span>
+    <span class="n">cam_cords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">raw_p2d</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">raw_p2d</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">cam_cords</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
 </code></pre>
 </div>
 </td>
@@ -861,14 +1220,14 @@ visualize_waypoint<span class="p">(</span><span class="bp">self</span><span clas
 </div>
 </footer>
 </div>
-<script src="../../../assets/javascripts/vendor.d710d30a.min.js"></script>
-<script src="../../../assets/javascripts/bundle.b39636ac.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+<script src="../../../assets/javascripts/vendor.c3dc8c49.min.js"></script>
+<script src="../../../assets/javascripts/bundle.f9edbbd5.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
 <script>
         app = initialize({
           base: "../../..",
           features: [],
           search: Object.assign({
-            worker: "../../../assets/javascripts/worker/search.a68abb33.min.js"
+            worker: "../../../assets/javascripts/worker/search.8e2cddea.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
