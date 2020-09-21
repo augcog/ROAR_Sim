@@ -19,7 +19,7 @@ from ROAR.roar_autonomous_system.visualization_module.visualizer \
     Visualizer
 import open3d as o3d
 from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
-from ROAR.roar_autonomous_system.perception_module.gpd_detector import GroundPlaneDetector
+from ROAR.roar_autonomous_system.perception_module.semantic_segmentation_detector import GroundPlaneDetector
 
 
 class VisualizerDemoAgent(Agent):

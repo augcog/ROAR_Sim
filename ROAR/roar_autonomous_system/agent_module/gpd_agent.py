@@ -2,7 +2,7 @@ from ROAR.roar_autonomous_system.agent_module.agent import Agent
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.roar_autonomous_system.configurations.agent_settings import AgentConfig
 from ROAR.roar_autonomous_system.utilities_module.data_structures_models import SensorsData
-from ROAR.roar_autonomous_system.perception_module.gpd_detector import GroundPlaneDetector
+from ROAR.roar_autonomous_system.perception_module.semantic_segmentation_detector import GroundPlaneDetector
 from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
 from ROAR.roar_autonomous_system.utilities_module.utilities import img_to_world2
 import numpy as np

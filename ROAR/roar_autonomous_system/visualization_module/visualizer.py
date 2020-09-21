@@ -8,17 +8,19 @@ import cv2
 from ROAR.roar_autonomous_system.agent_module.agent import Agent
 from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
 from typing import Optional, List
-from ROAR.roar_autonomous_system.perception_module.gpd_detector import GroundPlaneDetector
+from ROAR.roar_autonomous_system.perception_module.semantic_segmentation_detector import SemanticSegmentationDetector
 from deprecated import deprecated
 from ROAR.roar_autonomous_system.perception_module.point_cloud_detector import PointCloudDetector
 
+
 class Visualizer:
     GREEN = [0, 255, 0]
-    GROUND = [0,0,0]
+    GROUND = [0, 0, 0]
+
     def __init__(self,
                  agent: Agent,
                  occupancy_grid_map: Optional[OccupancyGridMap] = None,
-                 semantic_segmentation_detector: Optional[GroundPlaneDetector] = None,
+                 semantic_segmentation_detector: Optional[SemanticSegmentationDetector] = None,
                  point_cloud_detector: Optional[PointCloudDetector] = None):
         self.logger = logging.getLogger(__name__)
         self.agent = agent
@@ -149,7 +151,7 @@ class Visualizer:
                                         show_semantic_segmentation_sky: bool = False,
                                         show_semantic_segmentation_ground: bool = False,
                                         show_point_cloud_ground: bool = False,
-                                        ground_points:Optional[np.ndarray] = None):
+                                        ground_points: Optional[np.ndarray] = None):
         rgb_img = self.agent.front_rgb_camera.data.copy()
 
         if show_semantic_segmentation_sky or show_semantic_segmentation_obstacle or show_semantic_segmentation_ground:
@@ -174,7 +176,7 @@ class Visualizer:
             # ys = [342, 278, 271, 413 ,327 ,169 ,415, 747 ,507 ,311,311,311,311,311,311]
             # xs = [577, 513 ,531, 522 ,372 ,581, 470 ,484, 587, 523,524,525,526,527,528]
             # rgb_img[xs, ys] = [0, 0, 0]
-            rgb_img[img_cords[:, 1], img_cords[:, 0]] = [0,0,0]  # TODO this aint working lol
+            rgb_img[img_cords[:, 1], img_cords[:, 0]] = [0, 0, 0]  # TODO this aint working lol
         if self.agent.local_planner is not None and \
                 0 < show_num_waypoints < len(self.agent.local_planner.way_points_queue):
             img_positions = self.world_to_img_transform(np.array(

@@ -9,7 +9,7 @@ from scipy.signal import convolve2d
 from typing import Optional
 
 
-class GroundPlaneDetector(Detector):
+class SemanticSegmentationDetector(Detector):
     SKY = [255, 0, 0]
     GROUND = [255, 255, 255]
     OBSTACLE = [0,0,0]
