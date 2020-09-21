@@ -3,6 +3,10 @@ from ROAR.roar_autonomous_system.utilities_module.data_structures_models import 
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.roar_autonomous_system.perception_module.ground_plane_point_cloud_detector import \
     GroundPlanePointCloudDetector
+from ROAR.roar_autonomous_system.perception_module.gpd_pc2 import \
+    GPD_PC2
+
+
 import numpy as np
 from ROAR.roar_autonomous_system.planning_module.local_planner.simple_waypoint_following_local_planner import \
     SimpleWaypointFollowingLocalPlanner
@@ -35,10 +39,17 @@ class PointCloudAgent(Agent):
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
             closeness_threshold=1)
+        """
         self.gp_pointcloud_detector = GroundPlanePointCloudDetector(agent=self,
                                                                     max_points_to_convert=10000,
                                                                     nb_neighbors=100,
                                                                     std_ratio=1)
+        """
+        self.gp_pointcloud_detector = GPD_PC2(agent=self,
+                                              max_points_to_convert=10000,
+                                              nb_neighbors=100,
+                                              std_ratio=1)
+
         self.occupancy_grid_map = OccupancyGridMap(absolute_maximum_map_size=800)
         self.visualizer = Visualizer(agent=self)
 
