@@ -77,7 +77,7 @@ class CarlaBridge(Bridge):
         """Convert CARLA raw depth info to """
         try:
             array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
-            array = np.reshape(array, (source.pygame_display_height, source.pygame_display_width, 4))  # BGRA
+            array = np.reshape(array, (source.height, source.width, 4))  # BGRA
             array = array[:, :, :3]  # BGR
             array = array[:, :, ::-1]  # RGB
             # array = array.swapaxes(0, 1)

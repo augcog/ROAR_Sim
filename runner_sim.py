@@ -1,8 +1,4 @@
 import logging
-from ROAR.roar_autonomous_system.agent_module.pure_pursuit_agent \
-    import PurePursuitAgent
-from ROAR.roar_autonomous_system.agent_module.mpc_agent import MPCAgent
-from ROAR.roar_autonomous_system.agent_module.pid_agent import PIDAgent
 from pathlib import Path
 
 import numpy as np
@@ -10,12 +6,7 @@ import os
 import warnings
 from ROAR.roar_autonomous_system.configurations.configuration import Configuration
 from ROAR.carla_client.carla_runner import CarlaRunner
-from ROAR.roar_autonomous_system.agent_module.gpd_agent import GPDAgent
-# from ROAR.roar_autonomous_system.agent_module.map_generating_agent_v2 import MapGeneratingAgentV2
-from ROAR.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
 from ROAR.roar_autonomous_system.agent_module.point_cloud_agent import PointCloudAgent
-from ROAR.roar_autonomous_system.agent_module.visualizer_demo_agent import VisualizerDemoAgent
-from ROAR.roar_autonomous_system.agent_module.opencv_tensorflow_object_detection_agent import OpenCVTensorflowObjectDetectionAgent
 
 def main():
     config = Configuration.parse_file(
@@ -27,9 +18,9 @@ def main():
     try:
         my_vehicle = carla_runner.set_carla_world()
         # agent = GPDAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        # agent = PurePursuitAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = MapGeneratingAgentV3(vehicle=my_vehicle, agent_settings=config.agent_config)
-        # agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        agent = PointCloudAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = VisualizerDemoAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         # agent = OpenCVTensorflowObjectDetectionAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
         carla_runner.start_game_loop(agent=agent, use_manual_control=False)

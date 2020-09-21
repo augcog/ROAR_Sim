@@ -112,7 +112,6 @@ class CarlaRunner:
                 self.world.render(display=self.display)
                 pygame.display.flip()
                 sensor_data, new_vehicle = self.convert_data()
-
                 if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
                     self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
                         "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
