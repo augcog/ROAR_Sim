@@ -191,7 +191,6 @@ class World(object):
         self.carla_world.weather = new_weather
 
     def set_custom_sensor(self):
-
         Attachment = carla.AttachmentType
         self._destroy_custom_sensors()
         self.front_rgb_sensor = self._spawn_custom_sensor(
