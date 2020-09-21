@@ -30,11 +30,12 @@ def read_password(jetson_sudo_setup_f_path: Path):
     d = json.load(fp=jetson_sudo_setup_f_path.open("r"))
     return d["sudo_password"]
 
+
 def allow_dev_access(pwd):
     command = 'chmod 777 /dev/ttyACM0'
-    print(pwd)
     p = os.system(f'echo {pwd}|sudo -S {command}')
     return True if p == 0 else False
+
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s - %(name)s '
