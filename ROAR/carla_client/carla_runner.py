@@ -69,6 +69,7 @@ class CarlaRunner:
                                carla_settings=self.carla_settings,
                                agent_settings=self.agent_settings)
 
+
             if self.carla_settings.should_spawn_npcs:
                 self.spawn_npcs()
 
