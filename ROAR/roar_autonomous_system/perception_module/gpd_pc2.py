@@ -54,13 +54,13 @@ class GPD_PC2(GroundPlanePointCloudDetector):
 
         pcd.points = o3d.utility.Vector3dVector(points_3d[plane_pixel_flat])
         rgb_image = self.agent.front_rgb_camera.data.copy()  # W x H x 1
-        # d1, d2, _ = rgb_image.shape
-        #
-        # gpd_mask = plane_pixel_flat.reshape(d1, d2) # TODO the shape of plane_pixel_flat is 10000, but d1=600,d2=800, shape don't match
-        # rgb_image[gpd_mask, :] = 0
-        #
-        # cv2.imshow("Color", rgb_image)
-        # cv2.waitKey(1)
+        d1, d2, _ = rgb_image.shape
+
+        gpd_mask = plane_pixel_flat.reshape(d1, d2) # TODO the shape of plane_pixel_flat is 10000, but d1=600,d2=800, shape don't match
+        rgb_image[gpd_mask, :] = 0
+
+        cv2.imshow("Color", rgb_image)
+        cv2.waitKey(1)
 
         """
         pcd, ids = pcd.remove_statistical_outlier(
