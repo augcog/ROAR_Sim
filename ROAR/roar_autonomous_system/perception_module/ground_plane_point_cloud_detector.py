@@ -55,16 +55,16 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
         pcd, ids = pcd.remove_statistical_outlier(nb_neighbors=self.nb_neighbors, std_ratio=self.std_ratio)
 
         self.pcd.points = o3d.utility.Vector3dVector(np.asarray(points_3d) - np.mean(points_3d, axis=0))
-        if self.counter == 0:
-            self.vis.create_window(window_name="Open3d", width=400, height=400)
-            self.vis.add_geometry(self.pcd)
-            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-            render_option.show_coordinate_frame = True
-        else:
-            self.vis.update_geometry(self.pcd)
-            render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
-            render_option.show_coordinate_frame = True
-            self.vis.poll_events()
-            self.vis.update_renderer()
+        # if self.counter == 0:
+        #     self.vis.create_window(window_name="Open3d", width=400, height=400)
+        #     self.vis.add_geometry(self.pcd)
+        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+        #     render_option.show_coordinate_frame = True
+        # else:
+        #     self.vis.update_geometry(self.pcd)
+        #     render_option: o3d.visualization.RenderOption = self.vis.get_render_option()
+        #     render_option.show_coordinate_frame = True
+        #     self.vis.poll_events()
+        #     self.vis.update_renderer()
         self.counter += 1
         return np.asarray(pcd.points)

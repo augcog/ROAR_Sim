@@ -34,7 +34,7 @@ class CarlaBridge(Bridge):
         Returns:
 
         """
-        return Location(x=source.x, y=source.y, z=-source.z)
+        return Location(x=source.x, y=source.y, z=source.z)
 
     def convert_rotation_from_source_to_agent(self, source: carla.Rotation) -> Rotation:
         """Convert a CARLA raw rotation to Rotation(pitch=float,yaw=float,roll=float)."""
@@ -77,7 +77,7 @@ class CarlaBridge(Bridge):
         """Convert CARLA raw depth info to """
         try:
             array = np.frombuffer(source.raw_data, dtype=np.dtype("uint8"))
-            array = np.reshape(array, (source.pygame_display_height, source.pygame_display_width, 4))  # BGRA
+            array = np.reshape(array, (source.height, source.width, 4))  # BGRA
             array = array[:, :, :3]  # BGR
             array = array[:, :, ::-1]  # RGB
             # array = array.swapaxes(0, 1)
@@ -167,7 +167,7 @@ class CarlaBridge(Bridge):
         if not isinstance(image, carla.Image):
             raise ValueError("Argument must be a carla.sensor.Image")
         array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
-        array = np.reshape(array, (image.pygame_display_height, image.pygame_display_width, 4))
+        array = np.reshape(array, (image.height, image.width, 4))
         return array
 
     def _to_rgb_array(self, image):

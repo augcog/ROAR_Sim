@@ -55,3 +55,37 @@ class PointCloudAgent(Agent):
             self.logger.error(f"Point cloud RunStep Error: {e}")
         finally:
             return self.local_planner.run_step(self.vehicle)
+    def calculate_world_cords(self):
+        depth_img = self.agent.front_depth_camera.data.copy()
+
+        coords = np.where(depth_img < self.max_detectable_distance)
+
+        indices_to_select = np.random.choice(np.shape(coords)[1],
+                                             size=min([self.max_points_to_convert, np.shape(coords)[1]]),
+                                             replace=False)
+
+        coords = (
+            coords[0][indices_to_select],
+            coords[1][indices_to_select]
+        )
+
+        raw_p2d = np.reshape(self._pix2xyz(depth_img=depth_img, i=coords[0], j=coords[1]), (3, np.shape(coords)[1])).T
+
+        cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_p2d.T
+        cords_xyz_1 = np.vstack([
+            cords_y_minus_z_x[2, :],
+            cords_y_minus_z_x[0, :],
+            -cords_y_minus_z_x[1, :],
+            np.ones((1, np.shape(cords_y_minus_z_x)[1]))
+        ])
+        points: np.ndarray = self.agent.vehicle.transform.get_matrix() @ self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
+        points = points.T[:, :3]
+        return points
+
+    @staticmethod
+    def _pix2xyz(depth_img, i, j):
+        return [
+            depth_img[i, j] * j * 1000,
+            depth_img[i, j] * i * 1000,
+            depth_img[i, j] * 1000
+        ]
