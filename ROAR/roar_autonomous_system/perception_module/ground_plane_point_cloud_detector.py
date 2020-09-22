@@ -33,7 +33,7 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
         self.counter = 0
 
     def run_step(self) -> np.ndarray:
-        points_3d = self.calculate_world_cords()  # (Nx3)
+        points_3d, coords = self.calculate_world_cords()  # (Nx3) # TODO Christian, coords is a list of image X, Y that I've selected
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points_3d)  # - np.mean(points_3d, axis=0))
         pcd.estimate_normals()
@@ -68,3 +68,30 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
             self.vis.update_renderer()
         self.counter += 1
         return np.asarray(pcd.points)
+
+    def calculate_world_cords(self):
+        depth_img = self.agent.front_depth_camera.data.copy()
+
+        coords = np.where(depth_img < self.max_detectable_distance)
+
+        indices_to_select = np.random.choice(np.shape(coords)[1],
+                                             size=min([self.max_points_to_convert, np.shape(coords)[1]]),
+                                             replace=False)
+
+        coords = (
+            coords[0][indices_to_select],
+            coords[1][indices_to_select]
+        )
+
+        raw_p2d = np.reshape(self._pix2xyz(depth_img=depth_img, i=coords[0], j=coords[1]), (3, np.shape(coords)[1])).T
+
+        cords_y_minus_z_x = np.linalg.inv(self.agent.front_depth_camera.intrinsics_matrix) @ raw_p2d.T
+        cords_xyz_1 = np.vstack([
+            cords_y_minus_z_x[2, :],
+            cords_y_minus_z_x[0, :],
+            -cords_y_minus_z_x[1, :],
+            np.ones((1, np.shape(cords_y_minus_z_x)[1]))
+        ])
+        points: np.ndarray = self.agent.vehicle.transform.get_matrix() @ self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
+        points = points.T[:, :3]
+        return points, coords
