@@ -43,45 +43,45 @@ class PointCloudMapRecordingAgent(Agent):
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
             closeness_threshold=1)
-        self.ground_plane_point_cloud_detector = GroundPlanePointCloudDetector(agent=self, max_points_to_convert=20000)
+        self.ground_plane_point_cloud_detector = GroundPlanePointCloudDetector(agent=self, max_points_to_convert=20000,
+                                                                               ground_tilt_threshhold=0.05)
         self.visualizer = Visualizer(agent=self)
         self.map_history: List[MapEntry] = []
         self.file_written = False
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super(PointCloudMapRecordingAgent, self).run_step(sensors_data=sensors_data, vehicle=vehicle)
+        control = self.local_planner.run_step(vehicle=self.vehicle)
         try:
-            control = self.local_planner.run_step(vehicle=self.vehicle)
-
             ground_points = self.ground_plane_point_cloud_detector.run_step()
+            # print(np.shape(ground_points))
             color_image = self.front_rgb_camera.data.copy()
             ground_cords_in_2d: np.ndarray = self.visualizer.world_to_img_transform(xyz=ground_points)[:, :2]
             # this is a hack, without 5000 threshold, it sometimes have false detection
-            if np.shape(ground_cords_in_2d)[0] > 4000:
+            # if np.shape(ground_cords_in_2d)[0] > 4000:
                 # estimate left = (x_min, img_pos[1]) and right = (x_max, img_pos[1])
-                img_positions = self.visualizer.world_to_img_transform(
-                    np.array([self.local_planner.way_points_queue[1].location.to_array()]))
-                img_pos = img_positions[0]
-                y_range = img_pos[1] - 5, img_pos[1] + 5
-                indices = np.where(
-                    np.logical_and(ground_cords_in_2d[:, 1] >= y_range[0], ground_cords_in_2d[:, 1] <= y_range[1]))
-                bar_cords = ground_cords_in_2d[indices]
-                x_min, y_min = np.amin(bar_cords, axis=0)
-                x_max, y_max = np.amax(bar_cords, axis=0)
-                left_img_cord, right_img_cord = (x_min, img_pos[1]), (x_max, img_pos[1])
-                pts = self.img_cords_to_world_cords(left_img_cord, right_img_cord)
+            img_positions = self.visualizer.world_to_img_transform(
+                np.array([self.local_planner.way_points_queue[1].location.to_array()]))
+            img_pos = img_positions[0]
+            y_range = img_pos[1] - 5, img_pos[1] + 5
+            indices = np.where(
+                np.logical_and(ground_cords_in_2d[:, 1] >= y_range[0], ground_cords_in_2d[:, 1] <= y_range[1]))
+            bar_cords = ground_cords_in_2d[indices]
+            x_min, y_min = np.amin(bar_cords, axis=0)
+            x_max, y_max = np.amax(bar_cords, axis=0)
+            left_img_cord, right_img_cord = (x_min, img_pos[1]), (x_max, img_pos[1])
+            pts = self.img_cords_to_world_cords(left_img_cord, right_img_cord)
 
-                # save it
-                self.map_history.append(MapEntry(point_a=pts[0].tolist(), point_b=pts[1].tolist()))
+            # save it
+            self.map_history.append(MapEntry(point_a=pts[0].tolist(), point_b=pts[1].tolist()))
 
-                # visualize
-                color_image[ground_cords_in_2d[:, 1], ground_cords_in_2d[:, 0]] = [255, 255, 255]
-                for y, x, _ in img_positions:
-                    color_image[x - 2: x + 2, y - 2:y + 2] = self.visualizer.GREEN
-                image = cv2.line(color_image, left_img_cord, right_img_cord, (0, 255, 0), 5)
-                cv2.imshow("color", image)
-                cv2.waitKey(1)
-            return control
+            # visualize
+            color_image[ground_cords_in_2d[:, 1], ground_cords_in_2d[:, 0]] = [255, 255, 255]
+            for y, x, _ in img_positions:
+                color_image[x - 2: x + 2, y - 2:y + 2] = self.visualizer.GREEN
+            image = cv2.line(color_image, left_img_cord, right_img_cord, (0, 255, 0), 5)
+            cv2.imshow("color", image)
+            cv2.waitKey(1)
         except Exception as e:
             self.logger.error(e)
 
@@ -95,7 +95,7 @@ class PointCloudMapRecordingAgent(Agent):
             json.dump(fp=f, obj=[map_entry.dict() for map_entry in self.map_history], indent=2)
             f.close()
             self.file_written = True
-        return VehicleControl()
+        return control
 
     def img_cords_to_world_cords(self, left_img_cord, right_img_cord):
         depth = self.front_depth_camera.data
