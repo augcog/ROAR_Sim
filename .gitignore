@@ -7,7 +7,7 @@ data/*.zip
 .vscode
 site
 .ipynb_checkpoints
-
+data/easy_map_waypoints.json
 data/easy_default_waypoints.txt
 *__pycache__*
 /configurations/jetson_sudo_setup.json

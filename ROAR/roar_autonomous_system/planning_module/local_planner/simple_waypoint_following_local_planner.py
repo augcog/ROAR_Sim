@@ -20,32 +20,32 @@ from typing import Union
 from ROAR.roar_autonomous_system.utilities_module.errors import (
     AgentException,
 )
+from ROAR.roar_autonomous_system.agent_module.agent import Agent
 
 
 class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
     def __init__(
-        self,
-        vehicle: Vehicle,
-        controller: Controller,
-        mission_planner: MissionPlanner,
-        behavior_planner: BehaviorPlanner,
-        closeness_threshold=0.5,
+            self,
+            agent: Agent,
+            controller: Controller,
+            mission_planner: MissionPlanner,
+            behavior_planner: BehaviorPlanner,
+            closeness_threshold=0.5,
     ):
         """
         Initialize Simple Waypoint Following Planner
         Args:
-            vehicle: Vehicle information
+            agent: newest agent state
             controller: Control module used
             mission_planner: mission planner used
             behavior_planner: behavior planner used
             closeness_threshold: how close can a waypoint be with the vehicle
         """
-        super().__init__(
-            vehicle=vehicle,
-            controller=controller,
-            mission_planner=mission_planner,
-            behavior_planner=behavior_planner,
-        )
+        super().__init__(agent=agent,
+                         controller=controller,
+                         mission_planner=mission_planner,
+                         behavior_planner=behavior_planner,
+                         )
         self.logger = logging.getLogger("SimplePathFollowingLocalPlanner")
         self.set_mission_plan()
         self.logger.debug("Simple Path Following Local Planner Initiated")
@@ -62,7 +62,7 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         """
         self.way_points_queue.clear()
         while (
-            self.mission_planner.mission_plan
+                self.mission_planner.mission_plan
         ):  # this actually clears the mission plan!!
             self.way_points_queue.append(self.mission_planner.mission_plan.popleft())
 
@@ -76,7 +76,7 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         """
         return len(self.way_points_queue) == 0
 
-    def run_step(self, vehicle: Vehicle) -> VehicleControl:
+    def run_step(self) -> VehicleControl:
         """
         Run step for the local planner
         Procedure:
@@ -86,27 +86,23 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
             4. feed waypoint into controller
             5. return result from controller
 
-        Args:
-            vehicle: current vehicle state
-
         Returns:
             next control that the local think the agent should execute.
         """
-        self.sync_data(vehicle=vehicle)  # on every run step, sync first
         if (
-            len(self.mission_planner.mission_plan) == 0
-            and len(self.way_points_queue) == 0
+                len(self.mission_planner.mission_plan) == 0
+                and len(self.way_points_queue) == 0
         ):
             return VehicleControl()
 
         # get vehicle's location
-        vehicle_transform: Union[Transform, None] = self.vehicle.transform
+        vehicle_transform: Union[Transform, None] = self.agent.vehicle.transform
 
         if vehicle_transform is None:
             raise AgentException("I do not know where I am, I cannot proceed forward")
 
         # redefine closeness level based on speed
-        curr_speed = Vehicle.get_speed(self.vehicle)
+        curr_speed = Vehicle.get_speed(self.agent.vehicle)
         if curr_speed < 60:
             self.closeness_threshold = 5
         elif curr_speed < 80:
@@ -139,9 +135,7 @@ class SimpleWaypointFollowingLocalPlanner(LocalPlanner):
         # target_waypoint = Transform.average(self.way_points_queue[0], self.way_points_queue[1])
         # target_waypoint = Transform.average(self.way_points_queue[2], target_waypoint)
 
-        control: VehicleControl = self.controller.run_step(
-            vehicle=vehicle, next_waypoint=target_waypoint
-        )
+        control: VehicleControl = self.controller.run_step(next_waypoint=target_waypoint)
         # self.logger.debug(
         #     f"Target_Location {target_waypoint.location} "
         #     f"| Curr_Location {vehicle_transform.location} "

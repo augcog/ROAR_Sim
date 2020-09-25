@@ -40,7 +40,7 @@ class MPCAgent(Agent):
                 self.agent_settings.waypoint_file_path),
             target_speed=target_speed)
         self.mission_planner = WaypointFollowingMissionPlanner(
-            file_path=Path(self.agent_settings.waypoint_file_path),
+            agent_config=self.agent_settings,
             vehicle=self.vehicle,)
         # initiated right after mission plan
 

@@ -18,9 +18,10 @@ from ROAR.roar_autonomous_system.control_module.controller import \
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models \
     import \
     VehicleControl, Vehicle
-from ROAR.roar_autonomous_system.utilities_module\
+from ROAR.roar_autonomous_system.utilities_module \
     .data_structures_models import \
     Transform, Location
+from ROAR.roar_autonomous_system.agent_module.agent import Agent
 
 
 class _EqualityConstraints(object):
@@ -40,14 +41,14 @@ class _EqualityConstraints(object):
 
 class VehicleMPCController(Controller):
     def __init__(self,
-                 vehicle: Vehicle,
+                 agent: Agent,
                  route_file_path: Path,  # read in route
                  target_speed=float("inf"),
                  steps_ahead=10,
                  max_throttle=1,
                  max_steering=1,
                  dt=0.1):
-        super().__init__(vehicle)
+        super().__init__(agent=agent)
         self.logger = logging.getLogger(__name__)
         # Read in route file
         self.track_DF = pd.read_csv(route_file_path, header=None)
@@ -89,7 +90,7 @@ class VehicleMPCController(Controller):
                 6 * self.steps_ahead * [(None, None)]
                 + self.steps_ahead * [(0, max_throttle)]  # throttle bounds
                 + self.steps_ahead * [(-max_steering, max_steering)]
-        # steer bounds
+            # steer bounds
         )
 
         # State 0 placeholder
@@ -205,9 +206,6 @@ class VehicleMPCController(Controller):
 
         return control
 
-    def sync_data(self, vehicle) -> None:
-        super(VehicleMPCController, self).sync_data(vehicle=vehicle)
-
     def get_func_constraints_and_bounds(self):
         """
         Defines MPC's cost function and constraints.
@@ -284,15 +282,15 @@ class VehicleMPCController(Controller):
                        range(1, len(poly)))
 
             eq_constr['x'][t] = x[t] - (
-                        x[t - 1] + v[t - 1] * sym.cos(ψ[t - 1]) * self.dt)
+                    x[t - 1] + v[t - 1] * sym.cos(ψ[t - 1]) * self.dt)
             eq_constr['y'][t] = y[t] - (
-                        y[t - 1] + v[t - 1] * sym.sin(ψ[t - 1]) * self.dt)
+                    y[t - 1] + v[t - 1] * sym.sin(ψ[t - 1]) * self.dt)
             eq_constr['ψ'][t] = ψ[t] - (
-                        ψ[t - 1] - v[t - 1] * δ[t - 1] / self.Lf * self.dt)
+                    ψ[t - 1] - v[t - 1] * δ[t - 1] / self.Lf * self.dt)
             eq_constr['v'][t] = v[t] - (v[t - 1] + a[t - 1] * self.dt)
             eq_constr['cte'][t] = cte[t] - (
-                        curve - y[t - 1] + v[t - 1] * sym.sin(
-                    eψ[t - 1]) * self.dt)
+                    curve - y[t - 1] + v[t - 1] * sym.sin(
+                eψ[t - 1]) * self.dt)
             eq_constr['eψ'][t] = eψ[t] - (ψ[t - 1] - ψdes - v[t - 1] * δ[
                 t - 1] / self.Lf * self.dt)
 

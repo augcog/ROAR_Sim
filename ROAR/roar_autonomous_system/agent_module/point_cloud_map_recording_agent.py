@@ -21,6 +21,8 @@ from ROAR.roar_autonomous_system.control_module.pid_controller \
 from ROAR.roar_autonomous_system.control_module.pid_controller \
     import \
     VehiclePIDController
+from ROAR.roar_autonomous_system.utilities_module.data_structures_models import MapEntry
+
 
 class PointCloudMapRecordingAgent(Agent):
     def __init__(self, **kwargs):
@@ -28,7 +30,7 @@ class PointCloudMapRecordingAgent(Agent):
         self.logger.debug("GPD2 Agent Initialized")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.mission_planner = WaypointFollowingMissionPlanner(
-            file_path=self.route_file_path, vehicle=self.vehicle)
+            agent_config=self.agent_settings, vehicle=self.vehicle)
         # initiated right after mission plan
         self.controller = \
             self.pid_controller = VehiclePIDController(
@@ -59,7 +61,7 @@ class PointCloudMapRecordingAgent(Agent):
             ground_cords_in_2d: np.ndarray = self.visualizer.world_to_img_transform(xyz=ground_points)[:, :2]
             # this is a hack, without 5000 threshold, it sometimes have false detection
             # if np.shape(ground_cords_in_2d)[0] > 4000:
-                # estimate left = (x_min, img_pos[1]) and right = (x_max, img_pos[1])
+            # estimate left = (x_min, img_pos[1]) and right = (x_max, img_pos[1])
             img_positions = self.visualizer.world_to_img_transform(
                 np.array([self.local_planner.way_points_queue[1].location.to_array()]))
             img_pos = img_positions[0]
@@ -127,8 +129,3 @@ class PointCloudMapRecordingAgent(Agent):
             depth_img[i, j] * i * 1000,
             depth_img[i, j] * 1000
         ]
-
-
-class MapEntry(BaseModel):
-    point_a: List[float]
-    point_b: List[float]

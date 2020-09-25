@@ -54,6 +54,9 @@ class AgentConfig(BaseModel):
     # data path
     waypoint_file_path: str = Field(default=(Path(
         os.getcwd()) / "data" / "easy_map_waypoints.txt").as_posix())
+
+    json_waypoint_file_path: str = Field(default=(Path(
+        os.getcwd()) / "data" / "easy_map_waypoints.json").as_posix())
     output_data_folder_path: str = Field(
         default=(Path(os.getcwd()) / "data" / "output"))
 
