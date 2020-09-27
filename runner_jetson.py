@@ -1,7 +1,8 @@
 from ROAR.ROAR_Jetson.jetson_runner import JetsonRunner
 from ROAR.roar_autonomous_system.agent_module.forward_only_agent import ForwardOnlyAgent
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
-from ROAR.roar_autonomous_system.configurations.configuration import Configuration
+from ROAR.ROAR_Jetson.jetson_config import JetsonConfig
+from ROAR.roar_autonomous_system.configurations.agent_settings import AgentConfig
 from pathlib import Path
 import logging
 import warnings
@@ -12,15 +13,14 @@ import json
 
 def main():
     try:
-
-        config = Configuration.parse_file(
-            Path(os.getcwd()) / "configurations" / "jetson_config.json"
-        )
-        status = allow_dev_access(read_password(Path(config.jetson_config.jetson_sudo_password_file_path)))
+        config_file_path =  Path(os.getcwd()) / "configurations" / "jetson_config.json"
+        jetson_config = JetsonConfig.parse_file(config_file_path)
+        agent_config = AgentConfig.parse_file(config_file_path)
+        status = allow_dev_access(read_password(Path(jetson_config.jetson_sudo_password_file_path)))
         assert status is True, "Port not successfully opened"
 
-        agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=config.agent_config)
-        jetson_runner = JetsonRunner(agent=agent, jetson_config=config.jetson_config)
+        agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=agent_config)
+        jetson_runner = JetsonRunner(agent=agent, jetson_config=jetson_config)
         jetson_runner.start_game_loop(use_manual_control=True)
     except Exception as e:
         print(f"Something bad happened {e}")
