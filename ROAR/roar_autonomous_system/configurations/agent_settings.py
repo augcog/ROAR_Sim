@@ -1,6 +1,5 @@
 from pydantic import Field, BaseModel
 from pathlib import Path
-from typing import Optional
 from ROAR.roar_autonomous_system.utilities_module.camera_models \
     import \
     Camera
