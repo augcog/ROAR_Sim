@@ -24,22 +24,29 @@ class FloodfillBasedLaneFollower(Agent):
             left_dot_coord = (self.front_rgb_camera.image_size_x // 4, 400)
             center_dot_coord = (self.front_rgb_camera.image_size_x // 2, 400)
             right_dot_coord = (self.front_rgb_camera.image_size_x - (self.front_rgb_camera.image_size_x // 4), 400)
-            blue = [255,0,0]
+            blue = [255, 0, 0]
 
             left_ok = self._is_equal(img[left_dot_coord[::-1]], blue)
             center_ok = self._is_equal(img[center_dot_coord[::-1]], blue)
             right_ok = self._is_equal(img[right_dot_coord[::-1]], blue)
+            cv2.imshow("rgb image", img)
+            cv2.waitKey(1)
+            throttle, steering = 0, 0
 
             if center_ok:
-                return VehicleControl(throttle=0.5, steering=0)
+                throttle, steering = 0.5, 0
             elif left_ok:
-                return VehicleControl(throttle=0.3, steering=-0.5)
+                throttle = 0.3
+                steering = -0.5
             elif right_ok:
-                return VehicleControl(throttle=0.3, steering=0.5)
-            else:
-                return VehicleControl()
+                throttle = 0.3
+                steering = 0.5
+
+            self.logger.info(f"Throttle = {throttle}, steering = {steering}")
+            return VehicleControl(throttle=throttle, steering = steering)
         except:
             return VehicleControl()
+
     @staticmethod
     def _is_equal(arr1, arr2):
         # print(sum(arr1 == arr2))
