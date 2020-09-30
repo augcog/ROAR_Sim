@@ -22,7 +22,7 @@ def main():
         # agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=agent_config)
         agent = FloodfillBasedLaneFollower(vehicle=Vehicle(), agent_settings=agent_config)
         print("Agent initialized")
-        # jetson_runner = JetsonRunner(agent=agent, jetson_config=jetson_config)
+        jetson_runner = JetsonRunner(agent=agent, jetson_config=jetson_config)
         # jetson_runner.start_game_loop(use_manual_control=True)
     except Exception as e:
         print(f"Something bad happened {e}")
