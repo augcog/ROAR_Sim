@@ -41,11 +41,11 @@ class FloodfillBasedLaneFollower(Agent):
             throttle, steering = 0, 0
             if bool(left_ok) is False:
                 print("GO RIGHT!")
-                throttle = 0.4
+                throttle = 0.3
                 steering = 0.5
             elif bool(right_ok) is False:
                 print("GO LEFT!")
-                throttle = 0.4
+                throttle = 0.3
                 steering = -0.5
             elif center_ok:
                 throttle, steering = 0.3, 0
