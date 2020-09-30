@@ -13,8 +13,8 @@ class FloodfillLaneDetector(Detector):
             cv2.floodFill(image=curr_img,
                           seedPoint=seed_point,
                           newVal=(255, 0, 0),
-                          loDiff=(3,3,3),
-                          upDiff=(3,3,3),
+                          loDiff=(4,4,4),
+                          upDiff=(4,4,4),
                           mask=None)
             return curr_img
             # result = cv2.circle(img=curr_img, center=seed_point, radius=10,
