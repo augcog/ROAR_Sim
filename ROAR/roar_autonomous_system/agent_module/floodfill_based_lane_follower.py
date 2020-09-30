@@ -40,13 +40,13 @@ class FloodfillBasedLaneFollower(Agent):
             cv2.waitKey(1)
             throttle, steering = 0, 0
             if left_ok is False:
-                throttle = 0.3
+                throttle = 0.1
                 steering = 0.5
             elif right_ok is False:
-                throttle = 0.3
+                throttle = 0.1
                 steering = -0.5
             elif center_ok:
-                throttle, steering = 0.5, 0
+                throttle, steering = 0.3, 0
             # if center_ok:
             #     throttle, steering = 0.5, 0
             # elif left_ok:
