@@ -39,15 +39,22 @@ class FloodfillBasedLaneFollower(Agent):
             cv2.imshow("rgb image", result)
             cv2.waitKey(1)
             throttle, steering = 0, 0
-
-            if center_ok:
-                throttle, steering = 0.5, 0
-            elif left_ok:
-                throttle = 0.3
-                steering = -0.5
-            elif right_ok:
+            if left_ok is False:
                 throttle = 0.3
                 steering = 0.5
+            elif right_ok is False:
+                throttle = 0.3
+                steering = -0.5
+            elif center_ok:
+                throttle, steering = 0.5, 0
+            # if center_ok:
+            #     throttle, steering = 0.5, 0
+            # elif left_ok:
+            #     throttle = 0.3
+            #     steering = -0.5
+            # elif right_ok:
+            #     throttle = 0.3
+            #     steering = 0.5
 
             self.logger.info(f"Throttle = {throttle}, steering = {steering}")
             return VehicleControl(throttle=throttle, steering = steering)
