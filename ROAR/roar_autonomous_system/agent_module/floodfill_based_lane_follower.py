@@ -41,9 +41,11 @@ class FloodfillBasedLaneFollower(Agent):
             throttle, steering = 0, 0
             print(left_ok, center_ok, right_ok)
             if left_ok is False:
+                print("GO RIGHT!")
                 throttle = 0.1
                 steering = 0.5
             elif right_ok is False:
+                print("GO LEFT!")
                 throttle = 0.1
                 steering = -0.5
             elif center_ok:
@@ -58,7 +60,7 @@ class FloodfillBasedLaneFollower(Agent):
             #     steering = 0.5
 
             self.logger.info(f"Throttle = {throttle}, steering = {steering}")
-            return VehicleControl(throttle=throttle, steering = steering)
+            return VehicleControl(throttle=throttle, steering=steering)
         except:
             return VehicleControl()
 
