@@ -29,7 +29,14 @@ class FloodfillBasedLaneFollower(Agent):
             left_ok = self._is_equal(img[left_dot_coord[::-1]], blue)
             center_ok = self._is_equal(img[center_dot_coord[::-1]], blue)
             right_ok = self._is_equal(img[right_dot_coord[::-1]], blue)
-            cv2.imshow("rgb image", img)
+
+            result = cv2.circle(img=img, center=left_dot_coord, radius=10,
+                                color=(0, 0, 255), thickness=-1)
+            result = cv2.circle(img=result, center=center_dot_coord, radius=10,
+                                color=(0, 0, 255), thickness=-1)
+            result = cv2.circle(img=result, center=right_dot_coord, radius=10,
+                                color=(0, 0, 255), thickness=-1)
+            cv2.imshow("rgb image", result)
             cv2.waitKey(1)
             throttle, steering = 0, 0
 
