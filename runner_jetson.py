@@ -1,5 +1,5 @@
 from ROAR.ROAR_Jetson.jetson_runner import JetsonRunner
-from ROAR.roar_autonomous_system.agent_module.forward_only_agent import ForwardOnlyAgent
+from ROAR.roar_autonomous_system.agent_module.floodfill_based_lane_follower import FloodfillBasedLaneFollower
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models import Vehicle
 from ROAR.ROAR_Jetson.jetson_config import JetsonConfig
 from ROAR.roar_autonomous_system.configurations.agent_settings import AgentConfig
@@ -13,13 +13,14 @@ import json
 
 def main():
     try:
-        config_file_path =  Path(os.getcwd()) / "configurations" / "jetson_config.json"
-        jetson_config = JetsonConfig.parse_file(config_file_path)
-        agent_config = AgentConfig.parse_file(config_file_path)
+        config_file_path = Path(os.getcwd()) / "configurations" / "jetson_config.json"
+        config_file: dict = json.load(config_file_path.open('r'))
+        jetson_config = JetsonConfig.parse_obj(config_file["jetson_config"])
+        agent_config: AgentConfig = AgentConfig.parse_obj(config_file["agent_config"])
         status = allow_dev_access(read_password(Path(jetson_config.jetson_sudo_password_file_path)))
         assert status is True, "Port not successfully opened"
-
-        agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=agent_config)
+        # agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=agent_config)
+        agent = FloodfillBasedLaneFollower(vehicle=Vehicle(), agent_settings=agent_config)
         jetson_runner = JetsonRunner(agent=agent, jetson_config=jetson_config)
         jetson_runner.start_game_loop(use_manual_control=True)
     except Exception as e:

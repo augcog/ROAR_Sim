@@ -35,18 +35,17 @@ class MPCAgent(Agent):
         super().__init__(**kwargs)
         self.logger = logging.getLogger("PathFollowingAgent")
         self.mpc_controller = VehicleMPCController(
-            vehicle=self.vehicle,
+            agent=self,
             route_file_path=Path(
                 self.agent_settings.waypoint_file_path),
             target_speed=target_speed)
         self.mission_planner = WaypointFollowingMissionPlanner(
-            agent_config=self.agent_settings,
-            vehicle=self.vehicle,)
+            agent=self)
         # initiated right after mission plan
 
-        self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle,)
+        self.behavior_planner = BehaviorPlanner(agent=self)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
-            vehicle=self.vehicle,
+            agent=self,
             controller=self.mpc_controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
@@ -68,5 +67,5 @@ class MPCAgent(Agent):
             control = VehicleControl()
             self.logger.debug("Path Following Agent is Done. Idling.")
         else:
-            control = self.local_planner.run_step(vehicle=vehicle)
+            control = self.local_planner.run_step()
         return control

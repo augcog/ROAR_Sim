@@ -39,17 +39,16 @@ class PIDAgent(Agent):
         self.logger = logging.getLogger("PID Agent")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pid_controller = VehiclePIDController(
-            vehicle=self.vehicle,
+            agent=self,
             args_lateral=PIDParam.default_lateral_param(),
             args_longitudinal=PIDParam.default_longitudinal_param(),
             target_speed=target_speed)
-        self.mission_planner = WaypointFollowingMissionPlanner(
-            agent_config=self.agent_settings, vehicle=self.vehicle)
+        self.mission_planner = WaypointFollowingMissionPlanner(agent=self)
         # initiated right after mission plan
 
-        self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle)
+        self.behavior_planner = BehaviorPlanner(agent=self)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
-            vehicle=self.vehicle,
+            agent=self,
             controller=self.pid_controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
