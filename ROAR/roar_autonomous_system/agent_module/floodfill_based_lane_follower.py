@@ -39,6 +39,7 @@ class FloodfillBasedLaneFollower(Agent):
             cv2.imshow("rgb image", result)
             cv2.waitKey(1)
             throttle, steering = 0, 0
+            print(type(left_ok))
             print(left_ok is False, center_ok, right_ok is False)
             if left_ok is False:
                 print("GO RIGHT!")
