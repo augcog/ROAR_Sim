@@ -2,7 +2,8 @@
   "jetson_config": {
     "jetson_sudo_password_file_path": "configurations/jetson_sudo_setup.json",
     "pygame_display_width": 640,
-    "pygame_display_height": 480
+    "pygame_display_height": 480,
+    "pygameless": true
 },
   "agent_config": {
     "front_depth_cam": {
