@@ -21,9 +21,9 @@ class FloodfillBasedLaneFollower(Agent):
             img = self.floodfill_lane_detector.run_step()
 
             # left, front, right dot img location
-            left_dot_coord = (self.front_rgb_camera.image_size_x // 4, 400)
-            center_dot_coord = (self.front_rgb_camera.image_size_x // 2, 400)
-            right_dot_coord = (self.front_rgb_camera.image_size_x - (self.front_rgb_camera.image_size_x // 4), 400)
+            left_dot_coord = (self.front_rgb_camera.image_size_x // 4, 350)
+            center_dot_coord = (self.front_rgb_camera.image_size_x // 2, 350)
+            right_dot_coord = (self.front_rgb_camera.image_size_x - (self.front_rgb_camera.image_size_x // 4), 350)
             blue = [255, 0, 0]
 
             left_ok = self._is_equal(img[left_dot_coord[::-1]], blue)
