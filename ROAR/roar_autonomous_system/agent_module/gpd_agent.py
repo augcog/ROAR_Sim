@@ -2,31 +2,34 @@ from ROAR.roar_autonomous_system.agent_module.agent import Agent
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
 from ROAR.roar_autonomous_system.configurations.agent_settings import AgentConfig
 from ROAR.roar_autonomous_system.utilities_module.data_structures_models import SensorsData
-from ROAR.roar_autonomous_system.perception_module.semantic_segmentation_detector import GroundPlaneDetector
-from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
-from ROAR.roar_autonomous_system.utilities_module.utilities import img_to_world2
-import numpy as np
+from ROAR.roar_autonomous_system.perception_module.ground_plane_detector import GroundPlaneDetector
+
+import open3d as o3d
 
 
 class GPDAgent(Agent):
     def __init__(self, vehicle: Vehicle, agent_settings: AgentConfig):
         super().__init__(vehicle=vehicle, agent_settings=agent_settings)
-        self.gpd_detector = GroundPlaneDetector(
-            agent=self
-        )
-        self.occupancy_grid = OccupancyGridMap(absolute_maximum_map_size=800)
+        self.depth_to_pointcloud_detector = GroundPlaneDetector(agent=self)
 
-    def run_step(self, vehicle: Vehicle,
-                 sensors_data: SensorsData) -> VehicleControl:
+    def run_step(self, vehicle: Vehicle, sensors_data: SensorsData) -> VehicleControl:
         super(GPDAgent, self).run_step(vehicle=vehicle, sensors_data=sensors_data)
-        self.gpd_detector.run_step()
+        try:
+            self.depth_to_pointcloud_detector.run_step()
 
-        if self.gpd_detector.curr_segmentation is not None:
-            world_cords = img_to_world2(depth_img=self.front_depth_camera.data,
-                                        segmentation=self.gpd_detector.curr_segmentation,
-                                        criteria=self.gpd_detector.GROUND,
-                                        intrinsics_matrix=self.front_depth_camera.intrinsics_matrix,
-                                        extrinsics_matrix=
-                                        self.front_depth_camera.transform.get_matrix() @ self.vehicle.transform.get_matrix())[:2]
-            print(np.shape(world_cords))
+        except Exception as e:
+            print(e)
+        # print(np.shape(points))
         return VehicleControl()
+
+
+    @staticmethod
+    def visualize_pointcloud(points):
+        """
+
+        :param points: Nx3 array
+        :return:
+        """
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(points)
+        o3d.visualization.draw_geometries([pcd])

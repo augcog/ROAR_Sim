@@ -22,6 +22,7 @@ from ROAR.roar_autonomous_system.utilities_module.utilities import png_to_depth
 import numpy as np
 import cv2
 
+
 class CarlaBridge(Bridge):
     def convert_location_from_source_to_agent(self, source: carla.Location) -> Location:
 
@@ -42,7 +43,7 @@ class CarlaBridge(Bridge):
         return Rotation(pitch=source.pitch, yaw=source.yaw, roll=source.roll)
 
     def convert_transform_from_source_to_agent(
-        self, source: carla.Transform
+            self, source: carla.Transform
     ) -> Transform:
         """Convert CARLA raw location and rotation to Transform(location,rotation)."""
         return Transform(
@@ -51,7 +52,7 @@ class CarlaBridge(Bridge):
         )
 
     def convert_control_from_source_to_agent(
-        self, source: carla.VehicleControl
+            self, source: carla.VehicleControl
     ) -> VehicleControl:
         """Convert CARLA raw vehicle control to VehicleControl(throttle,steering)."""
 
@@ -61,7 +62,7 @@ class CarlaBridge(Bridge):
         )
 
     def convert_rgb_from_source_to_agent(
-        self, source: carla.Image
+            self, source: carla.Image
     ) -> Union[RGBData, None]:
         """Convert CARLA raw Image to a Union with RGB numpy array"""
 
@@ -72,7 +73,7 @@ class CarlaBridge(Bridge):
             return None
 
     def convert_depth_from_source_to_agent(
-        self, source: carla.Image
+            self, source: carla.Image
     ) -> Union[DepthData, None]:
         """Convert CARLA raw depth info to """
         try:
@@ -131,7 +132,7 @@ class CarlaBridge(Bridge):
         return Vehicle(velocity=velocity, transform=transform, control=control)
 
     def convert_control_from_agent_to_source(
-        self, control: VehicleControl
+            self, control: VehicleControl
     ) -> carla.VehicleControl:
         return carla.VehicleControl(
             throttle=abs(control.throttle),
@@ -144,7 +145,7 @@ class CarlaBridge(Bridge):
         )
 
     def convert_vector3d_from_agent_to_source(
-        self, vector3d: Vector3D
+            self, vector3d: Vector3D
     ) -> carla.Vector3D:
         return carla.Vector3D(x=vector3d.x, y=vector3d.y, z=vector3d.z)
 
@@ -155,7 +156,7 @@ class CarlaBridge(Bridge):
         return carla.Rotation(pitch=source.pitch, yaw=source.yaw, roll=source.roll)
 
     def convert_transform_from_agent_to_source(
-        self, source: Transform
+            self, source: Transform
     ) -> carla.Transform:
         return carla.Transform(
             location=self.convert_location_from_agent_to_source(source=source.location),
@@ -177,3 +178,4 @@ class CarlaBridge(Bridge):
         array = array[:, :, :3]
         # array = array[:, :, ::-1]
         return array
+

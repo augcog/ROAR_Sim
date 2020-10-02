@@ -43,6 +43,7 @@ idx = idx.flatten()
 jdx = jdx.flatten()
 
 rand_idx = np.random.choice(np.arange(idx.shape[0]), size=d1 * d2, replace=False)
+print(idx.shape[0])
 f1 = (idx_front * d2 + jdx)[rand_idx]
 f2 = (idx_back * d2 + jdx)[rand_idx]
 f3 = (idx * d2 + jdx_front)[rand_idx]
@@ -105,7 +106,7 @@ def start():
 
         norm_fill[rand_idx] = norm_flat
         norm_matrix = np.abs(norm_fill.reshape((d1, d2)))
-        print(np.shape(norm_matrix), np.amin(norm_matrix), np.amax(norm_matrix))
+        # print(np.shape(norm_flat), np.shape(norm_fill), np.shape(norm_matrix), np.amin(norm_matrix), np.amax(norm_matrix))
 
         norm_umatrix = cv2.resize(cv2.UMat(norm_matrix), (d2 * 4, d1 * 4))
         bool_matrix = cv2.compare(norm_umatrix, 0.95, cmpop=cv2.CMP_GT)
