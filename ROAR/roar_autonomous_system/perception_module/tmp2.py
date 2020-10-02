@@ -15,24 +15,18 @@ jdx_front = np.clip(jdx + 1, 0, jdx.max()).flatten()
 idx = idx.flatten()
 jdx = jdx.flatten()
 
-# rand_idx = np.random.choice(np.arange(idx.shape[0]), size=d1*d2, replace=False)
 f1 = (idx_front * d2 + jdx)  # [rand_idx]
 f2 = (idx_back * d2 + jdx)  # [rand_idx]
 f3 = (idx * d2 + jdx_front)  # [rand_idx]
 f4 = (idx * d2 + jdx_back)  # [rand_idx]
 
-d1, d2 = 640, 480
 pipe = rs.pipeline()
 config = rs.config()
-config.enable_stream(rs.stream.depth, d1, d2, rs.format.z16, 30)
-config.enable_stream(rs.stream.color, d1, d2, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.depth, d2, d1, rs.format.z16, 30)
+config.enable_stream(rs.stream.color, d2, d1, rs.format.bgr8, 30)
 profile = pipe.start(config)
 
-o3d_pointcloud = o3d.geometry.PointCloud()
-vis = o3d.visualization.Visualizer()
 norm = np.array([-0.00994087, -0.99953604, 0.02879056], dtype=np.float32)
-
-
 
 
 def normalize_v3(arr):
@@ -72,6 +66,9 @@ while True:
 
     aligned_depth_frame = depth_frame
     pointcloud = pc.calculate(aligned_depth_frame)
+
+    # starting from this point, the realsense code needs to
+    # be exactly the same as the carla version
     vtx = np.ndarray(
         buffer=pointcloud.get_vertices(), dtype=np.float32, shape=(d1 * d2, 3)
     )
@@ -81,7 +78,7 @@ while True:
     y = vtx[f3, :] - vtx[f4, :]
     xyz_norm = normalize_v3(np.cross(x, y))
     norm_flat = xyz_norm @ norm
-    norm_matrix = norm_flat.reshape((d2, d1))
+    norm_matrix = norm_flat.reshape((d1, d2))
 
     bool_matrix = norm_matrix > 0.95
     color_image[bool_matrix] = 255
