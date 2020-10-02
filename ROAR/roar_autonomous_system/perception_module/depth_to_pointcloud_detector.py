@@ -52,7 +52,7 @@ class DepthToPointCloudDetector(Detector):
                     -cords_y_minus_z_x[1, :],
                     np.ones((1, np.shape(cords_y_minus_z_x)[1]))
                 ])
-                points = self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
+                points = self.agent.vehicle.transform.get_matrix() @ self.agent.front_depth_camera.transform.get_matrix() @ cords_xyz_1
                 return points.T[:, :3]
         return None
 

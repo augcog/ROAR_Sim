@@ -17,7 +17,6 @@ import serial
 def main():
     try:
         jetson_config, agent_config = prepare(Path(os.getcwd()) / "configurations" / "jetson_config.json")
-
         agent = ForwardOnlyAgent(vehicle=Vehicle(), agent_settings=agent_config)
         # agent = FloodfillBasedLaneFollower(vehicle=Vehicle(), agent_settings=agent_config)
         jetson_runner = JetsonRunner(agent=agent, jetson_config=jetson_config)
