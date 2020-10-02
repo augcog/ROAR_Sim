@@ -16,7 +16,7 @@ class GroundPlaneDetector(DepthToPointCloudDetector):
         norm = np.array([-0.00994087, -0.99953604, 0.02879056], dtype=np.float32)
         # Setting up indices
         d1 = self.agent.front_depth_camera.image_size_y // 4
-        d2 =  self.agent.front_depth_camera.image_size_x // 4
+        d2 = self.agent.front_depth_camera.image_size_x // 4
         idx, jdx = np.indices((d1, d2))
         idx_back = np.clip(idx - 1, 0, idx.max()).flatten()
         idx_front = np.clip(idx + 1, 0, idx.max()).flatten()
