@@ -72,4 +72,4 @@ class GroundPlanePointCloudDetector(PointCloudDetector):
         #     self.vis.update_renderer()
         self.counter += 1
         # return np.asarray(pcd.points)
-        return ground
+        return ground  # Nx3

@@ -29,18 +29,17 @@ class PointCloudMapRecordingAgent(Agent):
         super(PointCloudMapRecordingAgent, self).__init__(**kwargs)
         self.logger.debug("GPD2 Agent Initialized")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
-        self.mission_planner = WaypointFollowingMissionPlanner(
-            agent_config=self.agent_settings, vehicle=self.vehicle)
+        self.mission_planner = WaypointFollowingMissionPlanner(agent=self)
         # initiated right after mission plan
         self.controller = \
             self.pid_controller = VehiclePIDController(
-            vehicle=self.vehicle,
+            agent=self,
             args_lateral=PIDParam.default_lateral_param(),
             args_longitudinal=PIDParam.default_longitudinal_param(),
             target_speed=20)
-        self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle)
+        self.behavior_planner = BehaviorPlanner(agent=self)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
-            vehicle=self.vehicle,
+            agent=self,
             controller=self.controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
@@ -53,9 +52,10 @@ class PointCloudMapRecordingAgent(Agent):
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super(PointCloudMapRecordingAgent, self).run_step(sensors_data=sensors_data, vehicle=vehicle)
-        control = self.local_planner.run_step(vehicle=self.vehicle)
+        control = self.local_planner.run_step()
         try:
             ground_points = self.ground_plane_point_cloud_detector.run_step()
+
             # print(np.shape(ground_points))
             color_image = self.front_rgb_camera.data.copy()
             ground_cords_in_2d: np.ndarray = self.visualizer.world_to_img_transform(xyz=ground_points)[:, :2]
