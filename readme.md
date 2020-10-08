@@ -26,3 +26,13 @@ Please visit [https://augcog.github.io/ROAR-Sim/](https://augcog.github.io/ROAR-
 3. Run it
     - `python3 runner_jetson.py`
     
+#### Side notes:
+You should run setup everything on the Jetson Nano. And then use [X11vnc](https://tecadmin.net/setup-x11vnc-server-on-ubuntu-linuxmint/) or similar service to remote control it. 
+
+However, setting all the software on your local computer should also work
+Platforms tested:
+
+    - IOS 10.15
+    - Windows 10
+    - Ubuntu 18.04
+    - Jetson Nano with Ubuntu 18.04 Aarch64
