@@ -19,11 +19,7 @@ from pathlib import Path
 from ROAR.roar_autonomous_system.control_module.pure_pursuit_control import PurePursuitController
 from pydantic import BaseModel, Field
 from typing import Tuple, List
-
-
-class MapEntry(BaseModel):
-    point_a: List[float]
-    point_b: List[float]
+from ROAR.roar_autonomous_system.utilities_module.data_structures_models import MapEntry
 
 
 class MapGeneratingAgentV3(Agent):
@@ -35,7 +31,7 @@ class MapGeneratingAgentV3(Agent):
             vehicle=self.vehicle,
             target_speed=40)
         self.mission_planner = WaypointFollowingMissionPlanner(
-            file_path=self.route_file_path, vehicle=self.vehicle)
+            agent_config=self.agent_settings, vehicle=self.vehicle)
         # initiated right after mission plan
 
         self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle)

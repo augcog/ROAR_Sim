@@ -16,7 +16,6 @@ from ROAR.roar_autonomous_system.configurations.agent_settings \
     import \
     AgentConfig
 import weakref
-from ROAR.roar_autonomous_system.agent_module.pure_pursuit_agent import PurePursuitAgent, Agent
 from typing import List, Dict, Tuple, Any
 from pathlib import Path
 

@@ -19,6 +19,7 @@ from collections import deque
 import numpy as np
 import math
 import logging
+from ROAR.roar_autonomous_system.agent_module.agent import Agent
 
 
 class PIDParam(BaseModel):
@@ -38,7 +39,7 @@ class PIDParam(BaseModel):
 
 # speed - LateralPIDParam
 OPTIMIZED_LATERAL_PID_VALUES = {
-    60:  PIDParam(K_P=0.5, K_D=0.5, K_I=0.5),
+    60: PIDParam(K_P=0.2, K_D=0.1, K_I=0.5),
     100: PIDParam(K_P=0.2, K_D=0.2, K_I=0.5),
     150: PIDParam(K_P=0.01, K_D=0.075, K_I=0.7),
 }
@@ -52,18 +53,18 @@ class VehiclePIDController(Controller):
     """
 
     def __init__(
-        self,
-        vehicle: Vehicle,
-        args_lateral: PIDParam,
-        args_longitudinal: PIDParam,
-        target_speed=float("inf"),
-        max_throttle=1,
-        max_steering=1,
+            self,
+            agent: Agent,
+            args_lateral: PIDParam = PIDParam,
+            args_longitudinal: PIDParam = PIDParam,
+            target_speed=float("inf"),
+            max_throttle=1,
+            max_steering=1,
     ):
         """
 
         Args:
-            vehicle: actor to apply to local planner logic onto
+            agent   : actor to apply to local planner logic onto
             args_lateral:  dictionary of arguments to set the lateral PID control
             args_longitudinal: dictionary of arguments to set the longitudinal
             target_speed: target speedd in km/h
@@ -71,23 +72,23 @@ class VehiclePIDController(Controller):
             max_steering: absolute maximum steering ranging from -1 - 1
         """
 
-        super().__init__(vehicle)
+        super().__init__(agent=agent)
         self.logger = logging.getLogger(__name__)
         self.max_throttle = max_throttle
         self.max_steer = max_steering
 
         self.target_speed = target_speed
 
-        self.past_steering = self.vehicle.control.steering
+        self.past_steering = self.agent.vehicle.control.steering
         self._lon_controller = PIDLongitudinalController(
-            self.vehicle,
+            self.agent,
             K_P=args_longitudinal.K_P,
             K_D=args_longitudinal.K_D,
             K_I=args_longitudinal.K_I,
             dt=args_longitudinal.dt,
         )
         self._lat_controller = PIDLateralController(
-            self.vehicle,
+            self.agent,
             K_P=args_lateral.K_P,
             K_D=args_lateral.K_D,
             K_I=args_lateral.K_I,
@@ -96,7 +97,7 @@ class VehiclePIDController(Controller):
         self.logger.debug("PID Controller initiated")
 
     def run_step(
-        self, vehicle: Vehicle, next_waypoint: Transform, **kwargs
+            self, vehicle: Vehicle, next_waypoint: Transform, **kwargs
     ) -> VehicleControl:
         """
         Execute one step of control invoking both lateral and longitudinal
@@ -110,8 +111,7 @@ class VehiclePIDController(Controller):
         Returns:
             Next Vehicle Control
         """
-        super(VehiclePIDController, self).run_step(vehicle, next_waypoint)
-        curr_speed = Vehicle.get_speed(self.vehicle)
+        curr_speed = Vehicle.get_speed(self.agent.vehicle)
         if curr_speed < 60:
             self._lat_controller.k_d = OPTIMIZED_LATERAL_PID_VALUES[60].K_D
             self._lat_controller.k_i = OPTIMIZED_LATERAL_PID_VALUES[60].K_I
@@ -126,7 +126,7 @@ class VehiclePIDController(Controller):
             self._lat_controller.k_p = OPTIMIZED_LATERAL_PID_VALUES[150].K_P
 
         acceptable_target_speed = self.target_speed
-        if abs(self.vehicle.control.steering) < 0.05:
+        if abs(self.agent.vehicle.control.steering) < 0.05:
             acceptable_target_speed += 20  # eco boost
 
         acceleration = self._lon_controller.run_step(acceptable_target_speed)
@@ -158,10 +158,9 @@ class VehiclePIDController(Controller):
         self.past_steering = steering
         return control
 
-    def sync_data(self, vehicle) -> None:
-        super(VehiclePIDController, self).sync_data(vehicle=vehicle)
-        self._lon_controller.vehicle = self.vehicle
-        self._lat_controller.vehicle = self.vehicle
+    def sync_data(self) -> None:
+        self._lon_controller.vehicle = self.agent.vehicle
+        self._lat_controller.vehicle = self.agent.vehicle
 
 
 class PIDLongitudinalController:
@@ -169,16 +168,16 @@ class PIDLongitudinalController:
     PIDLongitudinalController implements longitudinal control using a PID.
     """
 
-    def __init__(self, vehicle: Vehicle, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
+    def __init__(self, agent: Agent, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
         """
         Constructor method.
-            :param vehicle: actor to apply to local planner logic onto
+            :param agent: actor to apply to local planner logic onto
             :param K_P: Proportional term
             :param K_D: Differential term
             :param K_I: Integral term
             :param dt: time differential in seconds
         """
-        self.vehicle = vehicle
+        self.agent = agent
         self._k_p = K_P
         self._k_d = K_D
         self._k_i = K_I
@@ -191,7 +190,7 @@ class PIDLongitudinalController:
             :param target_speed: target speed in Km/h
             :return: throttle control
         """
-        current_speed = Vehicle.get_speed(self.vehicle)
+        current_speed = Vehicle.get_speed(self.agent.vehicle)
         return self._pid_control(target_speed, current_speed)
 
     def _pid_control(self, target_speed, current_speed) -> float:
@@ -225,16 +224,16 @@ class PIDLateralController:
     PIDLateralController implements lateral control using a PID.
     """
 
-    def __init__(self, vehicle, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
+    def __init__(self, agent: Agent, K_P=1.0, K_D=0.0, K_I=0.0, dt=0.03):
         """
         Constructor method.
-            :param vehicle: actor to apply to local planner logic onto
+            :param agent: actor to apply to local planner logic onto
             :param K_P: Proportional term
             :param K_D: Differential term
             :param K_I: Integral term
             :param dt: time differential in seconds
         """
-        self.vehicle: Vehicle = vehicle
+        self.agent: Agent = agent
         self.k_p = K_P
         self.k_d = K_D
         self.k_i = K_I
@@ -251,7 +250,7 @@ class PIDLateralController:
             +1 maximum steering to right
         """
         return self._pid_control(
-            target_waypoint=target_waypoint, vehicle_transform=self.vehicle.transform
+            target_waypoint=target_waypoint, vehicle_transform=self.agent.vehicle.transform
         )
 
     def _pid_control(self, target_waypoint, vehicle_transform) -> float:

@@ -9,10 +9,8 @@ from ROAR.roar_autonomous_system.utilities_module.data_structures_models import 
     Location,
     Rotation,
 )
-from ROAR.roar_autonomous_system.utilities_module.vehicle_models import (
-    Vehicle,
-)
 from collections import deque
+from ROAR.roar_autonomous_system.agent_module.agent import Agent
 
 
 class WaypointFollowingMissionPlanner(MissionPlanner):
@@ -20,7 +18,7 @@ class WaypointFollowingMissionPlanner(MissionPlanner):
     A mission planner that takes in a file that contains x,y,z coordinates, formulate into carla.Transform
     """
 
-    def run_step(self, vehicle: Vehicle) -> deque:
+    def run_step(self) -> deque:
         """
         Regenerate waypoints from file
         Find the waypoint that is closest to the current vehicle location.
@@ -32,14 +30,14 @@ class WaypointFollowingMissionPlanner(MissionPlanner):
         Returns:
             mission plan that start from the current vehicle location
         """
-        super(WaypointFollowingMissionPlanner, self).run_step(vehicle=vehicle)
+        super(WaypointFollowingMissionPlanner, self).run_step()
         self.logger.debug("TO BE IMPLEMENTED")
         return self.produce_mission_plan()
 
-    def __init__(self, vehicle: Vehicle, file_path: Path):
-        super().__init__(vehicle=vehicle)
+    def __init__(self, agent: Agent):
+        super().__init__(agent=agent)
         self.logger = logging.getLogger(__name__)
-        self.file_path = file_path
+        self.file_path: Path = Path(self.agent.agent_settings.waypoint_file_path)
         self.mission_plan = self.produce_mission_plan()
         self.logger.debug("Path Following Mission Planner Initiated.")
 

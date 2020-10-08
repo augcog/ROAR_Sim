@@ -1,35 +1,15 @@
 from ROAR.roar_autonomous_system.agent_module.agent import Agent
-from ROAR.roar_autonomous_system.utilities_module \
-    .data_structures_models import \
-    SensorsData
-from ROAR.roar_autonomous_system.utilities_module.vehicle_models \
-    import \
-    Vehicle, VehicleControl
+from ROAR.roar_autonomous_system.utilities_module.data_structures_models import SensorsData
+from ROAR.roar_autonomous_system.utilities_module.vehicle_models import Vehicle, VehicleControl
 from pathlib import Path
-from ROAR.roar_autonomous_system.control_module \
-    .pure_pursuit_control import \
-    PurePursuitController
-from ROAR.roar_autonomous_system.planning_module.mission_planner \
-    .waypoint_following_mission_planner import \
+from ROAR.roar_autonomous_system.control_module.pure_pursuit_control import PurePursuitController
+from ROAR.roar_autonomous_system.planning_module.mission_planner.waypoint_following_mission_planner import \
     WaypointFollowingMissionPlanner
-from ROAR.roar_autonomous_system.planning_module.behavior_planner \
-    .behavior_planner import \
+from ROAR.roar_autonomous_system.planning_module.behavior_planner.behavior_planner import \
     BehaviorPlanner
-from ROAR.roar_autonomous_system.planning_module.local_planner \
-    .simple_waypoint_following_local_planner import \
+from ROAR.roar_autonomous_system.planning_module.local_planner.simple_waypoint_following_local_planner import \
     SimpleWaypointFollowingLocalPlanner
-from ROAR.roar_autonomous_system.visualization_module.visualizer \
-    import \
-    Visualizer
-from ROAR.roar_autonomous_system.configurations.agent_settings \
-    import \
-    AgentConfig
-from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
-from ROAR.roar_autonomous_system.utilities_module.utilities import img_to_world
-import numpy as np
-import cv2
-from ROAR.roar_autonomous_system.utilities_module.utilities import png_to_depth
-from ROAR.roar_autonomous_system.utilities_module.data_structures_models import Transform, Location, Rotation
+from ROAR.roar_autonomous_system.configurations.agent_settings import AgentConfig
 
 
 class PurePursuitAgent(Agent):
@@ -37,17 +17,16 @@ class PurePursuitAgent(Agent):
         super().__init__(vehicle=vehicle, agent_settings=agent_settings)
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pure_pursuit_controller = \
-            PurePursuitController(vehicle=vehicle,
+            PurePursuitController(agent=self,
                                   target_speed=target_speed,
                                   look_ahead_gain=0.1,
                                   look_ahead_distance=3)
-        self.mission_planner = WaypointFollowingMissionPlanner(
-            file_path=self.route_file_path, vehicle=vehicle)
+        self.mission_planner = WaypointFollowingMissionPlanner(agent=self)
 
         # initiated right after mission plan
-        self.behavior_planner = BehaviorPlanner(vehicle=vehicle)
+        self.behavior_planner = BehaviorPlanner(agent=self)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
-            vehicle=vehicle,
+            agent=self,
             controller=self.pure_pursuit_controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
@@ -57,4 +36,4 @@ class PurePursuitAgent(Agent):
                  vehicle: Vehicle) -> VehicleControl:
         super(PurePursuitAgent, self).run_step(sensors_data=sensors_data,
                                                vehicle=vehicle)
-        return self.local_planner.run_step(vehicle=vehicle)
+        return self.local_planner.run_step()

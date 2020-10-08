@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 import numpy as np
 from scipy.spatial import distance
 from typing import Union
+from typing import List
 
 
 class Location(BaseModel):
@@ -135,3 +136,8 @@ class SensorsData(BaseModel):
     rear_rgb: Union[RGBData, None] = Field(default=None)
     front_depth: Union[DepthData, None] = Field(default=None)
     imu_data: Union[IMUData, None] = Field(default=None)
+
+
+class MapEntry(BaseModel):
+    point_a: List[float]
+    point_b: List[float]

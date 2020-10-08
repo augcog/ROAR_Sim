@@ -5,10 +5,8 @@ import os
 import warnings
 from ROAR.roar_autonomous_system.configurations.configuration import Configuration
 from ROAR.carla_client.carla_runner import CarlaRunner
-from ROAR.roar_autonomous_system.agent_module.point_cloud_map_generating_agent import \
-    PointCloudMapGeneratingAgent
 from ROAR.roar_autonomous_system.agent_module.map_generating_agent_v3 import MapGeneratingAgentV3
-
+from ROAR.roar_autonomous_system.agent_module.point_cloud_map_recording_agent import PointCloudMapRecordingAgent
 
 def main():
     config = Configuration.parse_file(
@@ -19,8 +17,8 @@ def main():
                                agent_settings=config.agent_config)
     try:
         my_vehicle = carla_runner.set_carla_world()
-        # agent = PointCloudMapGeneratingAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
-        agent = MapGeneratingAgentV3(agent_settings=config.agent_config, vehicle=my_vehicle)
+        agent = PointCloudMapRecordingAgent(vehicle=my_vehicle, agent_settings=config.agent_config)
+        # agent = MapGeneratingAgentV3(agent_settings=config.agent_config, vehicle=my_vehicle)
         carla_runner.start_game_loop(agent=agent, use_manual_control=False)
     except Exception as e:
         print("Ending abnormally: ", e)

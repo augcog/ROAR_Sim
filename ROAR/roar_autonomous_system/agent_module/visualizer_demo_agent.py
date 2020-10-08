@@ -19,7 +19,7 @@ from ROAR.roar_autonomous_system.visualization_module.visualizer \
     Visualizer
 import open3d as o3d
 from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
-from ROAR.roar_autonomous_system.perception_module.semantic_segmentation_detector import GroundPlaneDetector
+# from ROAR.roar_autonomous_system.perception_module.semantic_segmentation_detector import GroundPlaneDetector
 
 
 class VisualizerDemoAgent(Agent):
@@ -40,11 +40,9 @@ class VisualizerDemoAgent(Agent):
                                                                     max_points_to_convert=10000,
                                                                     nb_neighbors=100,
                                                                     std_ratio=1)
-        self.occupancy_grid_map = OccupancyGridMap(absolute_maximum_map_size=800)
-        self.semantic_segmentation_detector = GroundPlaneDetector(agent=self)
-        self.visualizer = Visualizer(agent=self,
-                                     occupancy_grid_map=self.occupancy_grid_map,
-                                     semantic_segmentation_detector=self.semantic_segmentation_detector)
+        # self.occupancy_grid_map = OccupancyGridMap(absolute_maximum_map_size=800)
+        # self.semantic_segmentation_detector = GroundPlaneDetector(agent=self)
+        self.visualizer = Visualizer(agent=self)
 
     def run_step(self, sensors_data: SensorsData, vehicle: Vehicle) -> VehicleControl:
         super(VisualizerDemoAgent, self).run_step(sensors_data, vehicle)

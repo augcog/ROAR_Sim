@@ -6,19 +6,19 @@ from ROAR.roar_autonomous_system.control_module.pid_controller \
 from ROAR.roar_autonomous_system.control_module.mpc_controller \
     import \
     VehicleMPCController
-from ROAR.roar_autonomous_system.planning_module.local_planner\
+from ROAR.roar_autonomous_system.planning_module.local_planner \
     .simple_waypoint_following_local_planner import \
     SimpleWaypointFollowingLocalPlanner
-from ROAR.roar_autonomous_system.planning_module.behavior_planner\
+from ROAR.roar_autonomous_system.planning_module.behavior_planner \
     .behavior_planner import \
     BehaviorPlanner
-from ROAR.roar_autonomous_system.planning_module.mission_planner\
+from ROAR.roar_autonomous_system.planning_module.mission_planner \
     .waypoint_following_mission_planner import \
     WaypointFollowingMissionPlanner
 from ROAR.roar_autonomous_system.control_module.pid_controller \
     import \
     PIDParam
-from ROAR.roar_autonomous_system.utilities_module\
+from ROAR.roar_autonomous_system.utilities_module \
     .data_structures_models import \
     SensorsData
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models \
@@ -32,23 +32,23 @@ from ROAR.roar_autonomous_system.visualization_module.visualizer \
 from ROAR.roar_autonomous_system.utilities_module.occupancy_map import OccupancyGridMap
 from ROAR.roar_autonomous_system.utilities_module.utilities import img_to_world
 
+
 class PIDAgent(Agent):
     def __init__(self, target_speed=40, **kwargs):
         super().__init__(**kwargs)
         self.logger = logging.getLogger("PID Agent")
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
         self.pid_controller = VehiclePIDController(
-            vehicle=self.vehicle,
+            agent=self,
             args_lateral=PIDParam.default_lateral_param(),
             args_longitudinal=PIDParam.default_longitudinal_param(),
             target_speed=target_speed)
-        self.mission_planner = WaypointFollowingMissionPlanner(
-            file_path=self.route_file_path, vehicle=self.vehicle)
+        self.mission_planner = WaypointFollowingMissionPlanner(agent=self)
         # initiated right after mission plan
 
-        self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle)
+        self.behavior_planner = BehaviorPlanner(agent=self)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
-            vehicle=self.vehicle,
+            agent=self,
             controller=self.pid_controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,

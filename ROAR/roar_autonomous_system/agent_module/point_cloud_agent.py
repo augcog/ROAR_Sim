@@ -29,12 +29,11 @@ class PointCloudAgent(Agent):
     def __init__(self, **kwargs):
         super(PointCloudAgent, self).__init__(**kwargs)
         self.route_file_path = Path(self.agent_settings.waypoint_file_path)
-        self.controller = PurePursuitController(vehicle=self.vehicle, target_speed=20)
-        self.mission_planner = WaypointFollowingMissionPlanner(
-            file_path=self.route_file_path, vehicle=self.vehicle)
-        self.behavior_planner = BehaviorPlanner(vehicle=self.vehicle)
+        self.controller = PurePursuitController(agent=self, target_speed=20)
+        self.mission_planner = WaypointFollowingMissionPlanner(agent=self)
+        self.behavior_planner = BehaviorPlanner(agent=self)
         self.local_planner = SimpleWaypointFollowingLocalPlanner(
-            vehicle=self.vehicle,
+            agent=self,
             controller=self.controller,
             mission_planner=self.mission_planner,
             behavior_planner=self.behavior_planner,
@@ -57,7 +56,7 @@ class PointCloudAgent(Agent):
         super(PointCloudAgent, self).run_step(sensors_data, vehicle)
         try:
 
-            self.local_planner.run_step(vehicle=self.vehicle)
+            self.local_planner.run_step()
             points = self.gp_pointcloud_detector.run_step()  # (N x 3)
             print(np.amin(points, axis=0), np.amax(points, axis=0), self.vehicle.transform.location.to_array())
             # self.occupancy_grid_map.update_grid_map_from_world_cord(points[:, :2])
@@ -66,4 +65,4 @@ class PointCloudAgent(Agent):
         except Exception as e:
             self.logger.error(f"Point cloud RunStep Error: {e}")
         finally:
-            return self.local_planner.run_step(self.vehicle)
+            return self.local_planner.run_step()

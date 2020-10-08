@@ -7,18 +7,15 @@ from collections import deque
 from ROAR.roar_autonomous_system.planning_module.abstract_planner import (
     AbstractPlanner,
 )
-from ROAR.roar_autonomous_system.utilities_module.vehicle_models import (
-    Vehicle,
-)
 
 
 class MissionPlanner(AbstractPlanner):
-    def __init__(self, vehicle: Vehicle):
-        super().__init__(vehicle=vehicle)
+    def __init__(self, agent):
+        super().__init__(agent=agent)
         self.logger = logging.getLogger(__name__)
         self.mission_plan: deque = deque()
 
-    def run_step(self, vehicle: Vehicle) -> List[Transform]:
+    def run_step(self) -> List[Transform]:
         """
         Abstract run step function for Mission Planner
 

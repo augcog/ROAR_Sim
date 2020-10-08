@@ -7,7 +7,6 @@ from ROAR.roar_autonomous_system.utilities_module \
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models \
     import \
     Vehicle
-from ROAR.roar_autonomous_system.agent_module.agent import Agent
 from typing import Tuple
 from ROAR.bridges.carla_bridge import CarlaBridge
 import carla
@@ -19,7 +18,6 @@ from ROAR.roar_autonomous_system.configurations.agent_settings \
     AgentConfig
 from carla import ColorConverter as cc
 from pathlib import Path
-from ROAR.roar_autonomous_system.agent_module.pure_pursuit_agent import PurePursuitAgent
 from typing import List, Dict, Any
 from ROAR.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
 import json
@@ -27,23 +25,22 @@ import json
 
 class CarlaRunner:
 
-    def __init__(self, carla_settings: CarlaConfig,
-                 agent_settings: AgentConfig):
+    def __init__(self, carla_settings: CarlaConfig, agent_settings: AgentConfig, npc_agent_class):
         self.carla_settings = carla_settings
         self.agent_settings = agent_settings
         self.carla_bridge = CarlaBridge()
+        self.npc_agent_class = npc_agent_class
         self.world = None
         self.client = None
         self.controller = None
         self.display = None
         self.agent = None
 
-        self.npc_agents: Dict[Agent, Any] = {}
+        self.npc_agents: Dict[npc_agent_class, Any] = {}
         self.agent_collision_counter = 0
 
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
-
 
     def set_carla_world(self) -> Vehicle:
         """Initiating the vehicle with loading messages"""
@@ -69,7 +66,6 @@ class CarlaRunner:
                                carla_settings=self.carla_settings,
                                agent_settings=self.agent_settings)
 
-
             if self.carla_settings.should_spawn_npcs:
                 self.spawn_npcs()
 
@@ -87,7 +83,7 @@ class CarlaRunner:
                 f"Unable to initiate the world due to error: {e}")
             raise e
 
-    def start_game_loop(self, agent: Agent, use_manual_control=False, max_timestep=1e20):
+    def start_game_loop(self, agent, use_manual_control=False, max_timestep=1e20):
         """Start running the vehicle and stop when finished running
         the track"""
 
@@ -100,10 +96,9 @@ class CarlaRunner:
                 # make sure the program does not run above 60 frames per second
                 # this allow proper synchrony between server and client
                 clock.tick_busy_loop(60)
-                should_continue, carla_control = self.controller. \
-                    parse_events(client=self.client,
-                                 world=self.world,
-                                 clock=clock)
+                should_continue, carla_control = self.controller.parse_events(client=self.client,
+                                                                              world=self.world,
+                                                                              clock=clock)
 
                 if not should_continue:
                     break
@@ -203,7 +198,6 @@ class CarlaRunner:
 
         self.world.spawn_npcs(npc_configs)
         self.npc_agents = {
-            PurePursuitAgent(vehicle=actor, agent_settings=npc_config,
-                             target_speed=npc_config.target_speed): actor for actor, npc_config in
+            self.npc_agent_class(vehicle=actor, agent_settings=npc_config): actor for actor, npc_config in
             self.world.npcs_mapping.values()
         }
