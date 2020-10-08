@@ -29,7 +29,7 @@ Please visit [https://augcog.github.io/ROAR-Sim/](https://augcog.github.io/ROAR-
 #### Side notes:
 You should run setup everything on the Jetson Nano. And then use [X11vnc](https://tecadmin.net/setup-x11vnc-server-on-ubuntu-linuxmint/) or similar service to remote control it. 
 
-However, setting all the software on your local computer should also work
+However, setting all the software on your local computer should also work. Just make sure to hook plug the Camera & Arduino to the computer that you are running the code on.
 Platforms tested:
 
     - IOS 10.15
