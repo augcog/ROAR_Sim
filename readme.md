@@ -17,5 +17,11 @@ Please visit [https://augcog.github.io/ROAR-Sim/](https://augcog.github.io/ROAR-
 ### Setup software
 1. clone this repo
     - `git clone --recursive https://github.com/augcog/ROAR-Sim.git`
-    - 
-
+    - (we are working on changing it to a different repo so that file organization makes more sense) 
+2. install dependencies
+    - `cd ROAR-Sim` 
+    - `pip3 install -r requirements.txt`
+        - you might need to install a few other packages manually
+        - You should be able to Google and install them, we are working on a all-in-one script that does this
+    - `python3 runner_jetson.py`
+    
