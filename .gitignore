@@ -1,4 +1,4 @@
-data/output
+:data/output
 data/weights
 data/*.zip
 */__pycache__/
