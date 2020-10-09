@@ -62,7 +62,7 @@ from pygame.locals import K_x
 from typing import Tuple
 import logging
 import carla
-from ROAR.carla_client.carla_settings import CarlaConfig
+from ROAR_Sim.configurations.configuration import Configuration as CarlaConfig
 
 
 class KeyboardControl(object):

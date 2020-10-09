@@ -1,6 +1,6 @@
 import pygame
 import os, math, datetime
-from .utilities import get_actor_display_name
+from ROAR_Sim.carla_client.util.utilities import get_actor_display_name
 import carla
 
 

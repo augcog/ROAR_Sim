@@ -3,21 +3,18 @@ from carla import ColorConverter as cc
 import logging
 import random
 import sys
-from ROAR.bridges.carla_bridge import CarlaBridge
-from ROAR.carla_client.carla_settings import CarlaConfig
-from ROAR.carla_client.util.hud import HUD
+from Bridges.carla_bridge import CarlaBridge
+from ROAR_Sim.configurations.configuration import Configuration as CarlaConfig
+from ROAR_Sim.carla_client.util.hud import HUD
 
-from ROAR.carla_client.util.utilities import CarlaCarColor, \
+from ROAR_Sim.carla_client.util.utilities import CarlaCarColor, \
     CarlaCarColors, get_actor_display_name
-from ROAR.carla_client.util.sensors import CollisionSensor, \
+from ROAR_Sim.carla_client.util.sensors import CollisionSensor, \
     GnssSensor, LaneInvasionSensor, IMUSensor, RadarSensor
-from ROAR.carla_client.util.camera_manager import CameraManager
-from ROAR.roar_autonomous_system.configurations.agent_settings \
-    import \
-    AgentConfig
+from ROAR_Sim.carla_client.util.camera_manager import CameraManager
+from ROAR.configurations.configuration import Configuration as AgentConfig
 import weakref
 from typing import List, Dict, Tuple, Any
-from pathlib import Path
 
 
 class World(object):

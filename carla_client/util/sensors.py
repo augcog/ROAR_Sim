@@ -1,7 +1,7 @@
 import weakref
 import collections
 import math
-from ROAR.carla_client.util.utilities import get_actor_display_name
+from ROAR_Sim.carla_client.util.utilities import get_actor_display_name
 import carla
 
 

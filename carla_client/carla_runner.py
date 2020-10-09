@@ -1,25 +1,19 @@
-from ROAR.carla_client.carla_settings import CarlaConfig
+import carla
+from carla import ColorConverter as cc
+from ROAR_Sim.configurations.configuration import Configuration as CarlaConfig
 import logging
 import pygame
-from ROAR.roar_autonomous_system.utilities_module \
-    .data_structures_models import \
-    SensorsData
-from ROAR.roar_autonomous_system.utilities_module.vehicle_models \
-    import \
-    Vehicle
+from ROAR.utilities_module.data_structures_models import SensorsData
+from ROAR.utilities_module.vehicle_models import Vehicle
 from typing import Tuple
-from ROAR.bridges.carla_bridge import CarlaBridge
-import carla
-from ROAR.carla_client.util.hud import HUD
-from ROAR.carla_client.util.world import World
-from ROAR.carla_client.util.keyboard_control import KeyboardControl
-from ROAR.roar_autonomous_system.configurations.agent_settings \
-    import \
-    AgentConfig
-from carla import ColorConverter as cc
+from Bridges.carla_bridge import CarlaBridge
+from ROAR_Sim.carla_client.util.hud import HUD
+from ROAR_Sim.carla_client.util.world import World
+from ROAR_Sim.carla_client.util.keyboard_control import KeyboardControl
+from ROAR.configurations.configuration import Configuration as AgentConfig
 from pathlib import Path
 from typing import List, Dict, Any
-from ROAR.roar_autonomous_system.utilities_module.vehicle_models import VehicleControl
+from ROAR.utilities_module.vehicle_models import VehicleControl
 import json
 
 

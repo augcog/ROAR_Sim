@@ -46,7 +46,7 @@ def main():
     num_trials = 2
     total_score = 0
     for i in range(num_trials):
-        score = run(agent_class=agent_class, config_fpath=Path(os.getcwd()) / "configurations" / "config.json")
+        score = run(agent_class=agent_class, config_fpath=Path(os.getcwd()) / "configurations" / "configuration.json")
         print(f"This run's score is {score}")
         total_score += score
     print(f"Your Average is {total_score / num_trials}")

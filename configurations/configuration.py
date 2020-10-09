@@ -1,35 +1,22 @@
 from pathlib import Path
 import os, sys
 
-carla_client_folder_path = Path(
-    os.getcwd()) / "ROAR" / "carla_client"
+carla_client_folder_path = Path(os.getcwd()) / "ROAR_Sim" / "carla_client"
 if sys.platform == 'darwin':
     assert False, "MacOS is currently not supported"
 carla_client_egg_file_name = 'carla-0.9.9-py3.7-win-amd64.egg' if \
-    sys.platform == "win32" else \
-    "carla-0.9.9-py3.6-linux-x86_64.egg"
-carla_client_egg_file_path = carla_client_folder_path / \
-                             carla_client_egg_file_name
+    sys.platform == "win32" else "carla-0.9.9-py3.6-linux-x86_64.egg"
+carla_client_egg_file_path = carla_client_folder_path / carla_client_egg_file_name
 if not carla_client_egg_file_path.is_file():
     raise FileNotFoundError(
         "Please make sure carla client distribution is installed under the "
         "carla_client directory")
 sys.path.append(carla_client_egg_file_path.as_posix())
-
 from pydantic import BaseModel, Field
-from ROAR.carla_client.util.utilities import CarlaWeathers, \
-    CarlaWeather, CarlaCarColors, CarlaCarColor
-from pathlib import Path
-from typing import Optional
-from ROAR.roar_autonomous_system.utilities_module.camera_models \
-    import \
-    Camera
-from ROAR.roar_autonomous_system.utilities_module\
-    .data_structures_models import \
-    Location, Rotation, Transform
+from ROAR_Sim.carla_client.util.utilities import CarlaWeathers, CarlaWeather, CarlaCarColors, CarlaCarColor
 
 
-class CarlaConfig(BaseModel):
+class Configuration(BaseModel):
     # carla server setting
     host: str = Field(default="127.0.0.1", title="Host IP",
                       description="The IP Address of the Carla Server")
