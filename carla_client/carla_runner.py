@@ -84,6 +84,7 @@ class CarlaRunner:
         self.agent = agent
         try:
             self.logger.debug("Initiating game")
+            self.agent.start_module_threads()
             clock = pygame.time.Clock()
             while True and self.timestep_counter < max_timestep:
 
@@ -113,9 +114,8 @@ class CarlaRunner:
                     if self.agent is None:
                         raise Exception(
                             "In autopilot mode, but no agent is defined.")
-                    agent_control = self.agent. \
-                        run_in_series(vehicle=new_vehicle,
-                                      sensors_data=sensor_data)
+                    agent_control = self.agent.run_step(vehicle=new_vehicle,
+                                                        sensors_data=sensor_data)
                     if not use_manual_control:
                         carla_control = self.carla_bridge. \
                             convert_control_from_agent_to_source(agent_control)
