@@ -114,8 +114,8 @@ class CarlaRunner:
                         raise Exception(
                             "In autopilot mode, but no agent is defined.")
                     agent_control = self.agent. \
-                        run_step(vehicle=new_vehicle,
-                                 sensors_data=sensor_data)
+                        run_in_series(vehicle=new_vehicle,
+                                      sensors_data=sensor_data)
                     if not use_manual_control:
                         carla_control = self.carla_bridge. \
                             convert_control_from_agent_to_source(agent_control)
@@ -175,7 +175,7 @@ class CarlaRunner:
         try:
             for agent, actor in self.npc_agents.items():
                 new_vehicle = self.carla_bridge.convert_vehicle_from_source_to_agent(actor)
-                curr_control: VehicleControl = agent.run_step(sensors_data=SensorsData(), vehicle=new_vehicle)
+                curr_control: VehicleControl = agent.run_in_series(sensors_data=SensorsData(), vehicle=new_vehicle)
                 carla_control = self.carla_bridge.convert_control_from_agent_to_source(curr_control)
                 actor.apply_control(carla_control)
         except Exception as e:
