@@ -210,6 +210,6 @@ class CarlaRunner:
         self.world.spawn_npcs(npc_configs)
         self.npc_agents = {
             PurePursuitAgent(vehicle=actor, agent_settings=npc_config,
-                             target_speed=npc_config.target_speed): actor for actor, npc_config in
+                             target_speed=npc_config.max_speed): actor for actor, npc_config in
             self.world.npcs_mapping.values()
         }

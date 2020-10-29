@@ -51,6 +51,7 @@
     "image_size_y": 600
   },
   "waypoint_file_path": "./ROAR_Sim/data/easy_map_waypoints.txt",
+  "pid_config_file_path": "./ROAR_Sim/configurations/pid_config.json",
   "output_data_folder_path": "./data/output",
   "enable_autopilot": true,
   "spawn_point_id": 1,
