@@ -56,12 +56,12 @@ class HUD(object):
             "",
             "Speed:   % 15.0f km/h" % (3.6 * math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2)),
             "Compass:% 17.0f\N{DEGREE SIGN} % 2s" % (compass, heading),
-            "Accelero: (%5.1f,%5.1f,%5.1f)" % (world.imu_sensor.accelerometer),
-            "Gyroscop: (%5.1f,%5.1f,%5.1f)" % (world.imu_sensor.gyroscope),
-            "Location:% 20s" % ("(% 5.1f, % 5.1f)" % (t.location.x, t.location.y)),
-            "GNSS:% 24s"
-            % ("(% 2.6f, % 3.6f)" % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
-            "Height:  % 18.0f m" % t.location.z,
+            # "Accelero: (%5.1f,%5.1f,%5.1f)" % (world.imu_sensor.accelerometer),
+            # "Gyroscop: (%5.1f,%5.1f,%5.1f)" % (world.imu_sensor.gyroscope),
+            # "Location:% 20s" % ("(% 5.1f, % 5.1f)" % (t.location.x, t.location.y)),
+            # "GNSS:% 24s"
+            # % ("(% 2.6f, % 3.6f)" % (world.gnss_sensor.lat, world.gnss_sensor.lon)),
+            # "Height:  % 18.0f m" % t.location.z,
             "",
         ]
         if isinstance(c, carla.VehicleControl):

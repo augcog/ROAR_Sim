@@ -4,8 +4,8 @@
     "transform": {
       "location": {
         "x": 1.6,
-        "y": 0.0,
-        "z": 1.7
+        "y": 1.7,
+        "z": 0.0
       },
       "rotation": {
         "pitch": 0.0,
@@ -21,8 +21,8 @@
     "transform": {
       "location": {
         "x": 1.6,
-        "y": 0.0,
-        "z": 1.7
+        "y": 1.7,
+        "z": 0.0
       },
       "rotation": {
         "pitch": 0.0,
@@ -38,12 +38,12 @@
     "transform": {
       "location": {
         "x": -1.5,
-        "y": 0.0,
-        "z": 1.4
+        "y": 1.4,
+        "z": 0.0
       },
       "rotation": {
-        "pitch": 0.0,
-        "yaw": 180.0,
+        "pitch": 180.0,
+        "yaw": 0.0,
         "roll": 0.0
       }
     },
