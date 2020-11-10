@@ -100,7 +100,6 @@ class World(object):
         if self.carla_settings.synchronous_mode:
             settings.fixed_delta_seconds = self.carla_settings.fixed_delta_seconds
         self.carla_world.apply_settings(settings)
-
         self.carla_world.on_tick(hud.on_world_tick)
         self.logger.debug("World Initialized")
 
