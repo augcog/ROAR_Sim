@@ -2,6 +2,10 @@ from pathlib import Path
 import os, sys
 
 carla_client_folder_path = Path(os.getcwd()) / "ROAR_Sim" / "carla_client"
+
+if carla_client_folder_path.exists() is False:
+    carla_client_folder_path = Path(os.getcwd()).parent.parent / "ROAR_Sim" / "carla_client"
+
 if sys.platform == 'darwin':
     assert False, "MacOS is currently not supported"
 carla_client_egg_file_name = 'carla-0.9.9-py3.7-win-amd64.egg' if \
