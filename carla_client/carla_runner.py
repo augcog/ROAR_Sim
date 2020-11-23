@@ -72,7 +72,6 @@ class CarlaRunner:
             self.client = carla.Client(self.carla_settings.host,
                                        self.carla_settings.port)
             self.client.set_timeout(self.carla_settings.timeout)
-
             self.display = pygame.display.set_mode(
                 (self.carla_settings.width, self.carla_settings.height),
                 pygame.HWSURFACE | pygame.DOUBLEBUF)
@@ -163,9 +162,13 @@ class CarlaRunner:
 
     def on_finish(self):
         self.logger.debug("Ending Game")
-        self.end_simulation_time = self.world.hud.simulation_time
-        self.end_vehicle_position = self.agent.vehicle.transform.location.to_array()
+
+        if self.agent is not None:
+            self.end_vehicle_position = self.agent.vehicle.transform.location.to_array()
+        else:
+            self.end_vehicle_position = self.start_vehicle_position
         if self.world is not None:
+            self.end_simulation_time = self.world.hud.simulation_time
             self.world.destroy()
             self.logger.debug("All actors are destroyed")
         try:
