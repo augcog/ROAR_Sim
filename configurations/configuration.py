@@ -2,7 +2,8 @@ from pathlib import Path
 import os, sys
 
 carla_client_folder_path = Path(os.getcwd()) / "ROAR_Sim" / "carla_client"
-
+if carla_client_folder_path.exists() is False:
+    carla_client_folder_path = Path(os.getcwd()).parent / "ROAR_Sim" / "carla_client"
 if carla_client_folder_path.exists() is False:
     carla_client_folder_path = Path(os.getcwd()).parent.parent / "ROAR_Sim" / "carla_client"
 
