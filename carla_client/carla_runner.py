@@ -122,9 +122,8 @@ class CarlaRunner:
                                                                               clock=clock)
 
                 collision_sensor: CollisionSensor = self.world.collision_sensor
-
-                if self.competition_mode and len(collision_sensor.history) > self.max_collision:
-                    self.agent_collision_counter = len(collision_sensor.history)
+                self.agent_collision_counter = len(collision_sensor.history)
+                if self.competition_mode and self.agent_collision_counter > self.max_collision:
                     should_continue = False
 
                 if not should_continue:
