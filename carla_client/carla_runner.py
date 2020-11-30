@@ -121,8 +121,7 @@ class CarlaRunner:
                                                                               world=self.world,
                                                                               clock=clock)
 
-                collision_sensor: CollisionSensor = self.world.collision_sensor
-                self.agent_collision_counter = len(collision_sensor.history)
+                self.agent_collision_counter = self.get_num_collision()
                 if self.competition_mode and self.agent_collision_counter > self.max_collision:
                     should_continue = False
 
@@ -228,3 +227,7 @@ class CarlaRunner:
             self.npc_agent_class(vehicle=actor, agent_settings=npc_config): actor for actor, npc_config in
             self.world.npcs_mapping.values()
         }
+
+    def get_num_collision(self):
+        collision_sensor: CollisionSensor = self.world.collision_sensor
+        return len(collision_sensor.history)
