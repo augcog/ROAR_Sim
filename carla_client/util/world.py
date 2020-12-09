@@ -258,7 +258,7 @@ class World(object):
             else:
                 self.logger.error(f"Unable to set attribute [{key}] "
                                   f"for blueprint [{blueprint_filter}]")
-
+        # self.logger.debug(f"Spawning {blueprint} at {transform}")
         return self.carla_world.spawn_actor(blueprint, transform,
                                             self.player, attachment)
 
@@ -325,4 +325,3 @@ class World(object):
         for actor in self.carla_world.get_actors():
             if "traffic" not in actor.type_id and "spectator" not in actor.type_id:
                 actor.destroy()
-

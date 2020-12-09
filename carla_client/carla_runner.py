@@ -18,7 +18,7 @@ from ROAR.utilities_module.vehicle_models import VehicleControl
 import json
 from typing import Optional
 import numpy as np
-
+import cv2
 class CarlaRunner:
 
     def __init__(self,
