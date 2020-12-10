@@ -1,5 +1,5 @@
-:data/output
-data/weights
+data/output
+data/weights/opencv_weights_and_config
 data/*.zip
 */__pycache__/
 *__pycache__
