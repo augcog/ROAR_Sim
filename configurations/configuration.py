@@ -10,7 +10,7 @@ if carla_client_folder_path.exists() is False:
 if sys.platform == 'darwin':
     assert False, "MacOS is currently not supported"
 
-carla_client_egg_file_name = 'carla-0.9.10-py3.7-win-amd64.egg' if \
+carla_client_egg_file_name = 'carla-0.9.9-py3.7-win-amd64.egg' if \
     sys.platform == "win32" else "carla-0.9.9-py3.6-linux-x86_64.egg"
 carla_client_egg_file_path = carla_client_folder_path / carla_client_egg_file_name
 if not carla_client_egg_file_path.is_file():
