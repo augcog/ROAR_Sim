@@ -122,14 +122,7 @@ class CarlaRunner:
                                                                               clock=clock)
 
                 self.agent_collision_counter = self.get_num_collision()
-                if self.competition_mode and self.agent_collision_counter > self.max_collision:
-                    # should_continue = Fals
-                    pass
 
-                if np.linalg.norm(
-                        self.agent.vehicle.transform.location.to_array() - self.start_vehicle_position) < 3 and self.agent.time_counter > 1000:
-                    print("ENDING DUE TO INITIAL NOT MOVING")
-                    should_continue = False
                 if should_continue is False:
                     break
 
