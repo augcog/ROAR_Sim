@@ -17,6 +17,7 @@ import weakref
 from typing import List, Dict, Tuple, Any
 
 
+
 class World(object):
     """An World that holds all display settings"""
 
@@ -164,29 +165,6 @@ class World(object):
         self.camera_manager.sensor = None
         self.camera_manager.index = None
 
-    def destroy(self):
-        self.logger.debug(f"destroying all actors belonging to "
-                          f"[{self.actor_role_name}] in this world")
-        if self.radar_sensor is not None:
-            self.toggle_radar()
-        actors = [
-            self.camera_manager.sensor,
-            self.collision_sensor.sensor,
-            self.lane_invasion_sensor.sensor,
-            self.gnss_sensor.sensor,
-            self.imu_sensor.sensor,
-            self.player,
-        ]
-        for actor in actors:
-            if actor is not None:
-                actor.destroy()
-
-        self._destroy_custom_sensors()
-        for npc, _ in self.npcs_mapping.values():
-            npc.destroy()
-
-        self.clean_spawned_all_actors()
-
     def set_weather(self, new_weather: carla.WeatherParameters):
         self.carla_world.weather = new_weather
 
@@ -316,12 +294,38 @@ class World(object):
                 self.logger.error(f"Failed to Spawn NPC {'default'}."
                                   f"Error: {e}")
 
+    def destroy(self):
+        self.logger.debug(f"destroying all actors belonging to "
+                          f"[{self.actor_role_name}] in this world")
+        # if self.radar_sensor is not None:
+        #     self.toggle_radar()
+        actors = [
+            self.camera_manager.sensor,
+            self.collision_sensor.sensor,
+            self.lane_invasion_sensor.sensor,
+            self.gnss_sensor.sensor,
+            self.imu_sensor.sensor,
+            self.player,
+        ]
+        for actor in actors:
+            if actor is not None:
+                actor.destroy()
+
+        self._destroy_custom_sensors()
+        for npc, _ in self.npcs_mapping.values():
+            npc.destroy()
+
+        # self.clean_spawned_all_actors()
+
     def clean_spawned_all_actors(self):
         """
         This function is to clean all actors that are not traffic light/signals
         Returns:
 
         """
+
         for actor in self.carla_world.get_actors():
             if "traffic" not in actor.type_id and "spectator" not in actor.type_id:
                 actor.destroy()
+                print("destroying", actor)
+
