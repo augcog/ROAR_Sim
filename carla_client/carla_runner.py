@@ -19,6 +19,7 @@ import json
 from typing import Optional
 import numpy as np
 import cv2
+from threading import Thread
 
 
 class CarlaRunner:
@@ -26,15 +27,20 @@ class CarlaRunner:
     def __init__(self,
                  carla_settings: CarlaConfig,
                  agent_settings: AgentConfig,
-                 npc_agent_class, competition_mode=False, max_collision=1000):
+                 npc_agent_class,
+                 competition_mode=False,
+                 start_bbox: np.ndarray = np.array([5, -5, 0, 13, 5, 50]),
+                 lap_count=10):
         """
 
         Args:
-            carla_settings:
-            agent_settings:
-            npc_agent_class:
-            competition_mode: if True, will exist when max_collision is reached
-            max_collision: number of maximum collision allowed
+            carla_settings: CarlaConfig instance
+            agent_settings: AgentConfig instance
+            npc_agent_class: an agent class
+            competition_mode: [Optional] True/False
+            max_collision: [Optional] int
+            start_bbox: [Optional] array of [minx, miny, minz, maxx, maxy, maxz]
+            lap_count: [Optional] total lap count
         """
         self.carla_settings = carla_settings
         self.agent_settings = agent_settings
@@ -50,7 +56,10 @@ class CarlaRunner:
         self.agent_collision_counter = 0
 
         self.competition_mode = competition_mode
-        self.max_collision = max_collision
+        self.start_bbox = start_bbox
+        self.lap_count = lap_count
+        self.completed_lap_count = 0
+
         self.start_simulation_time: Optional[float] = None
         self.start_vehicle_position: Optional[np.array] = None
         self.end_simulation_time: Optional[float] = None
@@ -114,6 +123,9 @@ class CarlaRunner:
             clock = pygame.time.Clock()
             self.start_simulation_time = self.world.hud.simulation_time
             self.start_vehicle_position = self.agent.vehicle.transform.location.to_array()
+
+            lap_count = 0
+            has_entered_bbox = False
             while True and self.timestep_counter < max_timestep:
 
                 # make sure the program does not run above 60 frames per second
@@ -125,17 +137,33 @@ class CarlaRunner:
 
                 self.agent_collision_counter = self.get_num_collision()
 
+                # check for exiting condition
                 if should_continue is False:
                     break
+
+                if self.competition_mode:
+                    is_currently_in_bbox = self.is_within_start_finish_bbox(
+                        curr_pos=self.agent.vehicle.transform.location.to_array())
+                    if has_entered_bbox is True and is_currently_in_bbox is False:
+                        has_entered_bbox = False
+                    elif has_entered_bbox is False and is_currently_in_bbox is True:
+                        has_entered_bbox = True
+                        lap_count += 1
+                        if lap_count > self.lap_count:
+                            break
+                        else:
+                            self.logger.info(f"Going onto Lap {lap_count} out of {self.lap_count}")
+
 
                 self.world.tick(clock)
                 self.world.render(display=self.display)
                 pygame.display.flip()
                 sensor_data, new_vehicle = self.convert_data()
                 if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
-                    self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
+                    Thread(target=lambda: self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
                         "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
-                                                                              cc.CityScapesPalette)
+                                                                                            cc.CityScapesPalette),
+                           args=()).start()
 
                 if self.carla_settings.should_spawn_npcs:
                     self.execute_npcs_step()
@@ -152,9 +180,10 @@ class CarlaRunner:
                 self.world.player.apply_control(carla_control)
 
                 self.timestep_counter += 1
+
+            self.completed_lap_count = lap_count - 1
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
-
         finally:
             self.on_finish()
 
@@ -175,6 +204,11 @@ class CarlaRunner:
             self.logger.debug(
                 f"Cannot quit pygame normally, force quitting. Error: {e}")
         self.logger.debug("Game ended")
+
+    def is_within_start_finish_bbox(self, curr_pos: np.ndarray) -> bool:
+        min_bounding_box = self.start_bbox[:3]
+        max_bounding_box = self.start_bbox[3:]
+        return all(np.logical_and(min_bounding_box < curr_pos, curr_pos < max_bounding_box))
 
     def convert_data(self) -> Tuple[SensorsData, Vehicle]:
         """
