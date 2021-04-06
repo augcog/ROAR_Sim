@@ -112,11 +112,17 @@ class CarlaRunner:
                 f"Unable to initiate the world due to error: {e}")
             raise e
 
-    def start_game_loop(self, agent, use_manual_control=False, max_timestep=1e20):
+    def start_game_loop(self,
+                        agent,
+                        use_manual_control=False,
+                        starting_lap_count=0):
         """Start running the vehicle and stop when finished running
         the track"""
 
         self.agent = agent
+        lap_count = starting_lap_count
+        has_entered_bbox = False
+        should_restart_lap = False
         try:
             self.logger.debug("Initiating game")
             self.agent.start_module_threads()
@@ -124,9 +130,7 @@ class CarlaRunner:
             self.start_simulation_time = self.world.hud.simulation_time
             self.start_vehicle_position = self.agent.vehicle.transform.location.to_array()
 
-            lap_count = 0
-            has_entered_bbox = False
-            while True and self.timestep_counter < max_timestep:
+            while True:
 
                 # make sure the program does not run above 60 frames per second
                 # this allow proper synchrony between server and client
@@ -136,10 +140,6 @@ class CarlaRunner:
                                                                               clock=clock)
 
                 self.agent_collision_counter = self.get_num_collision()
-
-                # check for exiting condition
-                if should_continue is False:
-                    break
 
                 if self.competition_mode:
                     is_currently_in_bbox = self.is_within_start_finish_bbox(
@@ -154,6 +154,15 @@ class CarlaRunner:
                         else:
                             self.logger.info(f"Going onto Lap {lap_count} out of {self.lap_count}")
 
+                    if len(self.world.collision_sensor.history) > 0:
+                        should_restart_lap = True
+
+                    if should_restart_lap:
+                        should_continue = False
+
+                # check for exiting condition
+                if should_continue is False:
+                    break
 
                 self.world.tick(clock)
                 self.world.render(display=self.display)
@@ -162,7 +171,7 @@ class CarlaRunner:
                 if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
                     Thread(target=lambda: self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
                         "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
-                                                                                            cc.CityScapesPalette),
+                                                                                                    cc.CityScapesPalette),
                            args=()).start()
 
                 if self.carla_settings.should_spawn_npcs:
@@ -185,7 +194,18 @@ class CarlaRunner:
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
         finally:
-            self.on_finish()
+            if self.competition_mode:
+                if should_restart_lap:
+                    self.restart_on_lap(agent=agent, use_manual_control=use_manual_control,
+                                        starting_lap_count=lap_count-1)
+            else:
+                self.on_finish()
+
+    def restart_on_lap(self, agent, use_manual_control: bool, starting_lap_count: int):
+        self.logger.info(f"Restarting on Lap {starting_lap_count}")
+        self.on_finish()
+        self.set_carla_world()
+        self.start_game_loop(agent=agent, use_manual_control=use_manual_control, starting_lap_count=starting_lap_count)
 
     def on_finish(self):
         self.logger.debug("Ending Game")

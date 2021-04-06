@@ -17,7 +17,6 @@ import weakref
 from typing import List, Dict, Tuple, Any
 
 
-
 class World(object):
     """An World that holds all display settings"""
 
@@ -327,5 +326,3 @@ class World(object):
         for actor in self.carla_world.get_actors():
             if "traffic" not in actor.type_id and "spectator" not in actor.type_id:
                 actor.destroy()
-                print("destroying", actor)
-
