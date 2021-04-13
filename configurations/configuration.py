@@ -1,23 +1,38 @@
-from pathlib import Path
-import os, sys
+def import_carla():
+    from pathlib import Path
+    import os, sys
 
-carla_client_folder_path = Path(os.getcwd()) / "ROAR_Sim" / "carla_client"
-if carla_client_folder_path.exists() is False:
-    carla_client_folder_path = Path(os.getcwd()).parent / "ROAR_Sim" / "carla_client"
-if carla_client_folder_path.exists() is False:
-    carla_client_folder_path = Path(os.getcwd()).parent.parent / "ROAR_Sim" / "carla_client"
+    # clear path s.t. path contains no carla
 
-if sys.platform == 'darwin':
-    assert False, "MacOS is currently not supported"
+    sys.path = [p for p in sys.path if "carla" not in p]
+    if "carla" in sys.modules:
+        del sys.modules["carla"]
+    roar_sim_folder_path = Path(os.getcwd())/ "ROAR_Sim"
 
-carla_client_egg_file_name = 'carla-0.9.9-py3.7-win-amd64.egg' if \
-    sys.platform == "win32" else "carla-0.9.9-py3.6-linux-x86_64.egg"
-carla_client_egg_file_path = carla_client_folder_path / carla_client_egg_file_name
-if not carla_client_egg_file_path.is_file():
-    raise FileNotFoundError(
-        "Please make sure carla client distribution is installed under the "
-        "carla_client directory")
-sys.path.append(carla_client_egg_file_path.as_posix())
+    if roar_sim_folder_path.exists() is False:
+        roar_sim_folder_path = Path(os.getcwd()).parent / "ROAR_Sim"
+    if roar_sim_folder_path.exists() is False:
+        roar_sim_folder_path = Path(os.getcwd()).parent.parent / "ROAR_Sim"
+
+    carla_version_file_path = roar_sim_folder_path / "configurations" / "carla_version.txt"
+    carla_version = (carla_version_file_path.open('r').readline()).strip()
+    carla_client_folder_path = roar_sim_folder_path / "carla_client"
+
+    if sys.platform == 'darwin':
+        assert False, "MacOS is currently not supported"
+
+    carla_client_egg_file_name = f'carla-{carla_version}-py3.7-win-amd64.egg' if \
+        sys.platform == "win32" else f"carla-{carla_version}-py3.6-linux-x86_64.egg"
+    carla_client_egg_file_path = carla_client_folder_path / carla_client_egg_file_name
+    if not carla_client_egg_file_path.is_file():
+        raise FileNotFoundError(
+            "Please make sure carla client distribution is installed under the "
+            "carla_client directory")
+    sys.path.append(carla_client_egg_file_path.as_posix())
+    import carla
+
+import_carla()
+
 from pydantic import BaseModel, Field
 from ROAR_Sim.carla_client.util.utilities import CarlaWeathers, CarlaWeather, CarlaCarColors, CarlaCarColor
 
@@ -34,7 +49,7 @@ class Configuration(BaseModel):
     width: int = Field(default=1280, title="Width of Display")
     height: int = Field(default=720, title="Height of Display")
 
-    # carla world settings
+    # # carla world settings
     carla_weather: CarlaWeather = Field(default=CarlaWeathers.SUNNY,
                                         title="Carla Weather",
                                         description="Weather Setting")
@@ -74,3 +89,7 @@ class Configuration(BaseModel):
 
     should_spawn_npcs: bool = Field(default=False)
     npc_config_file_path: str = Field(default="./ROAR_Sim/configurations/npc_config.json")
+    carla_version: str = Field(default="0.9.9")
+
+
+

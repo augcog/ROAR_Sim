@@ -30,5 +30,6 @@
     "fixed_delta_seconds": 0.05,
     "npc_config_file_path": "./ROAR_Sim/configurations/npc_config.json",
     "should_spawn_npcs": false,
-    "save_semantic_segmentation": false
+    "save_semantic_segmentation": false,
+    "carla_version": "0.9.10"
 }

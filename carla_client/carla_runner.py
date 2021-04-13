@@ -12,6 +12,7 @@ from ROAR_Sim.carla_client.util.hud import HUD
 from ROAR_Sim.carla_client.util.world import World
 from ROAR_Sim.carla_client.util.keyboard_control import KeyboardControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
+from ROAR_Sim.configurations.configuration import import_carla
 from pathlib import Path
 from typing import List, Dict, Any
 from ROAR.utilities_module.vehicle_models import VehicleControl
@@ -80,9 +81,15 @@ class CarlaRunner:
             pygame.font.init()
             self.logger.debug(f"Connecting to {self.carla_settings.host}: "
                               f"{self.carla_settings.port}")
+
             self.client = carla.Client(self.carla_settings.host,
                                        self.carla_settings.port)
-            self.client.set_timeout(self.carla_settings.timeout)
+            if not self.check_version(client=self.client):
+                self.logger.error(f"Version Mismatch: Client = {self.client.get_client_version()}, "
+                                  f"Server = {self.client.get_server_version()}. \n"
+                                  f"HINT: Please change carla_version to either 0.9.9 or 0.9.10 "
+                                  f"in ROAR_Sim.configurations.carla_version.txt")
+                exit(1)
             self.display = pygame.display.set_mode(
                 (self.carla_settings.width, self.carla_settings.height),
                 pygame.HWSURFACE | pygame.DOUBLEBUF)
@@ -91,6 +98,7 @@ class CarlaRunner:
             hud = HUD(self.carla_settings.width, self.carla_settings.height)
 
             self.logger.debug("Setting up world")
+
             self.world = World(carla_world=self.client.get_world(), hud=hud,
                                carla_settings=self.carla_settings,
                                agent_settings=self.agent_settings)
@@ -205,7 +213,8 @@ class CarlaRunner:
         self.logger.info(f"Restarting on Lap {starting_lap_count}")
         self.on_finish()
         self.set_carla_world()
-        self.start_game_loop(agent=agent, use_manual_control=use_manual_control, starting_lap_count=starting_lap_count)
+        self.start_game_loop(agent=agent, use_manual_control=use_manual_control,
+                             starting_lap_count=starting_lap_count)
 
     def on_finish(self):
         self.logger.debug("Ending Game")
@@ -285,3 +294,8 @@ class CarlaRunner:
     def get_num_collision(self):
         collision_sensor: CollisionSensor = self.world.collision_sensor
         return len(collision_sensor.history)
+
+    def check_version(self, client):
+        return ("0.9.9" in client.get_server_version()) == ("0.9.9" in client.get_client_version())
+
+

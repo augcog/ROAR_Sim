@@ -3,7 +3,8 @@ from carla import ColorConverter as cc
 import weakref
 import numpy as np
 import pygame
-
+import logging
+import cv2
 
 class CameraManager(object):
     def __init__(self, parent_actor, hud, gamma_correction):
@@ -12,6 +13,7 @@ class CameraManager(object):
         self._parent = parent_actor
         self.hud = hud
         self.recording = False
+        self.logger = logging.getLogger("Camera Manager")
         bound_y = 0.5 + self._parent.bounding_box.extent.y
         Attachment = carla.AttachmentType
         self._camera_transforms = [
