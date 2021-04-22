@@ -30,9 +30,7 @@ class World(object):
         self.carla_settings: CarlaConfig = carla_settings
         self.agent_settings: AgentConfig = agent_settings
         self.carla_world: carla.World = carla_world
-
         self.clean_spawned_all_actors()
-
         self.actor_role_name = carla_settings.role_name
         try:
             self.map = self.carla_world.get_map()
@@ -314,7 +312,7 @@ class World(object):
         for npc, _ in self.npcs_mapping.values():
             npc.destroy()
 
-        # self.clean_spawned_all_actors()
+        self.clean_spawned_all_actors()
 
     def clean_spawned_all_actors(self):
         """

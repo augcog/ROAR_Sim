@@ -90,6 +90,7 @@ class CarlaRunner:
                                   f"HINT: Please change carla_version to either 0.9.9 or 0.9.10 "
                                   f"in ROAR_Sim.configurations.carla_version.txt")
                 exit(1)
+
             self.display = pygame.display.set_mode(
                 (self.carla_settings.width, self.carla_settings.height),
                 pygame.HWSURFACE | pygame.DOUBLEBUF)
