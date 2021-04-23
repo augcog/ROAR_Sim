@@ -320,7 +320,8 @@ class World(object):
         Returns:
 
         """
-
+        self.carla_world.tick()
         for actor in self.carla_world.get_actors():
             if "traffic" not in actor.type_id and "spectator" not in actor.type_id:
                 actor.destroy()
+        self.carla_world.tick()

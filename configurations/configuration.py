@@ -35,7 +35,7 @@ import_carla()
 
 from pydantic import BaseModel, Field
 from ROAR_Sim.carla_client.util.utilities import CarlaWeathers, CarlaWeather, CarlaCarColors, CarlaCarColor
-
+from typing import Optional
 
 class Configuration(BaseModel):
     # carla server setting
@@ -81,8 +81,8 @@ class Configuration(BaseModel):
     no_rendering_mode: bool = Field(default=False,
                                     title="No Rendering at all, however you can enable save data to do a play back",
                                     description="https://carla.readthedocs.io/en/0.9.9/adv_rendering_options/")
-    fixed_delta_seconds: float = Field(
-        default=1 / 20.0,
+    fixed_delta_seconds: Optional[float] = Field(
+        default= None,
         title="Fixed timestep with which server and client tick",
         description="Note that for us, this will ONLY take effect when you are on sync mode. "
                     "https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony")
