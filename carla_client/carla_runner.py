@@ -60,6 +60,9 @@ class CarlaRunner:
         self.start_bbox = start_bbox
         self.lap_count = lap_count
         self.completed_lap_count = 0
+        self.sensor_data = SensorsData()
+        self.vehicle_state = Vehicle()
+
 
         self.start_simulation_time: Optional[float] = None
         self.start_vehicle_position: Optional[np.array] = None
@@ -68,6 +71,7 @@ class CarlaRunner:
 
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
+
 
     def set_carla_world(self) -> Vehicle:
         """
@@ -176,7 +180,9 @@ class CarlaRunner:
                 self.world.tick(clock)
                 self.world.render(display=self.display)
                 pygame.display.flip()
-                sensor_data, new_vehicle = self.convert_data()
+                self.fetch_data_async()
+                sensor_data, new_vehicle = self.sensor_data.copy(), self.vehicle_state.copy()
+
                 if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
                     Thread(target=lambda: self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
                         "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
@@ -240,7 +246,11 @@ class CarlaRunner:
         max_bounding_box = self.start_bbox[3:]
         return all(np.logical_and(min_bounding_box < curr_pos, curr_pos < max_bounding_box))
 
-    def convert_data(self) -> Tuple[SensorsData, Vehicle]:
+    def fetch_data_async(self):
+        t = Thread(target=self.convert_data, args=())
+        t.start()
+
+    def convert_data(self):
         """
         Convert data from source to agent
 
@@ -249,22 +259,24 @@ class CarlaRunner:
             new_vehicle: the current player's vehicle state
 
         """
-        sensor_data: SensorsData = \
-            self.carla_bridge.convert_sensor_data_from_source_to_agent(
-                {
-                    "front_rgb": None if self.world.front_rgb_sensor_data is None
-                    else self.world.front_rgb_sensor_data,
-                    "rear_rgb": None if self.world.rear_rgb_sensor_data is None
-                    else self.world.rear_rgb_sensor_data,
-                    "front_depth":
-                        None if self.world.front_depth_sensor_data is None else
-                        self.world.front_depth_sensor_data,
-                    "imu": self.world.imu_sensor
-                }
-            )
-        new_vehicle = self.carla_bridge.convert_vehicle_from_source_to_agent(
-            self.world.player)
-        return sensor_data, new_vehicle
+        try:
+            self.sensor_data: SensorsData = \
+                self.carla_bridge.convert_sensor_data_from_source_to_agent(
+                    {
+                        "front_rgb": None if self.world.front_rgb_sensor_data is None
+                        else self.world.front_rgb_sensor_data,
+                        "rear_rgb": None if self.world.rear_rgb_sensor_data is None
+                        else self.world.rear_rgb_sensor_data,
+                        "front_depth":
+                            None if self.world.front_depth_sensor_data is None else
+                            self.world.front_depth_sensor_data,
+                        "imu": self.world.imu_sensor
+                    }
+                )
+            if self.world.player.is_alive:
+                self.vehicle_state = self.carla_bridge.convert_vehicle_from_source_to_agent(self.world.player)
+        except Exception as e:
+            self.logger.error(e)
 
     def execute_npcs_step(self):
         # TODO this can be parallelized
