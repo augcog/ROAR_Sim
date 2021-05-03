@@ -90,6 +90,7 @@ class Configuration(BaseModel):
     should_spawn_npcs: bool = Field(default=False)
     npc_config_file_path: str = Field(default="./ROAR_Sim/configurations/npc_config.json")
     carla_version: str = Field(default="0.9.9")
+    should_visualize_with_pygame: bool = Field(default=True)
 
 
 

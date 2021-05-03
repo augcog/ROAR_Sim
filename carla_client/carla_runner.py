@@ -63,7 +63,6 @@ class CarlaRunner:
         self.sensor_data = SensorsData()
         self.vehicle_state = Vehicle()
 
-
         self.start_simulation_time: Optional[float] = None
         self.start_vehicle_position: Optional[np.array] = None
         self.end_simulation_time: Optional[float] = None
@@ -71,7 +70,6 @@ class CarlaRunner:
 
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
-
 
     def set_carla_world(self) -> Vehicle:
         """
@@ -95,9 +93,10 @@ class CarlaRunner:
                                   f"in ROAR_Sim.configurations.carla_version.txt")
                 exit(1)
 
-            self.display = pygame.display.set_mode(
-                (self.carla_settings.width, self.carla_settings.height),
-                pygame.HWSURFACE | pygame.DOUBLEBUF)
+            if self.carla_settings.should_visualize_with_pygame is True:
+                self.display = pygame.display.set_mode(
+                    (self.carla_settings.width, self.carla_settings.height),
+                    pygame.HWSURFACE | pygame.DOUBLEBUF)
 
             self.logger.debug(f"Setting HUD")
             hud = HUD(self.carla_settings.width, self.carla_settings.height)
@@ -179,7 +178,8 @@ class CarlaRunner:
 
                 self.world.tick(clock)
                 self.world.render(display=self.display)
-                pygame.display.flip()
+                if self.carla_settings.should_visualize_with_pygame is True:
+                    pygame.display.flip()
                 self.fetch_data_async()
                 sensor_data, new_vehicle = self.sensor_data.copy(), self.vehicle_state.copy()
 
@@ -212,7 +212,7 @@ class CarlaRunner:
             if self.competition_mode:
                 if should_restart_lap:
                     self.restart_on_lap(agent=agent, use_manual_control=use_manual_control,
-                                        starting_lap_count=lap_count-1)
+                                        starting_lap_count=lap_count - 1)
             else:
                 self.on_finish()
 
@@ -220,13 +220,15 @@ class CarlaRunner:
         self.logger.info(f"Restarting on Lap {starting_lap_count}")
         self.on_finish()
         self.set_carla_world()
+        # TODO agent.restart()
+        agent.__init__()
         self.start_game_loop(agent=agent, use_manual_control=use_manual_control,
                              starting_lap_count=starting_lap_count)
 
     def on_finish(self):
         self.logger.debug("Ending Game")
-
         if self.agent is not None:
+            self.agent.shutdown_module_threads()
             self.end_vehicle_position = self.agent.vehicle.transform.location.to_array()
         else:
             self.end_vehicle_position = self.start_vehicle_position
@@ -310,5 +312,3 @@ class CarlaRunner:
 
     def check_version(self, client):
         return ("0.9.9" in client.get_server_version()) == ("0.9.9" in client.get_client_version())
-
-

@@ -41,7 +41,7 @@ class CollisionSensor(object):
         self.hud.notification("Collision with %r" % actor_type)
         impulse = event.normal_impulse
         intensity = math.sqrt(impulse.x ** 2 + impulse.y ** 2 + impulse.z ** 2)
-        if intensity > 10:
+        if intensity > 10000:
             self.history.append((event.frame, intensity))
         if len(self.history) > 4000:
             self.history.pop(0)
