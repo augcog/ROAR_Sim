@@ -278,6 +278,7 @@ class CarlaRunner:
             if self.world.player.is_alive:
                 self.vehicle_state = self.carla_bridge.convert_vehicle_from_source_to_agent(self.world.player)
         except Exception as e:
+            print("Error", e)
             self.logger.error(e)
 
     def execute_npcs_step(self):
