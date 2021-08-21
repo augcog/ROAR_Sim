@@ -39,9 +39,11 @@ class CarlaRunner:
             agent_settings: AgentConfig instance
             npc_agent_class: an agent class
             competition_mode: [Optional] True/False
-            max_collision: [Optional] int
-            start_bbox: [Optional] array of [minx, miny, minz, maxx, maxy, maxz]
+            start_bbox: [Optional] array of [minx, miny, minz, maxx, maxy, maxz].
+                        [5, -5, 0, 13, 5, 50] is the bbox for easy_map.
+                        [-815, 20, -760, -770, 120, -600] is the bbox for berkeley_minor_map
             lap_count: [Optional] total lap count
+
         """
         self.carla_settings = carla_settings
         self.agent_settings = agent_settings
@@ -209,10 +211,10 @@ class CarlaRunner:
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
         finally:
-            if self.competition_mode:
-                if should_restart_lap:
-                    self.restart_on_lap(agent=agent, use_manual_control=use_manual_control,
-                                        starting_lap_count=lap_count - 1)
+            if self.competition_mode and should_restart_lap:
+                self.restart_on_lap(agent=agent,
+                                    use_manual_control=use_manual_control,
+                                    starting_lap_count=lap_count - 1)
             else:
                 self.on_finish()
 
@@ -220,8 +222,7 @@ class CarlaRunner:
         self.logger.info(f"Restarting on Lap {starting_lap_count}")
         self.on_finish()
         self.set_carla_world()
-        # TODO agent.restart()
-        agent.__init__()
+        agent.__init__(vehicle=agent.vehicle, agent_settings=agent.agent_settings)
         self.start_game_loop(agent=agent, use_manual_control=use_manual_control,
                              starting_lap_count=starting_lap_count)
 
