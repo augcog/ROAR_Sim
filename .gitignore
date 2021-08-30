@@ -12,3 +12,4 @@ data/easy_default_waypoints.txt
 *__pycache__*
 /configurations/jetson_sudo_setup.json
 *.h5
+.DS_Store
