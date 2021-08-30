@@ -9,7 +9,7 @@ from ROAR.utilities_module.vehicle_models import Vehicle
 from typing import Tuple
 from Bridges.carla_bridge import CarlaBridge
 from ROAR_Sim.carla_client.util.hud import HUD
-from ROAR_Sim.carla_client.util.world import World
+from ROAR_Sim.carla_client.util.world_2 import World
 from ROAR_Sim.carla_client.util.keyboard_control import KeyboardControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
 from ROAR_Sim.configurations.configuration import import_carla
@@ -206,7 +206,12 @@ class CarlaRunner:
                 self.world.player.apply_control(carla_control)
 
                 self.timestep_counter += 1
-
+                if self.world.front_left_rgb_sensor_data is not None:
+                    cv2.imshow("left", self.carla_bridge.convert_rgb_from_source_to_agent(self.world.front_left_rgb_sensor_data).data)
+                    cv2.waitKey(1)
+                if self.world.front_right_rgb_sensor_data is not None:
+                    cv2.imshow("right", self.carla_bridge.convert_rgb_from_source_to_agent(self.world.front_right_rgb_sensor_data).data)
+                    cv2.waitKey(1)
             self.completed_lap_count = lap_count - 1
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
