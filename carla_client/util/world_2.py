@@ -57,8 +57,8 @@ class World(object):
         self.recording_enabled = False
         self.time_counter = 0
 
-        self.front_left_rgb_sensor = None
-        self.front_right_rgb_sensor = None
+        self.front_left_depth_sensor = None
+        self.front_right_depth_sensor = None
         self.front_rgb_sensor = None
         self.front_depth_sensor = None
         self.rear_rgb_sensor = None
@@ -89,8 +89,8 @@ class World(object):
         # set custom sensor
         self.logger.debug("Setting Custom Sensor")
         self.set_custom_sensor()
-        self.front_left_rgb_sensor_data = None
-        self.front_right_rgb_sensor_data = None
+        self.front_left_depth_sensor_data = None
+        self.front_right_depth_sensor_data = None
         self.front_rgb_sensor_data = None
         self.front_depth_sensor_data = None
         self.rear_rgb_sensor_data = None
@@ -172,8 +172,8 @@ class World(object):
     def set_custom_sensor(self):
         Attachment = carla.AttachmentType
         self._destroy_custom_sensors()
-        self.front_left_rgb_sensor = self._spawn_custom_sensor(
-            blueprint_filter="sensor.camera.rgb",
+        self.front_left_depth_sensor = self._spawn_custom_sensor(
+            blueprint_filter="sensor.camera.depth",
             transform=carla.Transform(
                 location=carla.Location(x=1.8, y=0, z=1.7),
                 rotation=carla.Rotation(pitch=0, yaw=-30, roll=0)
@@ -183,8 +183,8 @@ class World(object):
                 "fov": self.agent_settings.front_rgb_cam.fov,
             })
 
-        self.front_right_rgb_sensor = self._spawn_custom_sensor(
-            blueprint_filter="sensor.camera.rgb",
+        self.front_right_depth_sensor = self._spawn_custom_sensor(
+            blueprint_filter="sensor.camera.depth",
             transform=carla.Transform(
                 location=carla.Location(x=1.4, y=0, z=1.7),
                 rotation=carla.Rotation(pitch=0, yaw=30, roll=0)
@@ -193,7 +193,6 @@ class World(object):
             attributes={
                 "fov": self.agent_settings.front_rgb_cam.fov,
             })
-
 
         self.front_rgb_sensor = self._spawn_custom_sensor(
             blueprint_filter="sensor.camera.rgb",
@@ -234,12 +233,12 @@ class World(object):
             )
 
         weak_self = weakref.ref(self)
-        self.front_left_rgb_sensor.listen(
-            lambda image: World._parse_front_left_rgb_sensor_image(
+        self.front_left_depth_sensor.listen(
+            lambda image: World._parse_front_left_depth_sensor_image(
                 weak_self=weak_self, image=image))
 
-        self.front_right_rgb_sensor.listen(
-            lambda image: World._parse_front_right_rgb_sensor_image(
+        self.front_right_depth_sensor.listen(
+            lambda image: World._parse_front_right_depth_sensor_image(
                 weak_self=weak_self, image=image))
 
         self.front_rgb_sensor.listen(
@@ -284,27 +283,24 @@ class World(object):
 
         if self.semantic_segmentation_sensor is not None:
             self.semantic_segmentation_sensor.destroy()
-        if self.front_left_rgb_sensor is not None:
-            self.front_left_rgb_sensor.destroy()
-        if self.front_right_rgb_sensor is not None:
-            self.front_right_rgb_sensor.destroy()
-
+        if self.front_left_depth_sensor is not None:
+            self.front_left_depth_sensor.destroy()
+        if self.front_right_depth_sensor is not None:
+            self.front_right_depth_sensor.destroy()
 
     @staticmethod
-    def _parse_front_left_rgb_sensor_image(weak_self, image):
+    def _parse_front_left_depth_sensor_image(weak_self, image):
         self = weak_self()
         if not self:
             return
-        self.front_left_rgb_sensor_data = image
-
+        self.front_left_depth_sensor_data = image
 
     @staticmethod
-    def _parse_front_right_rgb_sensor_image(weak_self, image):
+    def _parse_front_right_depth_sensor_image(weak_self, image):
         self = weak_self()
         if not self:
             return
-        self.front_right_rgb_sensor_data = image
-
+        self.front_right_depth_sensor_data = image
 
     @staticmethod
     def _parse_front_rgb_sensor_image(weak_self, image):

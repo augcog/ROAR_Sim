@@ -7,7 +7,7 @@ def import_carla():
     sys.path = [p for p in sys.path if "carla" not in p]
     if "carla" in sys.modules:
         del sys.modules["carla"]
-    roar_sim_folder_path = Path(os.getcwd())/ "ROAR_Sim"
+    roar_sim_folder_path = Path(os.getcwd()) / "ROAR_Sim"
 
     if roar_sim_folder_path.exists() is False:
         roar_sim_folder_path = Path(os.getcwd()).parent / "ROAR_Sim"
@@ -21,8 +21,15 @@ def import_carla():
     if sys.platform == 'darwin':
         assert False, "MacOS is currently not supported"
 
-    carla_client_egg_file_name = f'carla-{carla_version}-py3.7-win-amd64.egg' if \
-        sys.platform == "win32" else f"carla-{carla_version}-py3.6-linux-x86_64.egg"
+    sys_version = "win-amd64" if sys.platform == "win32" else "linux-x86_64"
+
+    if carla_version == "0.9.12":
+        carla_client_egg_file_name = f"carla-{carla_version}-py3.8-{sys_version}.egg"
+    elif carla_version == "0.9.10":
+        carla_client_egg_file_name = f"carla-{carla_version}-py3.8-{sys_version}.egg"
+    else:
+        carla_client_egg_file_name = f'carla-{carla_version}-py3.7-win-amd64.egg' if \
+            sys.platform == "win32" else f"carla-{carla_version}-py3.6-linux-x86_64.egg"
     carla_client_egg_file_path = carla_client_folder_path / carla_client_egg_file_name
     if not carla_client_egg_file_path.is_file():
         raise FileNotFoundError(
@@ -31,11 +38,13 @@ def import_carla():
     sys.path.append(carla_client_egg_file_path.as_posix())
     import carla
 
+
 import_carla()
 
 from pydantic import BaseModel, Field
 from ROAR_Sim.carla_client.util.utilities import CarlaWeathers, CarlaWeather, CarlaCarColors, CarlaCarColor
 from typing import Optional
+
 
 class Configuration(BaseModel):
     # carla server setting
@@ -82,7 +91,7 @@ class Configuration(BaseModel):
                                     title="No Rendering at all, however you can enable save data to do a play back",
                                     description="https://carla.readthedocs.io/en/0.9.9/adv_rendering_options/")
     fixed_delta_seconds: Optional[float] = Field(
-        default= None,
+        default=None,
         title="Fixed timestep with which server and client tick",
         description="Note that for us, this will ONLY take effect when you are on sync mode. "
                     "https://carla.readthedocs.io/en/0.9.9/adv_synchrony_timestep/#client-server-synchrony")
@@ -91,6 +100,3 @@ class Configuration(BaseModel):
     npc_config_file_path: str = Field(default="./ROAR_Sim/configurations/npc_config.json")
     carla_version: str = Field(default="0.9.9")
     should_visualize_with_pygame: bool = Field(default=True)
-
-
-
