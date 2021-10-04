@@ -9,7 +9,7 @@ from ROAR.utilities_module.vehicle_models import Vehicle
 from typing import Tuple
 from Bridges.carla_bridge import CarlaBridge
 from ROAR_Sim.carla_client.util.hud import HUD
-from ROAR_Sim.carla_client.util.world import World
+from ROAR_Sim.carla_client.util.world_2 import World
 from ROAR_Sim.carla_client.util.keyboard_control import KeyboardControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
 from ROAR_Sim.configurations.configuration import import_carla
