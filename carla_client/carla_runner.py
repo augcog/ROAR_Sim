@@ -9,7 +9,7 @@ from ROAR.utilities_module.vehicle_models import Vehicle
 from typing import Tuple
 from Bridges.carla_bridge import CarlaBridge
 from ROAR_Sim.carla_client.util.hud import HUD
-from ROAR_Sim.carla_client.util.world_2 import World
+from ROAR_Sim.carla_client.util.world import World
 from ROAR_Sim.carla_client.util.keyboard_control import KeyboardControl
 from ROAR.configurations.configuration import Configuration as AgentConfig
 from ROAR_Sim.configurations.configuration import import_carla
@@ -74,16 +74,16 @@ class CarlaRunner:
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
 
-        self.save_dir = Path("data/custom")
-        self.left_depth_dir = Path("data/custom/left")
-        self.center_depth_dir = Path("data/custom/center")
-        self.right_depth_dir = Path("data/custom/right")
-        self.vehicle_state_dir = Path("data/custom/state")
-        self.save_dir.mkdir(exist_ok=True, parents=True)
-        self.left_depth_dir.mkdir(exist_ok=True, parents=True)
-        self.center_depth_dir.mkdir(exist_ok=True, parents=True)
-        self.right_depth_dir.mkdir(exist_ok=True, parents=True)
-        self.vehicle_state_dir.mkdir(exist_ok=True, parents=True)
+        # self.save_dir = Path("data/custom")
+        # self.left_depth_dir = Path("data/custom/left")
+        # self.center_depth_dir = Path("data/custom/center")
+        # self.right_depth_dir = Path("data/custom/right")
+        # self.vehicle_state_dir = Path("data/custom/state")
+        # self.save_dir.mkdir(exist_ok=True, parents=True)
+        # self.left_depth_dir.mkdir(exist_ok=True, parents=True)
+        # self.center_depth_dir.mkdir(exist_ok=True, parents=True)
+        # self.right_depth_dir.mkdir(exist_ok=True, parents=True)
+        # self.vehicle_state_dir.mkdir(exist_ok=True, parents=True)
 
     def set_carla_world(self) -> Vehicle:
         """
