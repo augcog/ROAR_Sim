@@ -22,6 +22,7 @@ import numpy as np
 import cv2
 from threading import Thread
 from datetime import datetime
+import time
 
 
 class CarlaRunner:
@@ -73,17 +74,6 @@ class CarlaRunner:
 
         self.logger = logging.getLogger(__name__)
         self.timestep_counter = 0
-
-        # self.save_dir = Path("data/custom")
-        # self.left_depth_dir = Path("data/custom/left")
-        # self.center_depth_dir = Path("data/custom/center")
-        # self.right_depth_dir = Path("data/custom/right")
-        # self.vehicle_state_dir = Path("data/custom/state")
-        # self.save_dir.mkdir(exist_ok=True, parents=True)
-        # self.left_depth_dir.mkdir(exist_ok=True, parents=True)
-        # self.center_depth_dir.mkdir(exist_ok=True, parents=True)
-        # self.right_depth_dir.mkdir(exist_ok=True, parents=True)
-        # self.vehicle_state_dir.mkdir(exist_ok=True, parents=True)
 
     def set_carla_world(self) -> Vehicle:
         """
@@ -153,7 +143,7 @@ class CarlaRunner:
             self.logger.debug("Initiating game")
             self.agent.start_module_threads()
             clock = pygame.time.Clock()
-            self.start_simulation_time = self.world.hud.simulation_time
+            self.start_simulation_time = time.time()
             self.start_vehicle_position = self.agent.vehicle.transform.location.to_array()
 
             while True:
@@ -176,6 +166,7 @@ class CarlaRunner:
                         has_entered_bbox = True
                         lap_count += 1
                         if lap_count > self.lap_count:
+                            # if i have reached target number of lap counts, break out of game loop
                             break
                         else:
                             self.logger.info(f"Going onto Lap {lap_count} out of {self.lap_count}")
@@ -218,38 +209,6 @@ class CarlaRunner:
                 self.world.player.apply_control(carla_control)
                 self.timestep_counter += 1
 
-                # now = datetime.now().strftime('%m_%d_%Y_%H_%M_%S_%f')
-                # if self.world.front_left_depth_sensor_data is not None and self.world.front_right_depth_sensor_data is \
-                #         not None and self.world.front_depth_sensor_data is not None:
-                #     if self.timestep_counter % 10 == 0:
-                #         left_depth = self.carla_bridge.convert_depth_from_source_to_agent(
-                #             self.world.front_left_depth_sensor_data).data
-                #         center_depth = self.carla_bridge.convert_depth_from_source_to_agent(
-                #             self.world.front_right_depth_sensor_data).data
-                #         right_depth = self.carla_bridge.convert_depth_from_source_to_agent(
-                #             self.world.front_right_depth_sensor_data).data
-                #         print("recording -> ", now)
-                #         state = self.agent.vehicle.to_array()
-                #         cv2.imshow("left", left_depth)
-                #         cv2.imshow("center", center_depth)
-                #         cv2.imshow("right", right_depth)
-                #
-                #         np.save((self.left_depth_dir /
-                #                  f"frame_{now}.npy").as_posix(),
-                #                 left_depth)
-                #         np.save((self.center_depth_dir /
-                #                  f"frame_{now}.npy").as_posix(),
-                #                 center_depth)
-                #
-                #         np.save((self.right_depth_dir /
-                #                  f"frame_{now}.npy").as_posix(),
-                #                 right_depth)
-                #         np.save((self.vehicle_state_dir /
-                #                  f"frame_{now}.npy").as_posix(),
-                #                 state)
-                #
-                #         cv2.waitKey(1)
-
             self.completed_lap_count = lap_count - 1
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
@@ -277,7 +236,7 @@ class CarlaRunner:
         else:
             self.end_vehicle_position = self.start_vehicle_position
         if self.world is not None:
-            self.end_simulation_time = self.world.hud.simulation_time
+            self.end_simulation_time = time.time()
             self.world.destroy()
             self.logger.debug("All actors are destroyed")
         try:
