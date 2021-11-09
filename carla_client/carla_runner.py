@@ -199,7 +199,7 @@ class CarlaRunner:
 
                 if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
                     Thread(target=lambda: self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
-                        "./data/output") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
+                        "./data/output_oct_10") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
                                                                                                     cc.CityScapesPalette),
                            args=()).start()
 
