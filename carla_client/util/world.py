@@ -61,6 +61,7 @@ class World(object):
         self.front_depth_sensor = None
         self.rear_rgb_sensor = None
         self.semantic_segmentation_sensor = None
+        self.lidar_sensor = None
 
         self.recording_start = 0
         # set weather
@@ -91,6 +92,7 @@ class World(object):
         self.front_depth_sensor_data = None
         self.rear_rgb_sensor_data = None
         self.semantic_segmentation_sensor_data = None
+        self.lidar_sensor_data = None
 
         # spawn npc
         self.npcs_mapping: Dict[str, Tuple[Any, AgentConfig]] = {}
@@ -195,6 +197,25 @@ class World(object):
                     "fov":
                         self.agent_settings.rear_rgb_cam.fov,
                 })
+        self.lidar_sensor = self._spawn_custom_sensor(
+            blueprint_filter="sensor.lidar.ray_cast",
+            transform=self.carla_bridge.convert_transform_from_agent_to_source(
+                self.agent_settings.front_depth_cam.transform),
+            attachment=Attachment.Rigid,
+            attributes={
+                "channels": self.agent_settings.lidar_config.channels,
+                "range": self.agent_settings.lidar_config.range,
+                "points_per_second": self.agent_settings.lidar_config.points_per_second,
+                "rotation_frequency": self.agent_settings.lidar_config.rotation_frequency,
+                "upper_fov": self.agent_settings.lidar_config.upper_fov,
+                "lower_fov": self.agent_settings.lidar_config.lower_fov,
+                "horizontal_fov": self.agent_settings.lidar_config.horizontal_fov,
+                "atmosphere_attenuation_rate": self.agent_settings.lidar_config.atmosphere_attenuation_rate,
+                "dropoff_general_rate": self.agent_settings.lidar_config.dropoff_general_rate,
+                "dropoff_intensity_limit": self.agent_settings.lidar_config.dropoff_intensity_limit,
+                "sensor_tick": self.agent_settings.lidar_config.sensor_tick,
+                "noise_stddev": self.agent_settings.lidar_config.noise_stddev,
+            })
 
         if self.carla_settings.save_semantic_segmentation:
             self.semantic_segmentation_sensor = self._spawn_custom_sensor(
@@ -216,6 +237,10 @@ class World(object):
         self.rear_rgb_sensor.listen(lambda image:
                                     World._parse_rear_rgb_sensor_image(
                                         weak_self=weak_self, image=image))
+        self.lidar_sensor.listen(lambda data:
+                                 World._parse_lidar_sensor_data(
+                                     weak_self=weak_self, data=data))
+
         if self.carla_settings.save_semantic_segmentation:
             self.semantic_segmentation_sensor.listen(lambda image: World._parse_semantic_segmentation_image(
                 weak_self=weak_self, image=image
@@ -250,6 +275,9 @@ class World(object):
         if self.semantic_segmentation_sensor is not None:
             self.semantic_segmentation_sensor.destroy()
 
+        if self.lidar_sensor is not None:
+            self.lidar_sensor.destroy()
+
     @staticmethod
     def _parse_front_rgb_sensor_image(weak_self, image):
         self = weak_self()
@@ -264,6 +292,13 @@ class World(object):
             return
         # image.convert(cc.Raw)
         self.front_depth_sensor_data = image
+
+    @staticmethod
+    def _parse_lidar_sensor_data(weak_self, data):
+        self = weak_self()
+        if not self:
+            return
+        self.lidar_sensor_data = data
 
     @staticmethod
     def _parse_rear_rgb_sensor_image(weak_self, image):

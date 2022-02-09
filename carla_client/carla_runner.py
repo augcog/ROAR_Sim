@@ -154,7 +154,6 @@ class CarlaRunner:
                 should_continue, carla_control = self.controller.parse_events(client=self.client,
                                                                               world=self.world,
                                                                               clock=clock)
-
                 self.agent_collision_counter = self.get_num_collision()
 
                 if self.competition_mode:
@@ -275,7 +274,8 @@ class CarlaRunner:
                         "front_depth":
                             None if self.world.front_depth_sensor_data is None else
                             self.world.front_depth_sensor_data,
-                        "imu": self.world.imu_sensor
+                        "imu": self.world.imu_sensor,
+                        "lidar": self.world.lidar_sensor_data
                     }
                 )
             if self.world.player.is_alive:
