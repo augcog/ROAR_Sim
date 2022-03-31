@@ -26,7 +26,7 @@ def import_carla():
     if carla_version == "0.9.12":
         carla_client_egg_file_name = f"carla-{carla_version}-py3.8-{sys_version}.egg"
     elif carla_version == "0.9.10":
-        carla_client_egg_file_name = f"carla-{carla_version}-py3.8-{sys_version}.egg"
+        carla_client_egg_file_name = f"carla-{carla_version}-py3.7-{sys_version}.egg"
     else:
         carla_client_egg_file_name = f'carla-{carla_version}-py3.7-win-amd64.egg' if \
             sys.platform == "win32" else f"carla-{carla_version}-py3.6-linux-x86_64.egg"
