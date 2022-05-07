@@ -155,8 +155,7 @@ class CarlaRunner:
                                                                               world=self.world,
                                                                               clock=clock)
                 self.agent_collision_counter = self.get_num_collision()
-
-                if self.competition_mode:
+                if self.competition_mode and self.agent.vehicle.transform.location.x != 0:
                     is_currently_in_bbox = self.is_within_start_finish_bbox(
                         curr_pos=self.agent.vehicle.transform.location.to_array())
                     if has_entered_bbox is True and is_currently_in_bbox is False:
@@ -165,6 +164,7 @@ class CarlaRunner:
                         has_entered_bbox = True
                         lap_count += 1
                         if lap_count > self.lap_count:
+                            print(f"lap count [{lap_count}] > self.lapcount [{self.lap_count}]")
                             # if i have reached target number of lap counts, break out of game loop
                             break
                         else:
