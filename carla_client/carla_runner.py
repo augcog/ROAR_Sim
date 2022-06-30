@@ -195,7 +195,11 @@ class CarlaRunner:
                 if self.carla_settings.should_visualize_with_pygame is True:
                     pygame.display.flip()
                 self.fetch_data_async()
+                
                 sensor_data, new_vehicle = self.sensor_data.copy(), self.vehicle_state.copy()
+                #self.logger.info(f"{sensor_data}")
+                
+                
                 if self.carla_settings.save_semantic_segmentation and self.world.semantic_segmentation_sensor_data:
                     Thread(target=lambda: self.world.semantic_segmentation_sensor_data.save_to_disk((Path(
                         "./data/output_oct_10") / "ss" / f"frame_{self.agent.time_counter}.png").as_posix(),
@@ -275,6 +279,7 @@ class CarlaRunner:
 
         """
         try:
+            # self.logger.debug(f"before converting: \n {self.world.gnss_sensor}")
             self.sensor_data: SensorsData = \
                 self.carla_bridge.convert_sensor_data_from_source_to_agent(
                     {
@@ -286,9 +291,11 @@ class CarlaRunner:
                             None if self.world.front_depth_sensor_data is None else
                             self.world.front_depth_sensor_data,
                         "imu": self.world.imu_sensor,
-                        "lidar": self.world.lidar_sensor_data
+                        "lidar": self.world.lidar_sensor_data, 
+                        "gnss": self.world.gnss_sensor
                     }
                 )
+            #self.logger.debug(f"after convertig {self.sensor_data}")
             if self.world.player.is_alive:
                 self.vehicle_state = self.carla_bridge.convert_vehicle_from_source_to_agent(self.world.player)
         except Exception as e:

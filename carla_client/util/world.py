@@ -230,6 +230,8 @@ class World(object):
                 "noise_stddev": self.agent_settings.lidar_config.noise_stddev,
             })
 
+        
+
         self.logger.debug("save semantic segmentation")
 
         if self.carla_settings.save_semantic_segmentation:
