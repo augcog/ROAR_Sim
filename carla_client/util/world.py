@@ -88,6 +88,7 @@ class World(object):
         # set custom sensor
         self.logger.debug("Setting Custom Sensor")
         self.set_custom_sensor()
+        self.logger.debug("psrt1 done")
         self.front_rgb_sensor_data = None
         self.front_depth_sensor_data = None
         self.rear_rgb_sensor_data = None
@@ -170,6 +171,9 @@ class World(object):
     def set_custom_sensor(self):
         Attachment = carla.AttachmentType
         self._destroy_custom_sensors()
+
+        self.logger.debug("front rgb")
+
         self.front_rgb_sensor = self._spawn_custom_sensor(
             blueprint_filter="sensor.camera.rgb",
             transform=self.carla_bridge.convert_transform_from_agent_to_source(
@@ -178,6 +182,9 @@ class World(object):
             attributes={
                 "fov": self.agent_settings.front_rgb_cam.fov,
             })
+
+        self.logger.debug("front depth")
+
         self.front_depth_sensor = self._spawn_custom_sensor(
             blueprint_filter="sensor.camera.depth",
             transform=self.carla_bridge.convert_transform_from_agent_to_source(
@@ -186,6 +193,9 @@ class World(object):
             attributes={
                 "fov": self.agent_settings.front_depth_cam.fov,
             })
+
+        self.logger.debug("rear rgb")
+        
         self.rear_rgb_sensor = \
             self._spawn_custom_sensor(
                 blueprint_filter="sensor.camera.rgb",
@@ -197,6 +207,9 @@ class World(object):
                     "fov":
                         self.agent_settings.rear_rgb_cam.fov,
                 })
+
+        self.logger.debug("lidar")
+
         self.lidar_sensor = self._spawn_custom_sensor(
             blueprint_filter="sensor.lidar.ray_cast",
             transform=self.carla_bridge.convert_transform_from_agent_to_source(
@@ -217,6 +230,8 @@ class World(object):
                 "noise_stddev": self.agent_settings.lidar_config.noise_stddev,
             })
 
+        self.logger.debug("save semantic segmentation")
+
         if self.carla_settings.save_semantic_segmentation:
             self.semantic_segmentation_sensor = self._spawn_custom_sensor(
                 blueprint_filter="sensor.camera.semantic_segmentation",
@@ -226,6 +241,8 @@ class World(object):
                 attachment=Attachment.Rigid,
                 attributes={"fov": self.agent_settings.front_depth_cam.fov},
             )
+
+        self.logger.debug("sensor set")
 
         weak_self = weakref.ref(self)
         self.front_rgb_sensor.listen(
