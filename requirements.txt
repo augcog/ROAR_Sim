@@ -8,7 +8,7 @@ opencv-python==4.4.0.42
 pandas==1.0.5
 pydantic==1.5.1
 pygame==1.9.6
-pyrealsense2==2.38.1.2225
+pyrealsense2==2.43.0.3018
 pyserial==3.4
 scipy==1.5.2
 
