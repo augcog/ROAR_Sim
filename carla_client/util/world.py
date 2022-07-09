@@ -349,6 +349,11 @@ class World(object):
 
         self.clean_spawned_all_actors()
 
+        # set server back to async mode to prevent freezing
+        settings = self.carla_world.get_settings()
+        settings.synchronous_mode = False
+        self.carla_world.apply_settings(settings)
+
     def clean_spawned_all_actors(self):
         """
         This function is to clean all actors that are not traffic light/signals
