@@ -140,7 +140,21 @@ class World(object):
     def set_sensor(self):
         self.collision_sensor = CollisionSensor(self.player, self.hud)
         self.lane_invasion_sensor = LaneInvasionSensor(self.player, self.hud)
-        self.gnss_sensor = GnssSensor(self.player)
+        gnss_config = {
+            "noise_alt_bias": self.agent_settings.gnss_config.noise_alt_bias, 
+            "noise_alt_stddev": self.agent_settings.gnss_config.noise_alt_stddev, 
+            "noise_lat_bias": self.agent_settings.gnss_config.noise_lat_bias, 
+            "noise_lat_stddev": self.agent_settings.gnss_config.noise_lat_stddev, 
+            "noise_lon_bias": self.agent_settings.gnss_config.noise_lon_bias, 
+            "noise_lon_stddev": self.agent_settings.gnss_config.noise_lon_stddev, 
+            "noise_seed": self.agent_settings.gnss_config.noise_seed,
+            "sensor_tick": self.agent_settings.gnss_config.sensor_tick 
+        }
+        gnss_transform = carla.Transform(
+            carla.Location(x = self.agent_settings.gnss_config.x, y = self.agent_settings.gnss_config.y, z = self.agent_settings.gnss_config.z), 
+            carla.Rotation(pitch = self.agent_settings.gnss_config.pitch, yaw = self.agent_settings.gnss_config.yaw, roll = self.agent_settings.gnss_config.roll)
+            )
+        self.gnss_sensor = GnssSensor(self.player, attributes=gnss_config, transform=gnss_transform)
         self.imu_sensor = IMUSensor(self.player)
 
     def toggle_radar(self):
@@ -229,8 +243,6 @@ class World(object):
                 "sensor_tick": self.agent_settings.lidar_config.sensor_tick,
                 "noise_stddev": self.agent_settings.lidar_config.noise_stddev,
             })
-
-        
 
         self.logger.debug("save semantic segmentation")
 

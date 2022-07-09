@@ -53,16 +53,23 @@ class CollisionSensor(object):
 
 
 class GnssSensor(object):
-    def __init__(self, parent_actor):
+    def __init__(self, parent_actor, attributes: dict = None, transform = carla.Transform(carla.Location(x=1.0, z=2.8))):
         self.sensor = None
         self._parent = parent_actor
         self.lat = 0.0
         self.lon = 0.0
         world = self._parent.get_world()
         bp = world.get_blueprint_library().find("sensor.other.gnss")
+        for key, val in attributes.items():
+            if bp.has_attribute(key):
+                bp.set_attribute(key, str(val))
+            else:
+                self.logger.error(f"Unable to set attribute [{key}] "
+                                  f"for blueprint 'sensor.other.gnss'")
         self.sensor = world.spawn_actor(
-            bp, carla.Transform(carla.Location(x=1.0, z=2.8)), attach_to=self._parent
+            bp, transform, attach_to=self._parent
         )
+
         # We need to pass the lambda a weak reference to self to avoid circular
         # reference.
         weak_self = weakref.ref(self)

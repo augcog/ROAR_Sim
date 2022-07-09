@@ -89,7 +89,8 @@ class CarlaRunner:
                               f"{self.carla_settings.port}")
 
             self.client = carla.Client(self.carla_settings.host,
-                                       self.carla_settings.port)
+                                       self.carla_settings.port)           
+            
             if not self.check_version(client=self.client):
                 self.logger.error(f"Version Mismatch: Client = {self.client.get_client_version()}, "
                                   f"Server = {self.client.get_server_version()}. \n"
