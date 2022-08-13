@@ -228,15 +228,15 @@ class World(object):
             )
 
         weak_self = weakref.ref(self)
-        # self.front_rgb_sensor.listen(
-        #     lambda image: World._parse_front_rgb_sensor_image(
-        #         weak_self=weak_self, image=image))
-        # self.front_depth_sensor.listen(
-        #     lambda image: World._parse_front_depth_sensor_image(
-        #         weak_self=weak_self, image=image))
-        # self.rear_rgb_sensor.listen(lambda image:
-        #                             World._parse_rear_rgb_sensor_image(
-        #                                 weak_self=weak_self, image=image))
+        self.front_rgb_sensor.listen(
+            lambda image: World._parse_front_rgb_sensor_image(
+                weak_self=weak_self, image=image))
+        self.front_depth_sensor.listen(
+            lambda image: World._parse_front_depth_sensor_image(
+                weak_self=weak_self, image=image))
+        self.rear_rgb_sensor.listen(lambda image:
+                                    World._parse_rear_rgb_sensor_image(
+                                        weak_self=weak_self, image=image))
         self.lidar_sensor.listen(lambda data:
                                  World._parse_lidar_sensor_data(
                                      weak_self=weak_self, data=data))
