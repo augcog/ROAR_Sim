@@ -131,28 +131,25 @@ class CarlaRunner:
     def start_game_loop(self,
                         agent,
                         use_manual_control=False,
-                        starting_lap_count=0):
+                        starting_lap_count = 0):
         """Start running the vehicle and stop when finished running
         the track"""
 
         self.agent = agent
         lap_count = starting_lap_count
-        has_entered_bbox = False
+        has_entered_bbox = self.is_within_start_finish_bbox(curr_pos=self.agent.vehicle.transform.location.to_array())
         should_restart_lap = False
         try:
             self.logger.debug("Initiating game")
             self.agent.start_module_threads()
             clock = pygame.time.Clock()
-            self.start_simulation_time = time.time()
 
-            # simulation start time
-            snapshot = self.world.carla_world.get_snapshot()
-            self.start_sim_time = snapshot.elapsed_seconds
+            self.start_simulation_time = self.world.carla_world.get_snapshot().elapsed_seconds
 
             self.start_vehicle_position = self.agent.vehicle.transform.location.to_array()
+            self.logger.info("initialized. going into lap 1")
 
             while True:
-
                 # make sure the program does not run above 60 frames per second
                 # this allow proper synchrony between server and client
                 clock.tick_busy_loop(60)
@@ -168,15 +165,18 @@ class CarlaRunner:
                     elif has_entered_bbox is False and is_currently_in_bbox is True:
                         has_entered_bbox = True
                         lap_count += 1
-                        if lap_count > self.lap_count:
-                            print(f"lap count [{lap_count}] > self.lapcount [{self.lap_count}]")
+                        if lap_count >= self.lap_count:
+                            print("Done!")
+                            # print(f"lap count [{lap_count}] > self.lapcount [{self.lap_count}]")
                             # if i have reached target number of lap counts, break out of game loop
                             break
                         else:
-                            self.logger.info(f"Going onto Lap {lap_count} out of {self.lap_count}")
+                            self.logger.info(f"Going onto Lap {lap_count + 1} out of {self.lap_count}")
 
                     if len(self.world.collision_sensor.history) > 0:
                         should_restart_lap = True
+                        print("crashed")
+                        break
 
                     if should_restart_lap:
                         should_continue = False
@@ -213,14 +213,14 @@ class CarlaRunner:
                 self.world.player.apply_control(carla_control)
                 self.timestep_counter += 1
 
-            self.completed_lap_count = lap_count - 1
+            self.completed_lap_count = lap_count
         except Exception as e:
             self.logger.error(f"Error happened, exiting safely. Error: {e}")
         finally:
             if self.competition_mode and should_restart_lap:
                 self.restart_on_lap(agent=agent,
                                     use_manual_control=use_manual_control,
-                                    starting_lap_count=lap_count - 1)
+                                    starting_lap_count=lap_count)
             else:
                 self.on_finish()
 
@@ -240,12 +240,7 @@ class CarlaRunner:
         else:
             self.end_vehicle_position = self.start_vehicle_position
         if self.world is not None:
-            self.end_simulation_time = time.time()
-
-            # simulation end time
-            snapshot = self.world.carla_world.get_snapshot()
-            self.end_sim_time = snapshot.elapsed_seconds
-            
+            self.end_simulation_time = self.world.carla_world.get_snapshot().elapsed_seconds
             self.world.destroy()
             self.logger.debug("All actors are destroyed")
         try:
