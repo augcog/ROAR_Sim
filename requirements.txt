@@ -10,5 +10,5 @@ pydantic==1.5.1
 pygame==1.9.6
 pyrealsense2==2.43.0.3018
 pyserial==3.4
-scipy==1.5.2
+scipy==1.10.0
 
